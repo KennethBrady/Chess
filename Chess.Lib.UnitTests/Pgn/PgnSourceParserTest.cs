@@ -14,7 +14,7 @@ namespace Chess.Lib.UnitTests.Pgn
 		public void ParseFromFile()
 		{
 			var result = PgnSourceParser.ParseFromFile(WJFileName).ToList();
-			Assert.AreEqual(1, result.Count);
+			Assert.HasCount(1, result);
 			switch (result[0])
 			{
 				case IPgnParseSuccess s:
@@ -22,7 +22,7 @@ namespace Chess.Lib.UnitTests.Pgn
 					Assert.AreEqual("Jakovenko,D", s.Import.BlackName);
 					Assert.AreEqual(GameResult.Draw, s.Import.Result);
 					Assert.AreEqual("St Petersburg RUS", s.Import.Site);
-					Assert.AreEqual(17, s.Import.Tags.Count);
+					Assert.HasCount(17, s.Import.Tags);
 					Assert.AreEqual(WJFileName, s.Import.SourceInfo.Name);
 					break;
 				case IPgnParseError e: Assert.Fail(e.ErrorType.ToString()); break;
@@ -44,7 +44,7 @@ namespace Chess.Lib.UnitTests.Pgn
 			Assert.IsTrue(result2.Succeeded);
 			var succ2 = result2 as IPgnParseSuccess;
 			Assert.IsNotNull(succ2);
-			Assert.AreEqual(succ.Import.Tags.Count, succ2.Import.Tags.Count);
+			Assert.HasCount(succ.Import.Tags.Count, succ2.Import.Tags);
 			Assert.IsTrue(succ.Import.Tags.Keys.All(k => succ2.Import.Tags.ContainsKey(k)));
 
 			// Verify that moves are identical:
@@ -57,7 +57,7 @@ namespace Chess.Lib.UnitTests.Pgn
 		public void ParseMultipleFromFile()
 		{
 			List<IPgnParseResult> results = PgnSourceParser.ParseFromFile("twic920.pgn").ToList();
-			Assert.AreEqual(2245, results.Count);
+			Assert.HasCount(2245, results);
 			for(int i=0;i<results.Count;++i)
 			{
 				var res = results[i];

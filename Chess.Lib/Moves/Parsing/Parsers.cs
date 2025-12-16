@@ -32,6 +32,9 @@ namespace Chess.Lib.Moves.Parsing
 
 	public static class Parsers
 	{
+		public static IParseableMove NonMove => NotParseable.Default;
+		public static INonParser NonParser => Parsing.NonParser.Default;
+
 		public static IMoveParser Create(string moves, MoveFormat format)
 		{
 			switch (format)
@@ -43,15 +46,12 @@ namespace Chess.Lib.Moves.Parsing
 			}
 		}
 
-		public static IParseableMove NonMove => NotParseable.Default;
-		public static INonParser NonParser => Parsing.NonParser.Default;
-
 		public static IMoveParser Create(string moves) => Create(moves, DetectFormat(moves));
 
-		public static IParsedGame TryParseGame(string moves) =>
-			TryParseGame(moves, DetectFormat(moves));
+		public static IParsedGame TryParseMoves(string moves) =>
+			TryParseMoves(moves, DetectFormat(moves));
 
-		public static IParsedGame TryParseGame(string moves, MoveFormat format)
+		public static IParsedGame TryParseMoves(string moves, MoveFormat format)
 		{
 			switch (Create(moves, format))
 			{
@@ -62,8 +62,8 @@ namespace Chess.Lib.Moves.Parsing
 			}
 		}
 
-		internal static IMoveParseResult TryParse(string move, IBoard board) => TryParse(move, DetectFormat(move), board);
-		internal static IMoveParseResult TryParse(string move, MoveFormat format, IBoard board)
+		internal static IMoveParseResult TryParseMove(string move, IBoard board) => TryParseMove(move, DetectFormat(move), board);
+		internal static IMoveParseResult TryParseMove(string move, MoveFormat format, IBoard board)
 		{
 			if (string.IsNullOrEmpty(move)) return new ParseError(string.Empty, ParseErrorType.InvalidInput);
 			switch (format)
@@ -93,7 +93,7 @@ namespace Chess.Lib.Moves.Parsing
 			return (IGame)g.Game;
 		}
 
-		internal static IMoveParseResult TryParse(IParseableMove move, IBoard board)
+		internal static IMoveParseResult TryParseMove(IParseableMove move, IBoard board)
 		{
 			IParseableMoveEx parser = NotParseable.Default;
 			switch(move)

@@ -46,6 +46,10 @@ namespace Chess.Lib.UnitTests.Hardware
 					Assert.IsTrue(IsOffBoard(n.PrevRank));
 					Assert.IsTrue(IsOffBoard(n.DiagBL));
 					Assert.IsTrue(IsOffBoard(n.DiagBR));
+					if (s.File == File.A || s.File == File.H)
+					{
+						Assert.AreEqual(4, n.All.Count());
+					}
 				}
 				else if (s.Rank == Rank.R8)
 				{

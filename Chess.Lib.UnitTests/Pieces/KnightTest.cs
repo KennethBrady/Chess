@@ -12,7 +12,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		{
 			IBoard board = new Board();
 			List<Knight> ks = board.ActivePieces.OfType<Knight>().ToList();
-			Assert.AreEqual(4, ks.Count);
+			Assert.HasCount(4, ks);
 			Assert.AreEqual(2, ks.Where(k => k.Side == Hue.Light).Count());
 			Assert.AreEqual(2, ks.Where(k => k.Square.Hue == Hue.Light).Count());
 		}

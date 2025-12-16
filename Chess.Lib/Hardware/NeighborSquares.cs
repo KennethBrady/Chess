@@ -1,5 +1,8 @@
 ﻿namespace Chess.Lib.Hardware
 {
+	/// <summary>
+	/// Provides easy access to any Square's surroundings
+	/// </summary>
 	public struct NeighborSquares
 	{
 		internal static NeighborSquares Empty = new NeighborSquares();
@@ -33,21 +36,21 @@
 		public IChessSquare DiagUR { get; private init; } = NoSquare.Default;
 		public IChessSquare DiagBL { get; private init; } = NoSquare.Default;
 		public IChessSquare DiagBR { get; private init; } = NoSquare.Default;
-
-		public IEnumerable<IChessSquare> All(bool omitNulls = true) => AllSquares().Where(s => !omitNulls || s != null);
-
-		private IEnumerable<ISquare> AllSquares()
+	
+		public IEnumerable<IChessSquare> All
 		{
-			yield return (ISquare)Center;
-			if (NextRank is not NoSquare) yield return (ISquare)NextRank;
-			if (DiagUL is not NoSquare) yield return (ISquare)DiagUL;
-			if (NextFile is not NoSquare) yield return (ISquare)NextFile;
-			if (DiagBL is not NoSquare) yield return (ISquare)DiagBL;
-			if (PrevRank is not NoSquare) yield return (ISquare)PrevRank;
-			if (NextFile is not NoSquare) yield return (ISquare)NextFile;
-			if (DiagBR is not NoSquare) yield return (ISquare)DiagBR;
-			if (PrevFile is not NoSquare) yield return (ISquare)PrevFile;
-			if (DiagUR is not NoSquare) yield return (ISquare)DiagUR;
+			get
+			{
+				yield return (ISquare)Center;
+				if (NextRank is not NoSquare) yield return (ISquare)NextRank;
+				if (DiagUL is not NoSquare) yield return (ISquare)DiagUL;
+				if (NextFile is not NoSquare) yield return (ISquare)NextFile;
+				if (DiagBL is not NoSquare) yield return (ISquare)DiagBL;
+				if (PrevRank is not NoSquare) yield return (ISquare)PrevRank;
+				if (DiagBR is not NoSquare) yield return (ISquare)DiagBR;
+				if (PrevFile is not NoSquare) yield return (ISquare)PrevFile;
+				if (DiagUR is not NoSquare) yield return (ISquare)DiagUR;
+			}
 		}
 	}
 }

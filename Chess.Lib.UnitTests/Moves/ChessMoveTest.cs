@@ -15,7 +15,7 @@ namespace Chess.Lib.UnitTests.Moves
 			switch (ems.Parse())
 			{
 				case IParsedGameSuccess s:
-					Assert.AreEqual(4, s.Moves.Count);
+					Assert.HasCount(4, s.Moves);
 					foreach (var move in s.Moves)
 					{
 						Assert.AreEqual(prevNum, move.SerialNumber);
@@ -33,7 +33,7 @@ namespace Chess.Lib.UnitTests.Moves
 			int nPrev = -1;
 			foreach (var request in requests)
 			{
-				Assert.IsTrue(request.SerialNumber > nPrev);
+				Assert.IsGreaterThan(nPrev, request.SerialNumber);
 				nPrev++;
 			}
 			IInteractiveChessGame g = new InteractiveGame();

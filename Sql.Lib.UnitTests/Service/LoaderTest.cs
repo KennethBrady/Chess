@@ -4,12 +4,15 @@ using Chess.Lib.Pgn.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;
 using Sql.Lib.Services;
+using Sql.Lib.UnitTests.TestDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Sql.Lib.UnitTests.Service
 {
+	[DeploymentItem("TestDb\\TestDb.sql")]
 	[TestClass]
 	public class LoaderTest
 	{
@@ -33,7 +36,7 @@ namespace Sql.Lib.UnitTests.Service
 			Assert.AreEqual(GameResult.Draw, game.Result);
 			Assert.AreEqual(2108, game.OpeningId);
 			var games = _service.LoadWhere<PgnGame>("id < 100").ToList();
-			Assert.AreEqual(99, games.Count);
+			Assert.HasCount(99, games);
 		}
 
 		[TestMethod]
@@ -41,7 +44,7 @@ namespace Sql.Lib.UnitTests.Service
 		{
 			var morePlayers = _service.LoadWhere<PgnPlayer>("id <= 500");
 			var players = _service.LoadWhere<PgnPlayer>("id between 1 and 10").ToList();
-			Assert.AreEqual(morePlayers.Where(p => p.Id >= 1 && p.Id <=10).Count(), players.Count);
+			Assert.HasCount(morePlayers.Where(p => p.Id >= 1 && p.Id <=10).Count(), players);
 		}
 
 		[TestMethod]
@@ -49,7 +52,7 @@ namespace Sql.Lib.UnitTests.Service
 		{
 			long n = (long)_service.ExecuteScalar($"select count(*) from {Opening.TableName}");
 			List<Opening> openings = _service.LoadAll<Opening>().ToList();
-			Assert.AreEqual((int)n, openings.Count);
+			Assert.HasCount((int)n, openings);
 		}
 
 
@@ -61,10 +64,7 @@ namespace Sql.Lib.UnitTests.Service
 				var nos = _service.LoadAll<NoDBAttr>();
 				Assert.Fail("Expected MissingAttributeException");
 			}
-			catch (MissingAttributeException)
-			{
-
-			}
+			catch (MissingAttributeException) { }
 		}
 
 		[TestMethod]
@@ -132,11 +132,29 @@ namespace Sql.Lib.UnitTests.Service
 				Assert.AreEqual($"Type {nameof(PgnGame3)} is missing the required DBTableAttribute.", ex.Message);
 			}
 		}
+
+		[TestMethod]
+		public async Task MissingFilePathFields()
+		{
+			var svc = await TestDBService.ReCreateAsync();
+			FInfoNoFPF f = new FInfoNoFPF(0, "c:\\temp\\info.txt", DateTime.Now, null, true);
+			FInfoNoFPF f2 = svc.InsertOne(f);
+			Assert.IsNotNull(f2);
+			Assert.AreNotEqual(f.FilePath, f2.FilePath);
+
+			FInfo fi = new FInfo(0, f.FilePath, f.FileDate, f.RemoveDate, f.Maybe);
+			FInfo fi2 = svc.InsertOne(fi);
+			Assert.IsNotNull(fi2);
+			Assert.AreEqual(fi.FilePath, fi2.FilePath);
+		}
 	}
 
 
 	public class NoDBAttr { }
 
-	[DBTable("notable")]
+	[DBTable("nonexistent_table")]
 	public class NoTable { }
+
+	[DBTable("fileinfo")]
+	public record FInfoNoFPF(int Id, string FilePath, DateTime FileDate, DateTime? RemoveDate, bool Maybe);
 }

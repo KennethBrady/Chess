@@ -32,7 +32,7 @@ namespace Chess.Lib.UnitTests.Moves
 			{
 				case IParsedGameFail f: Assert.Fail($"Failed after {f.Moves.Count}: {f.Error.Error}"); break;
 				case IParsedGameSuccess s:
-					Assert.AreEqual(7, s.Moves.Count);
+					Assert.HasCount(7, s.Moves);
 					break;
 			}
 		}

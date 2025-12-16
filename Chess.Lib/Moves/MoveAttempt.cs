@@ -44,7 +44,7 @@ namespace Chess.Lib.Moves
 			if (!player.Game.Moves.IsAtEnd) return new MoveAttemptFail(false, MoveFailureReasons.GameIsNotAtEnd);
 			if (player.Game.IsReadOnly) return new MoveAttemptFail(false, MoveFailureReasons.GameIsReadOnly);
 			if (!player.HasNextMove) return new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
-			switch (Parsers.TryParse(move, format, player.Board))
+			switch (Parsers.TryParseMove(move, format, player.Board))
 			{
 				case IMoveParseSuccess s:
 					ChessMove m = new ChessMove(s);

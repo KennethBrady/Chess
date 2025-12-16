@@ -2,6 +2,9 @@
 
 namespace CommonTools.Lib.IO
 {
+	/// <summary>
+	/// A disposable file for holding temporary data
+	/// </summary>
 	public class TempFile : IDisposable
 	{
 		private bool _isDisposed;
@@ -27,8 +30,6 @@ namespace CommonTools.Lib.IO
 			File.Copy(sourcePath, r.FilePath, true);
 			return r;
 		}
-
-		public static bool IsTempPath(string fpth) => Path.GetDirectoryName(fpth) == Path.GetTempPath();
 
 		public static TempFile InFolderWithExtension(string? folder, string ext)
 		{
@@ -63,7 +64,7 @@ namespace CommonTools.Lib.IO
 			FilePath = Path.Combine(folder, name);
 		}
 
-		public string Name { get; private set; }
+		public string Name { get; private init; }
 		public string Folder
 		{
 			get
@@ -80,21 +81,19 @@ namespace CommonTools.Lib.IO
 		public string Extension => Path.GetExtension(FilePath);
 		public byte[] ToBytes => Exists ? File.ReadAllBytes(FilePath) : Array.Empty<byte>();
 
-		public FileStream OpenWrite() => File.OpenWrite(FilePath);
+		public Stream OpenWrite() => File.OpenWrite(FilePath);
 
-		public FileStream OpenRead() => File.OpenRead(FilePath);
+		public Stream OpenRead() => Exists ? File.OpenRead(FilePath) : Stream.Null;
 
 		public bool Exists => File.Exists(FilePath);
 
-		public void CreateEmptyIfNotExists()
+		public bool EnsureExists()
 		{
 			if (!Exists) File.WriteAllText(FilePath, string.Empty);
+			return Exists;
 		}
 
-		public void SaveTo(string fpath, bool overWrite = false)
-		{
-			File.Copy(FilePath, fpath, overWrite);
-		}
+		public void SaveTo(string fpath, bool overWrite = false) => File.Copy(FilePath, fpath, overWrite);
 
 		public void Dispose()
 		{
@@ -105,7 +104,10 @@ namespace CommonTools.Lib.IO
 				{
 					File.Delete(FilePath);
 				}
-				catch { }
+				catch(Exception ex)
+				{ 
+					System.Diagnostics.Debug.WriteLine(ex);
+				}
 			}
 			_isDisposed = true;
 		}

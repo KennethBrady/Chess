@@ -12,7 +12,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		{
 			IBoard board = new Board();
 			List<IRook> rooks = board.ActivePieces.OfType<IRook>().ToList();
-			Assert.AreEqual(4, rooks.Count);
+			Assert.HasCount(4, rooks);
 			Assert.AreEqual(2, rooks.Where(r => r.Side == Hue.Light).Count());
 			Assert.AreEqual(2, rooks.Where(r => r.Side == Hue.Dark).Count());
 			foreach(IRook r in rooks)
@@ -20,11 +20,11 @@ namespace Chess.Lib.UnitTests.Pieces
 				switch(r.Side)
 				{
 					case Hue.Light:
-						Assert.AreEqual(r.Square.Rank, Rank.R1);
+						Assert.AreEqual(Rank.R1, r.Square.Rank);
 						Assert.IsTrue(r.Square.File == File.A || r.Square.File == File.H);
 						break;
 					case Hue.Dark:
-						Assert.AreEqual(r.Square.Rank, Rank.R8);
+						Assert.AreEqual(Rank.R8, r.Square.Rank);
 						Assert.IsTrue(r.Square.File == File.A || r.Square.File == File.H);
 						break;
 				}

@@ -27,13 +27,13 @@ namespace Sql.Lib.UnitTests.Service
 		public void NewDb()
 		{
 			var values = _service.LoadAll<FInfo>();
-			Assert.AreEqual(0, values.Count);
+			Assert.HasCount(0, values);
 			FInfo info = new FInfo(0, Environment.CurrentDirectory, DateTime.Now, null, false);
 			FInfo nuInfo = _service.InsertOne<FInfo>(info);
 			Assert.IsNotNull(nuInfo);
 			Assert.AreEqual(1, nuInfo.Id);
 			double diff = Math.Abs((info.FileDate - nuInfo.FileDate).TotalSeconds);
-			Assert.IsTrue(diff < 1e-6);
+			Assert.IsLessThan(1e-6, diff);
 			FInfo cpy = info with { Id = nuInfo.Id, FileDate = nuInfo.FileDate };
 			Assert.AreEqual(nuInfo, cpy);
 			Assert.IsFalse(nuInfo.RemoveDate.HasValue);
@@ -43,12 +43,12 @@ namespace Sql.Lib.UnitTests.Service
 		public void MultiInsert()
 		{
 			List<FInfo> finfos = new List<FInfo>();
-			foreach(FileInfo f in CurrentDir.EnumerateFiles("*.*", SearchOption.TopDirectoryOnly))
+			foreach(FileInfo f in CurrentDir.Parent.Parent.Parent.EnumerateFiles("*.*", SearchOption.AllDirectories))
 			{
 				finfos.Add(new FInfo(0, f.FullName, f.CreationTime, null, true));
 			}
 			List<FInfo> infos2 = _service.Insert(finfos);
-			Assert.AreEqual(finfos.Count, infos2.Count);
+			Assert.HasCount(finfos.Count, finfos);
 			Assert.IsTrue(infos2.All(f => f.Id > 0));
 			Assert.IsTrue(infos2.All(f => File.Exists(f.FilePath)));
 		}
@@ -61,7 +61,7 @@ namespace Sql.Lib.UnitTests.Service
 			FInfo nunu = nuInfo with { RemoveDate = DateTime.Now };
 			Assert.IsTrue(_service.UpdateOne(nunu));
 			var all = _service.LoadAll<FInfo>();
-			Assert.AreEqual(1, all.Count);
+			Assert.HasCount(1, all);
 			Assert.IsTrue(all[0].RemoveDate.HasValue);
 			//Assert.AreEqual(nunu, all[0]);	// Date comparisons fail
 		}
@@ -75,7 +75,7 @@ namespace Sql.Lib.UnitTests.Service
 			IEnumerable<FInfo> toUpdate = all.Select(f => f with { Maybe = false, RemoveDate = then });
 			Assert.AreEqual(all.Count, _service.Update(toUpdate));
 			List<FInfo> all2 = _service.LoadAll<FInfo>().ToList();
-			Assert.AreEqual(all.Count, all2.Count);
+			Assert.HasCount(all.Count, all);
 			Assert.IsTrue(all2.All(f => !f.Maybe));
 			Assert.IsTrue(all2.All(f => f.RemoveDate.HasValue));
 			Console.WriteLine(all2.Max(f => (f.RemoveDate.Value - then).TotalSeconds));
@@ -125,7 +125,7 @@ namespace Sql.Lib.UnitTests.Service
 			all.Shuffle();
 			Assert.AreEqual(10, _service.Delete(all.Skip(10).Take(10)));
 			var all2 = _service.LoadAll<FInfo>();
-			Assert.AreEqual(all.Count - 10, all2.Count);
+			Assert.HasCount(all.Count - 10, all2);
 		}
 
 		[TestMethod]

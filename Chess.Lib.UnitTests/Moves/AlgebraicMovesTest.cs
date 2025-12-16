@@ -39,10 +39,10 @@ namespace Chess.Lib.UnitTests.Moves
 			Assert.AreEqual("1. e4", m);
 			var g = GameDB.Get(638775);
 			AlgebraicMoves ams = AlgebraicMoves.Create(g);
-			Assert.IsTrue(ams.Comments.Count > 0, "Game has comments");
+			Assert.IsNotEmpty(ams.Comments, "Game has comments");
 			m = AlgebraicMoves.Normalized(g.Moves);
 			ams = AlgebraicMoves.Create(m);
-			Assert.AreEqual(0, ams.Comments.Count, "comments removed");
+			Assert.IsEmpty(ams.Comments, "comments removed");
 			Assert.IsTrue(_rxMoveNumbers.IsMatch(m));
 
 		}
@@ -78,7 +78,7 @@ namespace Chess.Lib.UnitTests.Moves
 				case IParsedGameFail f: Assert.Fail($"{f.Error}"); break;
 				case IParsedGameSuccess s:
 					Assert.AreEqual(GameResult.WhiteWin, s.Result);
-					Assert.AreEqual(moves.MoveCount - 1, s.Moves.Count);
+					Assert.HasCount(moves.MoveCount - 1, s.Moves);
 					break;
 			}
 		}
@@ -93,7 +93,7 @@ namespace Chess.Lib.UnitTests.Moves
 			{
 				case IParsedGameFail f: Assert.Fail($"{f.Error}"); break;
 				case IParsedGameSuccess s:
-					Assert.AreEqual(moves.MoveCount - 1, s.Moves.Count);
+					Assert.HasCount(moves.MoveCount - 1, s.Moves);
 					Assert.AreEqual(GameResult.Draw, s.Result);
 					break;
 			}
@@ -107,7 +107,7 @@ namespace Chess.Lib.UnitTests.Moves
 			{
 				case IParsedGameFail f: Assert.Fail($"Parsing Failed after {f.Moves.Count} moves: {f.Error.Error}"); break;
 				case IParsedGameSuccess s:
-					Assert.AreEqual(13, s.Moves.Count);
+					Assert.HasCount(13, s.Moves);
 					IChessSquare f4 = s.FinalBoard[File.F, Rank.R4], e3 = s.FinalBoard[File.E, Rank.R3];
 					Assert.IsTrue(f4.HasPiece);
 					switch (f4.Piece)
@@ -132,10 +132,7 @@ namespace Chess.Lib.UnitTests.Moves
 			switch (am.Parse(true))
 			{
 				case IParsedGameSuccess s: Console.WriteLine(s.Moves.Count); break;
-				case IParsedGameFail f:
-					Console.WriteLine(f.Moves.Count);
-					Assert.Fail(f.Error.Error.ToString());
-					break;
+				case IParsedGameFail f: Assert.Fail(f.Error.Error.ToString()); break;
 			}
 		}
 
@@ -147,7 +144,7 @@ namespace Chess.Lib.UnitTests.Moves
 			switch (moves.Parse(true))
 			{
 				case IParsedGameSuccess: break;
-				case IParsedGameFail f: Assert.Fail(f.Error.ToString()); break;
+				case IParsedGameFail f: Assert.Fail(f.Error.ToString()!); break;
 			}
 		}
 
@@ -157,12 +154,12 @@ namespace Chess.Lib.UnitTests.Moves
 			var g = GameDB.Get(2092644);
 			Assert.IsNotNull(g);
 			AlgebraicMoves moves = AlgebraicMoves.Create(g.Moves);
-			Assert.AreEqual(1, moves.Comments.Count);
+			Assert.HasCount(1, moves.Comments);
 			Assert.AreEqual("Default", moves.Comments[0].Comment);
 			g = GameDB.Get(1945610);
 			Assert.IsNotNull(g);
 			moves = AlgebraicMoves.Create(g.Moves);
-			Assert.AreEqual(1, moves.Comments.Count);
+			Assert.HasCount(1, moves.Comments);
 			Assert.AreEqual("Missing Armageddon - Dubov wins as he was black", moves.Comments[0].Comment);
 		}
 
@@ -171,7 +168,7 @@ namespace Chess.Lib.UnitTests.Moves
 		{
 			var g = GameDB.Get(997576);
 			AlgebraicMoves moves = AlgebraicMoves.Create(g.Moves);
-			Assert.AreEqual(16, moves.Comments.Count);
+			Assert.HasCount(16, moves.Comments);
 			Assert.IsTrue(moves.Comments.All(c => string.Equals("book", c.Comment)));
 		}
 
@@ -181,7 +178,7 @@ namespace Chess.Lib.UnitTests.Moves
 			var g = GameDB.Get(4407141);
 			Assert.IsNotNull(g);
 			AlgebraicMoves moves = AlgebraicMoves.Create(g.Moves);
-			Assert.AreEqual(1, moves.Comments.Count);
+			Assert.HasCount(1, moves.Comments);
 			Assert.AreEqual("Result given as 0-0", moves.Comments[0].Comment);
 			switch (moves.Parse())
 			{
@@ -200,7 +197,7 @@ namespace Chess.Lib.UnitTests.Moves
 			{
 				case IParsedGameFail f:
 					Assert.AreEqual(ParseErrorType.MovedPieceUndefined, f.Error.Error);
-					Assert.AreEqual(6, f.Moves.Count);
+					Assert.HasCount(6, f.Moves);
 					break;
 				default: Assert.Fail("Expected parse error"); break;
 			}
@@ -296,7 +293,6 @@ namespace Chess.Lib.UnitTests.Moves
 				try
 				{
 					AlgebraicMoves ams = AlgebraicMoves.Create(g.Moves);
-					Assert.IsNotNull(ams);
 				}
 				catch (Exception e)
 				{
@@ -310,11 +306,11 @@ namespace Chess.Lib.UnitTests.Moves
 		{
 			var g = GameDB.Get(997540);
 			AlgebraicMoves moves = AlgebraicMoves.Create(g.Moves);
-			Assert.AreEqual(23, moves.Comments.Count);
+			Assert.HasCount(23, moves.Comments);
 			switch (moves.Parse(true))
 			{
 				case IParsedGameSuccess s:
-					Assert.AreEqual(89, s.Game.Moves.Count);
+					Assert.HasCount(89, s.Game.Moves);
 					break;
 				case IParsedGameFail f:
 					Assert.Fail(f.Error.Error.ToString());
@@ -327,7 +323,7 @@ namespace Chess.Lib.UnitTests.Moves
 		{
 			switch (AlgebraicMoves.Parse("0-1"))
 			{
-				case IParsedGameSuccess s: Assert.AreEqual(0, s.Game.Moves.Count); break;
+				case IParsedGameSuccess s: Assert.HasCount(0, s.Game.Moves); break;
 				case IParsedGameFail f: Assert.Fail(f.Error.Error.ToString()); break;
 			}
 		}
@@ -343,7 +339,7 @@ namespace Chess.Lib.UnitTests.Moves
 				switch(ams.Parse())
 				{
 					case IParsedGameSuccess s: 
-						Assert.AreEqual(122, s.Game.Moves.Count);
+						Assert.HasCount(122, s.Game.Moves);
 						Assert.AreEqual("d1=Q+", s.Game.Moves.Last().AlgebraicMove);
 						Console.WriteLine(s.Game.Moves.Last().AlgebraicMove);
 						break;

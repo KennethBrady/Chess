@@ -2,7 +2,6 @@
 
 namespace Chess.Lib.UnitTests.Moves
 {
-	[DeploymentItem("")]
 	[TestClass]
 	public class ChessMovesTest
 	{
@@ -11,14 +10,14 @@ namespace Chess.Lib.UnitTests.Moves
 		{
 			var game = GameDB.Get(4044);
 			KnownGame g = new KnownGame(game.Moves);
-			Assert.AreEqual(83, g.Moves.Count);
+			Assert.HasCount(83, g.Moves);
 			string emoves = g.Moves.ToEngineMoves();
 			string[] moves = emoves.Split(' ');
-			Assert.AreEqual(g.Moves.Count, moves.Length);
+			Assert.HasCount(g.Moves.Count, moves);
 			g.Moves.MoveTo(21);
 			emoves = g.Moves.ToEngineMoves();
 			moves = emoves.Split(' ');
-			Assert.AreEqual(22, moves.Length);
+			Assert.HasCount(22, moves);
 		}
 	}
 }

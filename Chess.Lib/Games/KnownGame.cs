@@ -21,7 +21,7 @@ namespace Chess.Lib.Games
 			return new KnownGame(b);
 		}
 
-		public KnownGame(string moves): this(Parsers.TryParseGame(moves)) { }
+		public KnownGame(string moves): this(Parsers.TryParseMoves(moves)) { }
 
 		public KnownGame(IParsedGame game, string whiteName = "", string blackName = ""): base((ChessGame)game.Game, whiteName, blackName)
 		{
@@ -34,7 +34,7 @@ namespace Chess.Lib.Games
 		}
 
 		internal KnownGame(string moves, string whiteName, string blackName, string fen = ""): 
-			this(Parsers.TryParseGame(moves), whiteName, blackName) { }
+			this(Parsers.TryParseMoves(moves), whiteName, blackName) { }
 
 		internal KnownGame(AlgebraicMoves moves) : this(moves.Parse()) { }
 

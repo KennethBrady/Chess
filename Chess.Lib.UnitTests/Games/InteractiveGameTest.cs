@@ -14,18 +14,18 @@ namespace Chess.Lib.UnitTests.Games
 		public void Defaults()
 		{
 			IInteractiveChessGame g = new InteractiveGame();
-			Assert.AreEqual(0, g.Moves.Count);
+			Assert.HasCount(0, g.Moves);
 			Assert.IsNotNull(g.White);
 			Assert.IsNotNull(g.Black);
 			Assert.IsNotNull(g.Board);
-			Assert.AreEqual(32, g.Board.ActivePieces.Count);
+			Assert.HasCount(32, g.Board.ActivePieces);
 			Assert.IsNotNull(g.LastMoveMade);
 			Assert.AreEqual(NoMove.Default, g.LastMoveMade);
 			Assert.IsFalse(g.White.IsReadOnly);
 			Assert.IsFalse(g.Black.IsReadOnly);
 			Assert.IsTrue(g.White.HasNextMove);
 			Assert.IsFalse(g.Black.HasNextMove);
-			Assert.AreEqual(0, g.Moves.Count);
+			Assert.HasCount(0, g.Moves);
 			Assert.AreEqual(-1, g.Moves.CurrentPosition);
 		}
 
@@ -54,7 +54,7 @@ namespace Chess.Lib.UnitTests.Games
 					{
 						Assert.IsFalse(fromsq.HasPiece);
 						Assert.IsTrue(tosq.HasPiece);
-						Assert.AreEqual(0, g.Moves.CurrentPosition);
+						Assert.HasCount(1, g.Moves);
 						Assert.IsNotNull(lastMove);
 						Assert.AreSame(lastMove, s.CompletedMove);
 						switch(tosq.Piece)

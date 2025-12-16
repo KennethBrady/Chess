@@ -14,7 +14,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		{
 			IBoard board = new Board();
 			List<IBishop> bishops = board.ActivePieces.OfType<IBishop>().ToList();
-			Assert.AreEqual(4, bishops.Count);
+			Assert.HasCount(4, bishops);
 			Assert.AreEqual(2, bishops.Where(b => b.Side == Hue.Dark).Count());
 			Assert.AreEqual(2, bishops.Where(b => b.Side == Hue.Dark).Count());
 		}
@@ -40,7 +40,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBishop? bp = b.ActivePieces.First() as IBishop;
 			Assert.IsNotNull(bp);
 			List<IChessSquare> allowed = b.Where(s => bp.CanMoveTo((ISquare)s)).ToList();
-			Assert.AreEqual(7, allowed.Count);
+			Assert.HasCount(7, allowed);
 			Assert.IsTrue(allowed.All(s => s.Hue == bp.Square.Hue));
 			Assert.AreEqual("b2, d2, a3, e3, f4, g5, h6", string.Join(", ", allowed));
 
@@ -70,17 +70,5 @@ namespace Chess.Lib.UnitTests.Pieces
 			Assert.IsFalse(d7.HasPiece);
 			Assert.IsFalse(bishop.CanMoveTo(d7));
 		}
-
-		//[TestMethod]
-		//public async Task CanMove197()
-		//{
-		//	// from after move 8 of game 197:
-		//	using Game game = await Game.FromFEN("r1b1k1nr/pp3ppp/1qn1p3/3pP3/1b1P4/5N2/PP1B1PPP/R2QKBNR w KQkq - 5 9");
-		//	Assert.AreSame(game.White, game.NextPlayer);
-		//	Bishop b = game.Board[File.D, Rank.R2].Piece as Bishop;
-		//	Assert.IsNotNull(b);
-		//	Square to = game.Board[File.C, Rank.R3];
-		//	Assert.IsTrue(b.CanMoveTo(to));
-		//}
 	}
 }

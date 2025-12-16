@@ -42,7 +42,7 @@ namespace Chess.Lib.UnitTests.Hardware
 		public void EmptyBoard()
 		{
 			IBoard board = new Board(false);
-			Assert.AreEqual(0, board.ActivePieces.Count);
+			Assert.IsEmpty(board.ActivePieces);
 		}
 
 		[TestMethod]
@@ -108,7 +108,7 @@ namespace Chess.Lib.UnitTests.Hardware
 		public void FromFEN()
 		{
 			IBoard b = new Board("qrbknbrn/pppppppp/8/8/8/8/PPPPPPPP/QRBKNBRN w GBgb - 0 1");
-			Assert.AreEqual(32, b.ActivePieces.Count);
+			Assert.HasCount(32, b.ActivePieces);
 			Assert.IsTrue(b[File.A, Rank.R8].Piece is IQueen);
 			Assert.IsTrue(b[File.A, Rank.R1].Piece is IQueen);
 		}

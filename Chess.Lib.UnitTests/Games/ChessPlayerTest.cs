@@ -72,7 +72,7 @@ namespace Chess.Lib.UnitTests.Games
 		{
 			IInteractiveChessGame g = new InteractiveGame();
 			List<MoveRequest> requests = MoveRequest.ParseMoves("d2d4 c7c5 d4d5 g8f6 c2c4 b7b5 c4b5 a7a6 b5a6 e7e6 b1c3 e6d5 c3d5 f8e7 d5e7 d8e7 c1f4 d7d5 e2e3 e8g8 g1f3 h7h6 a2a3 b8a6 f1b5 e7b7 a3a4 c8d7 b5d7 b7d7 e1g1 f8e8 d1d3 c5c4 d3a3 f6e4 b2b4 c4b3 a3b3 a6c5 b3b5 e8e7 f3e5 d7e6 f2f3 e7b7 b5c6 e6c6 e5c6 e4c3 f4e5 c3a4 f1b1 b7b1").ToList();
-			Assert.AreEqual(54, requests.Count);
+			Assert.HasCount(54, requests);
 			Assert.AreSame(g.White, g.NextPlayer);
 			int lastNumber = -1;
 			IChessPlayer prevPlayer = g.NextPlayer;
@@ -108,15 +108,15 @@ namespace Chess.Lib.UnitTests.Games
 			{
 				case MoveAttemptFail f: Assert.Fail(f.Reason.ToString()); break;
 				case MoveAttemptSuccess s:
-					Assert.AreEqual(1, g.Moves.Count);
-					Assert.AreEqual(1, g.White.CompletedMoves.Count);
+					Assert.HasCount(1, g.Moves);
+					Assert.HasCount(1, g.White.CompletedMoves);
 					Assert.AreSame(s.CompletedMove, g.White.LastMoveMade);
 					break;
 			}
 			Assert.IsTrue(g.White.CanUndo);
 			Assert.AreNotEqual(fen, g.Board.AsFEN());
 			Assert.IsTrue(g.White.UndoLastMove());
-			Assert.AreEqual(0, g.Moves.Count);
+			Assert.HasCount(0, g.Moves);
 			Assert.AreEqual(fen, g.Board.AsFEN());
 			Assert.IsTrue(g.White.LastMoveMade is NoMove);
 		}
@@ -147,9 +147,9 @@ namespace Chess.Lib.UnitTests.Games
 		public void SourceMoveSet()
 		{
 			IInteractiveChessGame g = GameFactory.CreateInteractive();
-			Assert.AreEqual(0, g.Moves.Count);
+			Assert.HasCount(0, g.Moves);
 			g.White.AttemptMove("e2e4", MoveFormat.Engine);
-			Assert.AreEqual(1, g.Moves.Count);
+			Assert.HasCount(1, g.Moves);
 			Assert.IsNotNull(g.Moves[0].SourceMove);
 			Assert.AreEqual("e2e4", g.Moves[0].SourceMove.Move);
 		}

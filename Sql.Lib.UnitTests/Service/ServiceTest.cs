@@ -1,5 +1,4 @@
-﻿using Common.Lib.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sql.Lib.Services;
 using Sql.Lib.UnitTests.TestDB;
 using System;

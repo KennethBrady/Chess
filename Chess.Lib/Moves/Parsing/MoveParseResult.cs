@@ -19,8 +19,8 @@ namespace Chess.Lib.Moves.Parsing
 		PieceType Promotion { get; }
 		bool IsMate { get; }
 		bool IsCheck { get; }
-		bool IsKingsideCastle { get; }
-		bool IsQueensideCastle { get; }
+
+		CastleMoveType Castle { get; }
 		string AsMove { get; }
 	}
 
@@ -40,27 +40,11 @@ namespace Chess.Lib.Moves.Parsing
 	}
 
 	internal record struct ParseSuccess(IParseableMove Move, IChessPiece MovedPiece, IChessSquare FromSquare, IChessSquare ToSquare,
-			IChessPiece CapturedPiece, IChessMove PreviousMove, bool IsKingsideCastle, bool IsQueensideCastle, PieceType Promotion, bool IsCheck, bool IsMate)
+			IChessPiece CapturedPiece, IChessMove PreviousMove, CastleMoveType Castle, PieceType Promotion, bool IsCheck, bool IsMate)
 			: IMoveParseSuccess, IChessMoveCore
 	{
-		internal ParseSuccess(IParseableMove move, IChessPiece movedPiece, IChessSquare fromSquare, IChessSquare toSquare,
-			IChessPiece capturedPiece, IChessMove previousMove, CastleMoveType castleType, PieceType promotion, bool isCheck, bool isMate) :
-			this(move, movedPiece, fromSquare, toSquare, capturedPiece, previousMove, castleType == CastleMoveType.Kingside, castleType == CastleMoveType.Queenside,
-				promotion, isCheck, isMate)
-		{ }
-
 		internal ParseSuccess(string sMove, IPiece movedPiece, ISquare toSquare) : this(new AlgebraicMove(sMove, -1, -1), movedPiece, movedPiece.Square,
-				toSquare, toSquare.Piece, NoMove.Default, false, false, PieceType.None, false, false)
-		{
-			if (movedPiece is IKing king)
-			{
-				switch (king.CastleTypeOf(toSquare))
-				{ 
-					case CastleMoveType.Kingside: IsKingsideCastle = true; break;
-					case CastleMoveType.Queenside: IsQueensideCastle = true; break;
-				}
-			}
-		}
+				toSquare, toSquare.Piece, NoMove.Default, CastleMoveType.None, PieceType.None, false, false) { }
 		public string AsMove => $"{FromSquare}->{ToSquare}";
 		public override string ToString() => $"{MovedPiece}: {FromSquare.Name} {ToSquare.Name}";
 	}

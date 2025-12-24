@@ -30,9 +30,12 @@ namespace Chess.Lib.Moves
 		IPromotion Promotion { get; }
 		bool IsMate { get; }
 		bool IsEnPassant { get; }
-		CastleMoveType Castling { get; }
-		bool IsKingsideCastle => Castling == CastleMoveType.Kingside;
-		bool IsQueensideCastle => Castling == CastleMoveType.Queenside;
+
+		IEnumerable<IChessSquare> AffectedSquares();
+
+		ICastle Castle { get; }
+		bool IsKingsideCastle => Castle.Type == CastleMoveType.Kingside;
+		bool IsQueensideCastle => Castle.Type == CastleMoveType.Queenside;
 		bool IsCastle => IsKingsideCastle || IsQueensideCastle;
 		int RankChange => ToSquare.Rank - FromSquare.Rank;
 		int FileChange => ToSquare.File - FromSquare.File;
@@ -58,5 +61,7 @@ namespace Chess.Lib.Moves
 		IBoard Board => (IBoard)MovedPiece.Board;
 		IGameState GameState { get; set; }
 		IBoardState BoardState => GameState.BoardState;
+
+		new ICastle Castle { get; set; }
 	}
 }

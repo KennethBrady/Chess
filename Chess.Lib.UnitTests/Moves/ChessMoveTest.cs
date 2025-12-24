@@ -1,6 +1,8 @@
 ﻿using Chess.Lib.Games;
+using Chess.Lib.Hardware;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
+using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.UnitTests.Moves
 {
@@ -103,6 +105,41 @@ namespace Chess.Lib.UnitTests.Moves
 						break;
 				}
 			}
+		}
+
+		[TestMethod]
+		public void CastlingSet()
+		{
+			var g = GameDB.Get(28);
+			var game = AlgebraicMoves.Parse(g.Moves);
+			IChessMove m = game.Moves.First(m => m.SerialNumber == 11);
+			Assert.IsTrue(m.IsKingsideCastle);
+			Assert.IsNotNull(m.Castle);
+			Assert.AreEqual(Rank.R8, m.Castle.RookOrigin.Rank);
+			Assert.AreEqual(File.H, m.Castle.RookOrigin.File);
+			Assert.AreEqual(Rank.R8, m.Castle.RookDestination.Rank);
+			Assert.AreEqual(File.F, m.Castle.RookDestination.File);
+			m = game.Moves[12];
+			Assert.IsTrue(m.IsKingsideCastle);
+			Assert.IsNotNull(m.Castle);
+			Assert.AreEqual(Rank.R1, m.Castle.RookOrigin.Rank);
+			Assert.AreEqual(File.H, m.Castle.RookOrigin.File);
+			Assert.AreEqual(Rank.R1, m.Castle.RookDestination.Rank);
+			Assert.AreEqual(File.F, m.Castle.RookDestination.File);
+		}
+
+		[TestMethod]
+		public void AffectedSquares()
+		{
+			var g = GameDB.Get(28);
+			AlgebraicMoves ams = AlgebraicMoves.Create(g);
+			ams.Parse(pi =>
+			{
+				int n = pi.Move.AffectedSquares().Count();
+				if (pi.Move.IsCastle) Assert.AreEqual(4, n, "4 affected squares for castle");
+				if (pi.Move.IsEnPassant) Assert.AreEqual(3, n, "3 squares for en-passant");
+				return true;
+			});
 		}
 	}
 }

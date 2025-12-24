@@ -117,7 +117,7 @@ namespace Chess.Lib.Games
 			return false;
 		}
 
-		public void RaiseCanMoveChanged() => CanMoveChanged?.Invoke(HasNextMove);
+		void IPlayer.RaiseCanMoveChanged() => CanMoveChanged?.Invoke(HasNextMove);
 		private IPlayer Me => this;
 
 		private IMoveAttempt ApplyMoveAttempt(IMoveAttempt moveAttempt)

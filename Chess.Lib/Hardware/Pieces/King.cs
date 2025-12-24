@@ -59,6 +59,7 @@ namespace Chess.Lib.Hardware.Pieces
 			if (move.IsCastle && IsCastle((ISquare)move.ToSquare, move.IsKingsideCastle, out ISquare rookSq, out ISquare rookDest) &&
 				rookSq.Piece is IRook rook)
 			{
+				((IMove)move).Castle = Castle.Empty with { Type = move.Castle.Type, RookOrigin = rookSq, MovedRook = rook, RookDestination = rookDest };
 				ISquare to = (ISquare)move.ToSquare, prev = Square;
 				bool kingDestIsRookSq = Board.IsVariantBoard && rookSq.Index == move.ToSquare.Index;
 				if (Square.Index != to.Index)
@@ -127,21 +128,22 @@ namespace Chess.Lib.Hardware.Pieces
 							}
 						}
 					}
-				} else
+				}
+				else
 				{
 					File fr = isKingSide ? File.H : File.A;
 					ISquare rsq = Board[fr, toRank];
 					if (rsq.Piece is IRook r) rook = r;
-				}				
+				}
 				if (rook == null) return false;
 				rookSq = rook.Square;
 				rookDest = Board[toFile, toRank];
-				foreach(ISquare s in Board.FileSquaresBetween(Square, toSquare))
+				foreach (ISquare s in Board.FileSquaresBetween(Square, toSquare))
 				{
 					if (s.HasPiece && !ReferenceEquals(s.Piece, rook)) return false;
-					foreach(IPiece p in Board.ActivePieces.Where(pp => pp.Side != Side))
+					foreach (IPiece p in Board.ActivePieces.Where(pp => pp.Side != Side))
 					{
-						if (p.CanMoveTo(s)) return false;	// Pawn??  p.CanCaptureTo returns false if s has no piece.
+						if (p.CanMoveTo(s)) return false; // Pawn??  p.CanCaptureTo returns false if s has no piece.
 					}
 				}
 				return true;
@@ -204,12 +206,12 @@ namespace Chess.Lib.Hardware.Pieces
 			get
 			{
 				bool ks = false, qs = false;
-				if (MoveCount > 0) return (ks,qs);
-				foreach(IPiece p in Board.ActivePieces)
+				if (MoveCount > 0) return (ks, qs);
+				foreach (IPiece p in Board.ActivePieces)
 				{
 					if (p.Side == Side && p is IRook r)
 					{
-						switch((StartPosition.Rank, r.StartPosition.File))
+						switch ((StartPosition.Rank, r.StartPosition.File))
 						{
 							case (Rank.R8, File.A):
 							case (Rank.R1, File.A): qs = r.MoveCount == 0; break;
@@ -218,7 +220,7 @@ namespace Chess.Lib.Hardware.Pieces
 						}
 					}
 				}
-				return (ks,qs);
+				return (ks, qs);
 			}
 		}
 
@@ -258,7 +260,7 @@ namespace Chess.Lib.Hardware.Pieces
 		{
 			//Board.KingSquares(_square).Any(s => CanMoveTo(s));
 			IKing k = this;
-			foreach(ISquare s in Board.KingSquares(Square))
+			foreach (ISquare s in Board.KingSquares(Square))
 			{
 				if (k.CanMoveTo(s)) return true;
 			}

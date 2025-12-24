@@ -11,7 +11,7 @@ namespace Chess.Lib.Games
 			=> new KnownGame(moves, whiteName, blackName, fenSetup);
 
 		public static IInteractiveChessGame CreateInteractive(string whiteName = "", string blackName = "") => new InteractiveGame(whiteName, blackName);
-
+		
 		public static IPgnChessGame CreatePgn(IPgnGame game) => new KnownPgnGame(game);
 
 		public static IChessBoard CreateBoard(bool populatePieces = true) => new Board(populatePieces);

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Chess.Lib.Moves.Parsing
 {
-	public record struct ParseIntermediate(IParseableMove Move, IChessBoard Board, IMoveParseResult Result);
+	public record struct ParseIntermediate(IChessMove Move, IChessBoard Board, IMoveParseResult Result);
 
 	/// <summary>
 	/// Represents an ordered collection of moves (and embedded comments) in algebraic format
@@ -221,7 +221,7 @@ namespace Chess.Lib.Moves.Parsing
 						if (b.Apply(move))  // Should(!) always be true, as parsing checks that move is valid.
 						{
 							results.Add(move);
-							quit = !parseIntermediate(new ParseIntermediate(m, b, result));
+							quit = !parseIntermediate(new ParseIntermediate(move, b, result));
 						}
 						else return new ParseGameFail(makeResults(), new ParseError(m, ParseErrorType.IllegalMove), game, remainingMoves());
 						if (ShowDiagnostics)

@@ -282,7 +282,8 @@ namespace Chess.Lib.Moves.Parsing
 				if (movedPiece is not IPawn p) return new ParseError(this, ParseErrorType.UnableToParseCapture);
 				if (p.IsEnPassant(toSquare, out IPawn ep)) captured = ep;
 			}
-			return new ParseSuccess(this, movedPiece, fromSquare, toSquare, captured, B.LastMove, IsKingsideCastle, IsQueensideCastle, promotion,
+			CastleMoveType cmt = IsKingsideCastle? CastleMoveType.Kingside : IsQueensideCastle ? CastleMoveType.Queenside : CastleMoveType.None;
+			return new ParseSuccess(this, movedPiece, fromSquare, toSquare, captured, B.LastMove, cmt, promotion,
 				IsCheck, IsMate);
 		}
 

@@ -18,6 +18,8 @@ namespace Chess.Lib.Hardware.Pieces
 		bool CanMoveTo(IChessSquare toSquare);
 		IChessMove PreviousMove { get; }
 		FileRank StartPosition { get; }
+
+		IEnumerable<IChessSquare> AllowedMoves() => Board.AllowedMovesFrom(Square);
 	}
 
 	public interface IChessPawn : IChessPiece;

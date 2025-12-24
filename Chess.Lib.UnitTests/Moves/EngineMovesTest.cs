@@ -52,7 +52,7 @@ namespace Chess.Lib.UnitTests.Moves
 			int nChecked = 0;
 			bool parse(ParseIntermediate pi)
 			{
-				if (pi.Move is AlgebraicMove am && am.IsPromotion)
+				if (pi.Move.SourceMove is AlgebraicMove am && am.IsPromotion)
 				{
 					IBoard b = (IBoard)pi.Board;
 					IChessMove prev = b.LastMove;

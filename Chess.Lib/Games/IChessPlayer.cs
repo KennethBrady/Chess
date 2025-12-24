@@ -34,7 +34,7 @@ namespace Chess.Lib.Games
 	public interface IChessPlayer : IReadOnlyChessPlayer
 	{
 		IMoveAttempt AttemptMove(IParseableMove move);
-		IMoveAttempt AttemptMove(string move, MoveFormat format);
+		IMoveAttempt AttemptMove(string move, MoveFormat format = MoveFormat.Engine);
 		IMoveAttempt AttemptMove(MoveRequest moveRequest);
 		bool CanUndo => !IsReadOnly && !HasNextMove && CompletedMoves.Count > 0;
 		bool UndoLastMove();

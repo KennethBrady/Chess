@@ -18,6 +18,8 @@ namespace Chess.Lib.Moves
 		internal static readonly NoMove Default = new NoMove();
 		public NoMove() : this(NoPiece.Default, NoSquare.Default, NoSquare.Default, NoPiece.Default, Hardware.BoardState.Empty) { }
 
+		IEnumerable<IChessSquare> IChessMove.AffectedSquares() => Enumerable.Empty<IChessSquare>();
+
 		bool IChessMove.IsCheck => false;
 		IPromotion IChessMove.Promotion => Promotion.None;
 		bool IChessMove.IsMate => false;
@@ -35,7 +37,13 @@ namespace Chess.Lib.Moves
 		}
 		IChessKing IChessMove.CheckedKing => NoKing.Default;
 		IParseableMove IChessMove.SourceMove => NotParseable.Default;
-		CastleMoveType IChessMove.Castling => CastleMoveType.None;
+
+		ICastle IChessMove.Castle => Castle.Empty;
+		ICastle IMove.Castle
+		{
+			get => Castle.Empty;
+			set { }
+		}
 		string IChessMove.AlgebraicMove => string.Empty;
 	}
 
@@ -66,10 +74,10 @@ namespace Chess.Lib.Moves
 				CheckedKing = (IChessKing)b.ActivePieces.First(p => p.Type == PieceType.King && p.Side != MovedPiece.Side);
 			}
 			IsMate = move.IsMate;
-			Castling = move.IsKingsideCastle ? CastleMoveType.Kingside : move.IsQueensideCastle ? CastleMoveType.Queenside : CastleMoveType.None;
 			PreviousMove = move.PreviousMove;
 			SourceMove = move.Move;
-			AlgebraicMove = SourceMove is AlgebraicMove m ? m.Move : AlgebraicFromEngineMove();
+			Castle = Moves.Castle.Empty with { Type = move.Castle };
+			AlgebraicMove = SourceMove is AlgebraicMove m ? m.Move : AlgebraicFromEngineMove(move.Castle);
 		}
 
 		public IMoveCounter Number => new MoveCounter(SerialNumber, MovedPiece.Side);
@@ -79,16 +87,29 @@ namespace Chess.Lib.Moves
 		public bool IsCapture { get; private init; }
 		public bool IsMate { get; private init; }
 		public bool IsEnPassant { get; private init; }
-		public CastleMoveType Castling { get; private init; }
+
+		public ICastle Castle { get; set; } = Moves.Castle.Empty;
 		public IChessKing CheckedKing { get; private init; } = NoKing.Default;
 		public IGameState GameState { get; set; } = Games.GameState.Empty;
 		public IParseableMove SourceMove { get; private init; } = NotParseable.Default;
 		public string AlgebraicMove { get; private init; } = string.Empty;
 		public override string ToString() => M.AsEngineMove;
 
+		public IEnumerable<IChessSquare> AffectedSquares()
+		{
+			if (FromSquare is not INoSquare) yield return FromSquare;
+			if (ToSquare is not INoSquare) yield return ToSquare;
+			if (IsEnPassant) yield return CapturedPiece.Square;
+			if (Castle.Type > CastleMoveType.None)
+			{
+				yield return Castle.RookOrigin;
+				yield return Castle.MovedRook.Square;
+			}
+		}
+
 		internal IMove M => this;
 
-		private string AlgebraicFromEngineMove()
+		private string AlgebraicFromEngineMove(CastleMoveType type)
 		{
 			// Move has not yet been applied to board.
 			IBoard board = (IBoard)MovedPiece.Board;
@@ -96,8 +117,8 @@ namespace Chess.Lib.Moves
 			string cMoved = isPawn ? IsCapture ? FromSquare.File.ToString().ToLower() : string.Empty : MovedPiece.Type.PGNChar().ToString();
 			string sChecked = IsCheck ? "+" : string.Empty, sPromo = PromoteTo == PieceType.None ? string.Empty : $"={PromoteTo.PGNChar()}",
 				sCapture = IsCapture ? "x" : string.Empty;
-			if (Castling == CastleMoveType.Kingside) return $"O-O{sChecked}";
-			if (Castling == CastleMoveType.Queenside) return $"O-O-O{sChecked}";
+			if (type == CastleMoveType.Kingside) return $"O-O{sChecked}";
+			if (type == CastleMoveType.Queenside) return $"O-O-O{sChecked}";
 			List<IPiece> moveCandidates = board.ActivePieces.Where(p => !ReferenceEquals(p, MovedPiece) && p.Side == MovedPiece.Side && p.CanMoveTo(ToSquare)).ToList();
 			if (moveCandidates.Count == 0 || (isPawn && !moveCandidates.Any(p => p.Type == PieceType.Pawn))) return $"{cMoved}{sCapture}{ToSquare.Name}{sPromo}{sChecked}";
 			string which = string.Empty;

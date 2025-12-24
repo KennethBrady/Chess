@@ -1,4 +1,6 @@
-﻿namespace Chess.Lib.Hardware
+﻿using System.Diagnostics;
+
+namespace Chess.Lib.Hardware
 {
 	public enum Hue { Dark, Light, Default };
 
@@ -6,6 +8,7 @@
 
 	public enum File { A, B, C, D, E, F, G, H, Offboard };
 
+	[DebuggerDisplay("{ToSquareIndex}:{File}{Rank}")]
 	public record struct FileRank(File File, Rank Rank)
 	{
 		public static readonly FileRank OffBoard = new FileRank(File.Offboard, Rank.Offboard);
@@ -48,6 +51,22 @@
 				return squareIndex % 2 == 0 ? Hue.Light : Hue.Dark;
 			}
 		}
+
+		public static IEnumerable<FileRank> All
+		{
+			get
+			{
+				for(int f = 0;f < 8;++f)
+				{
+					for(int r = 0; r < 8; ++r)
+					{
+						File ff = (File)f;
+						Rank rr = (Rank)r;
+						yield return new FileRank(ff, rr);
+					}
+				}
+			}
+		}
 	}
 
 	public static class HueEx
@@ -60,7 +79,7 @@
 		public static char FileChar(this File f) => (char)('a' + f);
 		public static File Parse(char loc)
 		{
-			int nFile = loc - 'a';
+			int nFile = Char.ToLower(loc) - 'a';
 			return nFile < 0 || nFile > (int)File.H ? File.Offboard : (File)nFile;
 		}
 	}

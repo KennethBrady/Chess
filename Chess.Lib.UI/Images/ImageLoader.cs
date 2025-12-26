@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace ChessGame.Images
+namespace Chess.Lib.UI.Images
 {
 	internal static class ImageLoader
 	{
@@ -19,7 +19,7 @@ namespace ChessGame.Images
 		{
 			string name = side == Hue.Light ? "White" : "Black";
 			name += type.ToString();
-			Uri uri = new Uri($"ChessGame;component/Images/{name}.png", UriKind.Relative);
+			Uri uri = new Uri($"Chess.Lib.UI;component/Images/{name}.png", UriKind.Relative);
 			var info = Application.GetResourceStream(uri);
 			PngBitmapDecoder dec = new PngBitmapDecoder(info.Stream, BitmapCreateOptions.None, BitmapCacheOption.None);
 			return dec.Frames[0];

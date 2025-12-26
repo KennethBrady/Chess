@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace ChessGame.Adorners
+namespace Chess.Lib.UI.Adorners
 {
 	internal class SquareAdorner : Adorner
 	{
@@ -29,6 +26,11 @@ namespace ChessGame.Adorners
 			{
 				Rect r = new Rect(0, 0, Square.ActualWidth, Square.ActualHeight);
 				drawingContext.DrawRectangle(ChessBoardProperties.LastMoveBrush, null, r);
+			}
+			if(Square.Adornments.HasFlag(SquareAdornment.Check))
+			{
+				Rect r = new Rect(0, 0, Square.ActualWidth, Square.ActualHeight);
+				drawingContext.DrawRectangle(ChessBoardProperties.CheckedKingBrush, null, r);
 			}
 		}
 	}

@@ -141,5 +141,23 @@ namespace Chess.Lib.UnitTests.Moves
 				return true;
 			});
 		}
+
+		[TestMethod]
+		public void Player()
+		{
+			List<MoveRequest> requests = MoveRequest.ParseMoves("d2d4d7d5c2c4e7e6").ToList();
+			IInteractiveChessGame g = new InteractiveGame();
+			foreach (var mr in requests)
+			{
+				IChessPlayer p = g.NextPlayer;
+				switch(p.AttemptMove(mr))
+				{
+					case IMoveAttemptFail f: Assert.Fail(f.Reason.ToString()); break;
+					case IMoveAttemptSuccess s:
+						Assert.AreSame(g, s.CompletedMove.MovedPiece.Board.Game);
+						Assert.AreSame(p, s.CompletedMove.Player, mr.ToString()); break;
+				}
+			}
+		}
 	}
 }

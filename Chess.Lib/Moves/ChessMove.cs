@@ -13,7 +13,7 @@ namespace Chess.Lib.Moves
 	/// <summary>
 	/// Represents a non-move.  Queries for a non-existent move should return NoMove.Default.
 	/// </summary>
-	internal record struct NoMove(IChessPiece MovedPiece, IChessSquare FromSquare, IChessSquare ToSquare, IChessPiece CapturedPiece, IBoardState BoardState): IMove, INoMove
+	internal record struct NoMove(IChessPiece MovedPiece, IChessSquare FromSquare, IChessSquare ToSquare, IChessPiece CapturedPiece, IBoardState BoardState) : IMove, INoMove
 	{
 		internal static readonly NoMove Default = new NoMove();
 		public NoMove() : this(NoPiece.Default, NoSquare.Default, NoSquare.Default, NoPiece.Default, Hardware.BoardState.Empty) { }
@@ -44,7 +44,11 @@ namespace Chess.Lib.Moves
 			get => Castle.Empty;
 			set { }
 		}
-		string IChessMove.AlgebraicMove => string.Empty;
+		public string AlgebraicMove => string.Empty;
+
+		IChessPlayer IChessMove.Player => NoPlayer.Default;
+
+		public override int GetHashCode() => 1;
 	}
 
 	#endregion
@@ -54,12 +58,12 @@ namespace Chess.Lib.Moves
 	/// <summary>
 	/// Implementation of IMove
 	/// </summary>
-	internal sealed record ChessMove(int SerialNumber, IChessPiece MovedPiece, IChessSquare FromSquare, IChessSquare ToSquare, 
-		IChessPiece CapturedPiece, IChessMove PreviousMove, PieceType PromoteTo = PieceType.None): IMove
+	internal sealed record ChessMove(int SerialNumber, IChessPiece MovedPiece, IChessSquare FromSquare, IChessSquare ToSquare,
+		IChessPiece CapturedPiece, IChessMove PreviousMove, PieceType PromoteTo = PieceType.None) : IMove
 	{
 		internal static ImmutableList<IChessMove> EmptyMoves = ImmutableList<IChessMove>.Empty;
 
-		internal ChessMove(IMoveParseSuccess move): 
+		internal ChessMove(IMoveParseSuccess move) :
 			this(move.Move.SerialNumber, move.MovedPiece, move.FromSquare, move.ToSquare, move.CapturedPiece, move.PreviousMove, move.Promotion)
 		{
 			SerialNumber = move.Move.SerialNumber;
@@ -78,8 +82,10 @@ namespace Chess.Lib.Moves
 			SourceMove = move.Move;
 			Castle = Moves.Castle.Empty with { Type = move.Castle };
 			AlgebraicMove = SourceMove is AlgebraicMove m ? m.Move : AlgebraicFromEngineMove(move.Castle);
+			Player = MovedPiece.Board.Game.PlayerOf(MovedPiece.Side);
 		}
 
+		public IChessPlayer Player { get; private init; } = NoPlayer.Default;
 		public IMoveCounter Number => new MoveCounter(SerialNumber, MovedPiece.Side);
 		public bool IsCheck { get; private init; }
 		// Promotion is set in Board.Apply, once the new piece is created.
@@ -106,6 +112,8 @@ namespace Chess.Lib.Moves
 				yield return Castle.MovedRook.Square;
 			}
 		}
+
+		public override int GetHashCode() => SerialNumber;
 
 		internal IMove M => this;
 

@@ -1,6 +1,5 @@
 ﻿using Chess.Lib.Games;
 using Common.Lib.UI.MVVM;
-using System.ComponentModel;
 using System.Windows;
 
 namespace ChessGame

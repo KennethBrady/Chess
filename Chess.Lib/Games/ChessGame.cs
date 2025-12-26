@@ -85,7 +85,7 @@ namespace Chess.Lib.Games
 		IReadOnlyChessPlayer IReadOnlyChessGame.White => _white;
 		IReadOnlyChessPlayer IReadOnlyChessGame.Black => _black;
 		IReadOnlyChessPlayer IReadOnlyChessGame.PlayerOf(Hue hue) => hue == Hue.Light ? _white : hue == Hue.Default ? _black : NoPlayer.Default;
-		IChessPlayer IChessGame.PlayerOf(Hue hue) => hue == Hue.Light ? _white : hue == Hue.Default ? _black : NoPlayer.Default;
+		IChessPlayer IChessGame.PlayerOf(Hue hue) => hue == Hue.Light ? _white : hue == Hue.Dark ? _black : NoPlayer.Default;
 		IPlayer IGame.White => _white;
 		IPlayer IGame.Black => _black;
 		IChessPlayer IChessGame.NextPlayer => White.HasNextMove ? White : Black.HasNextMove ? Black : NoPlayer.Default;

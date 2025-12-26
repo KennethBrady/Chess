@@ -101,6 +101,8 @@ namespace Chess.Lib.Hardware.Pieces
 		int IPiece.PromotionIndex { get; set; }
 
 		protected IPiece Me => this;
+
+		public override int GetHashCode() => (int)Type;
 	}
 
 	internal class PieceTypeComparer : IComparer<IPiece>

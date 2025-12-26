@@ -1,12 +1,9 @@
 ﻿using Common.Lib.UI.Win32;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace ChessGame.Adorners
+namespace Chess.Lib.UI.Adorners
 {
 	internal class MovingPieceAdorner : Adorner
 	{

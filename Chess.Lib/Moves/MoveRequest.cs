@@ -2,10 +2,12 @@
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves.Parsing;
+using System.Diagnostics;
 using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.Moves
 {
+	[DebuggerDisplay("{From} {To}")]
 	public record struct MoveRequest(FileRank From, FileRank To, PieceType Promotion = PieceType.None): IParseableMove
 	{
 		public static MoveRequest Invalid = new MoveRequest(FileRank.OffBoard, FileRank.OffBoard);

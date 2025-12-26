@@ -1,7 +1,4 @@
 ﻿using Chess.Lib.Hardware;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.UnitTests.Hardware

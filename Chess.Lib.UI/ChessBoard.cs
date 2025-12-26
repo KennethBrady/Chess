@@ -1,42 +1,27 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
-using ChessGame.Adorners;
+using Chess.Lib.UI.Adorners;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Media;
 
-namespace ChessGame
+namespace Chess.Lib.UI
 {
-	public partial class ChessBoard : Control
+	public partial class ChessBoard : GameViewBase
 	{
-		private const string GamePropertyName = "Game";
 		private static readonly IChessGame DefaultGame = GameFactory.NoGame;
 		static ChessBoard()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(ChessBoard), new FrameworkPropertyMetadata(typeof(ChessBoard)));
 		}
 
-		public static readonly DependencyProperty GameProperty = DependencyProperty.Register(GamePropertyName, typeof(IChessGame),
-			typeof(ChessBoard), new PropertyMetadata(DefaultGame, null, CoerceGame));
-
-		private static object CoerceGame(DependencyObject o, object baseValue) =>
-			baseValue == null ? DefaultGame : baseValue;
-
-		public IChessGame Game
-		{
-			get => (IChessGame)GetValue(GameProperty);
-			set => SetValue(GameProperty, value);
-		}
-
 		public ChessBoard()
 		{
-			State = new BoardState(this);	// temporary, as this will be replaces when Game is changed.
+			State = new BoardState(this); // temporary, as this will be replaces when Game is changed.
 			ChessBoardProperties.BrushChanged += ChessBoardProperties_BrushChanged;
 			MovingPiece = new MovingPieceAdorner(this);
 		}
 
-		private bool IsTemplateApplied { get; set; }
 		private Dictionary<FileRank, ChessSquare> _squares = new();
 
 		internal BoardState State { get; private set; }
@@ -45,10 +30,8 @@ namespace ChessGame
 
 		internal MovingPieceAdorner MovingPiece { get; private init; }
 
-		public override void OnApplyTemplate()
+		protected override void UseTemplate()
 		{
-			base.OnApplyTemplate();
-			IsTemplateApplied = true;
 			MainAdorner.Add(MovingPiece);
 			InitGrid();
 			Grid g = (Grid)GetTemplateChild("board");
@@ -67,16 +50,10 @@ namespace ChessGame
 			foreach (var cs in _squares.Values) cs.ApplyColors();
 		}
 
-		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+		protected override void ApplyGame(IChessGame oldGame, IChessGame newGame)
 		{
-			base.OnPropertyChanged(e);
-			switch (e.Property.Name)
-			{
-				case GamePropertyName:
-					if (!IsTemplateApplied) return;
-					State = new BoardState(this);
-					break;
-			}
+			base.ApplyGame(oldGame, newGame);
+			State = new BoardState(this);
 		}
 
 		/// <summary>

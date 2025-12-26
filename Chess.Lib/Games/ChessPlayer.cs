@@ -12,7 +12,7 @@ namespace Chess.Lib.Games
 	/// <summary>
 	/// Represents a non-player.  Methods that query a non-existent player should return NoPlayer.Default.
 	/// </summary>
-	internal record struct NoPlayer : IPlayer
+	internal record struct NoPlayer : IPlayer, INoPlayer
 	{
 		internal static NoPlayer Default = new NoPlayer();
 

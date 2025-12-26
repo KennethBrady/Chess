@@ -1,10 +1,8 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
 using Chess.Lib.Moves;
-using ChessGame.Adorners;
-using System.Data.SqlTypes;
 
-namespace ChessGame
+namespace Chess.Lib.UI
 {
 	public partial class ChessBoard
 	{
@@ -22,12 +20,20 @@ namespace ChessGame
 
 			private void Game_MoveCompleted(CompletedMove value)
 			{
+				ClearMoveTargets();
+				foreach (var cs in _lastAffected) cs.Adornments = SquareAdornment.None;
 				_lastAffected.Clear();
 				_lastAffected.AddRange(value.Move.AffectedSquares().Select(s => ChessBoard._squares[s.Position]));
 				_lastAffected.ForEach(s => s.ApplySquare());
-				ClearMoveTargets();
-				var sq = value.Move.PreviousMove.ToSquare;
-				if (sq.Position.IsOnBoard) ChessBoard._squares[sq.Position].Adornments &= ~SquareAdornment.LastMove;
+				var sq = ChessBoard._squares[value.Move.ToSquare.Position];
+				sq.Adornments |= SquareAdornment.LastMove;
+				if (value.Move.IsCheck)
+				{
+					ChessSquare cs = ChessBoard._squares[value.Move.CheckedKing.Square.Position];
+					_lastAffected.Add(cs);
+					cs.Adornments |= SquareAdornment.Check;
+				}
+
 			}
 
 			internal ChessBoard ChessBoard { get; private init; }
@@ -59,17 +65,19 @@ namespace ChessGame
 						{
 							case IMoveAttemptSuccess m:
 								moveMade = true;
-								downSquare.Adornments &= ~SquareAdornment.MoveTarget;
-								downSquare.Adornments |= SquareAdornment.LastMove;
 								break;
 						}
 					}
 					_downSquare = null;
-					if (!moveMade) ApplyMouseDown(downSquare);
+					if (!moveMade)
+					{
+						ClearMoveTargets();
+						ApplyMouseDown(downSquare);
+					}
 				}
 			}
 
-			internal void AttempMove(IChessSquare from, ChessSquare to)
+			internal void AttemptMove(IChessSquare from, ChessSquare to)
 			{
 				if (ChessBoard._squares[from.Position] == _downSquare && to.Adornments.HasFlag(SquareAdornment.MoveTarget))
 				{

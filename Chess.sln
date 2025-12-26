@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessGame", "ChessGame\Ches
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Lib.UI", "Common.Lib.UI\Common.Lib.UI.csproj", "{FC8FF9A0-475D-489D-809F-7178B73ECC6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Lib.UI", "Chess.Lib.UI\Chess.Lib.UI.csproj", "{788D22EE-9DE2-4AC7-8A17-E0C23F1DB000}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{FC8FF9A0-475D-489D-809F-7178B73ECC6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC8FF9A0-475D-489D-809F-7178B73ECC6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC8FF9A0-475D-489D-809F-7178B73ECC6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{788D22EE-9DE2-4AC7-8A17-E0C23F1DB000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{788D22EE-9DE2-4AC7-8A17-E0C23F1DB000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{788D22EE-9DE2-4AC7-8A17-E0C23F1DB000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{788D22EE-9DE2-4AC7-8A17-E0C23F1DB000}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

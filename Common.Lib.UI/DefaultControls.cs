@@ -1,32 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
-using System.Xml.Linq;
 
 namespace Common.Lib.UI
 {
+	public static class DefaultControlsEx
+	{
+		extension(Control c)
+		{
+			public bool IsDefault => c.Tag is string s && s == DefaultControls.DefaultTag;
+		}
+	}
+
 	public static class DefaultControls
 	{
-		public static readonly Border Border = new Border();
-		public static readonly ContentControl ContentControl = new ContentControl();
-		public static readonly ContentPresenter ContentPresenter = new ContentPresenter();
+		internal const string DefaultTag = "DEFAULT";
+
+		public static readonly Border Border = new Border() { Tag = DefaultTag };
+		public static readonly ContentControl ContentControl = new ContentControl() { Tag = DefaultTag };
+		public static readonly ContentPresenter ContentPresenter = new ContentPresenter() { Tag = DefaultTag };
+		public static readonly DataGrid DataGrid = new DataGrid() { Tag = DefaultTag };
 		public static readonly DataTemplate DataTemplate = new DataTemplate();
 		public static readonly DispatcherTimer DispatcherTimer = new DispatcherTimer();
-		public static readonly DockPanel DockPanel = new DockPanel();
-		public static readonly Grid Grid = new Grid();
-		public static readonly GroupBox GroupBox = new GroupBox();
-		public static readonly Image Image = new Image();
-		public static readonly ItemsControl ItemsControl = new ItemsControl();
-		public static readonly Label Label = new Label();
-		public static readonly Popup Popup = new();
-		public static readonly StackPanel StackPanel = new StackPanel();
-		public static readonly TextBlock TextBlock = new TextBlock();
-		public static readonly TextBox TextBox = new TextBox();
+		public static readonly DockPanel DockPanel = new DockPanel() { Tag = DefaultTag };
+		public static readonly Grid Grid = new Grid() { Tag = DefaultTag };
+		public static readonly GroupBox GroupBox = new GroupBox() { Tag = DefaultTag };
+		public static readonly Image Image = new Image() { Tag = DefaultTag };
+		public static readonly ItemsControl ItemsControl = new ItemsControl() { Tag = DefaultTag };
+		public static readonly Label Label = new Label() { Tag = DefaultTag };
+		public static readonly Popup Popup = new() { Tag = DefaultTag };
+		public static readonly StackPanel StackPanel = new StackPanel() { Tag = DefaultTag };
+		public static readonly TextBlock TextBlock = new TextBlock() { Tag = DefaultTag };
+		public static readonly TextBox TextBox = new TextBox() { Tag = DefaultTag };
 		public static readonly UIElement UIElement = new UIElement();
 	}
 }

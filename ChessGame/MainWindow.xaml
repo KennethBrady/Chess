@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChessGame"
+				xmlns:cui="clr-namespace:Chess.Lib.UI;assembly=Chess.Lib.UI"
         mc:Ignorable="d"
         Title="Chess Game" Height="450" Width="800" WindowState="Maximized">
 	<Grid>
-		<local:ChessBoard HorizontalAlignment="Center" VerticalAlignment="Center" Width="800" Height="800"
+		<cui:ChessGame HorizontalAlignment="Center" VerticalAlignment="Center" BoardDimension="800"
 											BorderBrush="Black" BorderThickness="1" Game="{Binding Game}"/>
 	</Grid>
 </Window>

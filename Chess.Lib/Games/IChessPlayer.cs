@@ -52,4 +52,6 @@ namespace Chess.Lib.Games
 		new IKing King { get; }
 		void RaiseCanMoveChanged();
 	}
+
+	public interface INoPlayer : IChessPlayer;
 }

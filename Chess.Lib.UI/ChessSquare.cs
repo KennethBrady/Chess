@@ -1,15 +1,14 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
-using ChessGame.Adorners;
-using ChessGame.Images;
+using Chess.Lib.UI.Adorners;
+using Chess.Lib.UI.Images;
 using Common.Lib.UI;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 
-namespace ChessGame
+namespace Chess.Lib.UI
 {
 	[Flags]
 	public enum SquareAdornment
@@ -21,7 +20,7 @@ namespace ChessGame
 	}
 
 	[DebuggerDisplay("{FileRank}")]
-	public class ChessSquare : Control
+	public class ChessSquare : ControlBase
 	{
 		static ChessSquare()
 		{
@@ -65,11 +64,10 @@ namespace ChessGame
 
 		internal int Index => FileRank.ToSquareIndex;
 
-		private bool IsTemplateApplied { get; set; }
 		private Image Piece { get; set; } = DefaultControls.Image;
-		public override void OnApplyTemplate()
+
+		protected override void UseTemplate()
 		{
-			IsTemplateApplied = true;
 			Piece = (Image)GetTemplateChild("piece");
 			ApplyColors();
 			ApplySquare();
@@ -115,7 +113,7 @@ namespace ChessGame
 			{
 				Size size = new Size(Piece.ActualWidth, Piece.ActualHeight);
 				Point position = Mouse.GetPosition(Board);
-				
+
 				IsDragging = true;
 				Board.MovingPiece.SetImage(ImageLoader.LoadImage(Square.Piece)!, size, position);
 				DragDrop.DoDragDrop(this, new DataObject(typeof(IChessSquare), Square), DragDropEffects.Move);
@@ -142,7 +140,7 @@ namespace ChessGame
 		protected override void OnDrop(DragEventArgs e)
 		{
 			base.OnDrop(e);
-			if (e.Data.GetData(typeof(IChessSquare)) is IChessSquare sq) Board.State.AttempMove(sq, this);
+			if (e.Data.GetData(typeof(IChessSquare)) is IChessSquare sq) Board.State.AttemptMove(sq, this);
 		}
 
 	}

@@ -20,19 +20,19 @@ namespace Chess.Lib.Moves
 		bool IsCapture => CapturedPiece is Piece;
 		IChessMove PreviousMove { get; }
 		Hue Side => MovedPiece.Side;
+
 	}
 
 	public interface IChessMove : IChessMoveCore
 	{
+		IChessPlayer Player { get; }
 		int SerialNumber { get; }
 		IMoveCounter Number { get; }
 		bool IsCheck { get; }
 		IPromotion Promotion { get; }
 		bool IsMate { get; }
 		bool IsEnPassant { get; }
-
 		IEnumerable<IChessSquare> AffectedSquares();
-
 		ICastle Castle { get; }
 		bool IsKingsideCastle => Castle.Type == CastleMoveType.Kingside;
 		bool IsQueensideCastle => Castle.Type == CastleMoveType.Queenside;

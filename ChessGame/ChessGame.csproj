@@ -9,67 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\BlackBishop.png" />
-    <None Remove="Images\BlackBishop.svg" />
-    <None Remove="Images\BlackKing.png" />
-    <None Remove="Images\BlackKing.svg" />
-    <None Remove="Images\BlackKnight.png" />
-    <None Remove="Images\BlackKnight.svg" />
-    <None Remove="Images\BlackPawn.png" />
-    <None Remove="Images\BlackPawn.svg" />
-    <None Remove="Images\BlackQueen.png" />
-    <None Remove="Images\BlackQueen.svg" />
-    <None Remove="Images\BlackRook.png" />
-    <None Remove="Images\BlackRook.svg" />
-    <None Remove="Images\close-dark.png" />
-    <None Remove="Images\king.ico" />
-    <None Remove="Images\WhiteBishop.png" />
-    <None Remove="Images\WhiteBishop.svg" />
-    <None Remove="Images\WhiteKing.png" />
-    <None Remove="Images\WhiteKing.svg" />
-    <None Remove="Images\WhiteKnight.png" />
-    <None Remove="Images\WhiteKnight.svg" />
-    <None Remove="Images\WhitePawn.png" />
-    <None Remove="Images\WhitePawn.svg" />
-    <None Remove="Images\WhiteQueen.png" />
-    <None Remove="Images\WhiteQueen.svg" />
-    <None Remove="Images\WhiteRook.png" />
-    <None Remove="Images\WhiteRook.svg" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Chess.Lib.UI\Chess.Lib.UI.csproj" />
     <ProjectReference Include="..\Chess.Lib\Chess.Lib.csproj" />
     <ProjectReference Include="..\Common.Lib.UI\Common.Lib.UI.csproj" />
     <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Images\BlackBishop.png" />
-    <Resource Include="Images\BlackBishop.svg" />
-    <Resource Include="Images\BlackKing.png" />
-    <Resource Include="Images\BlackKing.svg" />
-    <Resource Include="Images\BlackKnight.png" />
-    <Resource Include="Images\BlackKnight.svg" />
-    <Resource Include="Images\BlackPawn.png" />
-    <Resource Include="Images\BlackPawn.svg" />
-    <Resource Include="Images\BlackQueen.png" />
-    <Resource Include="Images\BlackQueen.svg" />
-    <Resource Include="Images\BlackRook.png" />
-    <Resource Include="Images\BlackRook.svg" />
-    <Resource Include="Images\close-dark.png" />
-    <Resource Include="Images\king.ico" />
-    <Resource Include="Images\WhiteBishop.png" />
-    <Resource Include="Images\WhiteBishop.svg" />
-    <Resource Include="Images\WhiteKing.png" />
-    <Resource Include="Images\WhiteKing.svg" />
-    <Resource Include="Images\WhiteKnight.png" />
-    <Resource Include="Images\WhiteKnight.svg" />
-    <Resource Include="Images\WhitePawn.png" />
-    <Resource Include="Images\WhitePawn.svg" />
-    <Resource Include="Images\WhiteQueen.png" />
-    <Resource Include="Images\WhiteQueen.svg" />
-    <Resource Include="Images\WhiteRook.png" />
-    <Resource Include="Images\WhiteRook.svg" />
   </ItemGroup>
 
 </Project>

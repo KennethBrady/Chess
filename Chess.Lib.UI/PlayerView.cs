@@ -1,8 +1,8 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
-using Common.Lib.MVVM;
 using Common.Lib.UI;
+using Common.Lib.UI.MVVM;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -90,7 +90,11 @@ namespace Chess.Lib.UI
 				Player.Game.MoveCompleted += Game_MoveCompleted;
 				FontWeight = Player.Side == Hue.Light ? FontWeights.Bold : FontWeights.Normal;
 				RemovedPieces.Visibility = Visibility.Collapsed;
+				(NameRow, PiecesRow) = Player.Side == Hue.Light ? (1, 0) : (0, 1);
 			}
+
+			public int NameRow { get; init; }
+			public int PiecesRow { get; init; }
 
 			public IChessPlayer Player { get; private init; }
 			public string Name => Player.Name;

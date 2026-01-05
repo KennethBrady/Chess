@@ -1,35 +1,18 @@
-﻿using Chess.Lib.Games;
-using Common.Lib.UI.MVVM;
-using System.Windows;
+﻿using ChessGame.Models;
+using Common.Lib.UI;
 
 namespace ChessGame
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window
+	public interface IChessGameWindow : IAppWindow;
+
+	public partial class MainWindow : AppWindow, IChessGameWindow
 	{
 		public MainWindow()
 		{
 			InitializeComponent();
-			DataContext = Model = new MainModel();
+			DataContext = Model = new MainModel(this);
 		}
 
 		public MainModel Model { get; private init; }
-	}
-
-	public class MainModel : Bindable
-	{
-		private IChessGame _game = GameFactory.CreateInteractive();
-
-		public IChessGame Game
-		{
-			get => _game;
-			set
-			{
-				_game = value;
-				OnChanged(nameof(Game));
-			}
-		}
 	}
 }

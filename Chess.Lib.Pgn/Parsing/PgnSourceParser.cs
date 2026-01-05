@@ -10,11 +10,13 @@ namespace Chess.Lib.Pgn.Parsing
 {
 	public static class PgnSourceParser
 	{
-		private static readonly string[] _requiredHeaders = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+		public const string BlackTag = "Black", WhiteTag = "White", ResultTag = "Result", EventTag = "Event", DateTag = "Date";
+		private static readonly string[] _requiredTags = { EventTag, "Site", DateTag, "Round", WhiteTag, BlackTag, ResultTag };
 		private static readonly string[] _playerTags = { "WhiteElo", "BlackElo", "WhiteTitle", "BlackTitle", "WhiteFideId", "BlackFideId", "WhiteTeam", "BlackTeam", "WhiteTeamCountry", "BlackTeamCountry" };
 		private static readonly string[] _endCombinations = { "1/2-1/2", "1-0", "0-1", "+/- +/-", "-/+ -/+", "*", "* *", "(+)-(-) (+)-(-)", "0-0 0-0" };
 
-		public static IEnumerable<string> RequiredHeaders => _requiredHeaders;
+		//TODO: move tag definitions to Pgn
+		public static IEnumerable<string> RequiredTags => _requiredTags;
 		public static IEnumerable<string> PlayerTags => _playerTags;
 
 		public static bool TryParseDate(string sDate, out DateTime date) => TryParseDate(ref sDate, out date);
@@ -102,7 +104,7 @@ namespace Chess.Lib.Pgn.Parsing
 				}
 			}
 			if (string.IsNullOrEmpty(whiteName) || string.IsNullOrEmpty(blackName)) return new PgnParseError(pgn, PgnParseErrorType.MissingPlayer);
-			string missing = string.Join(',', _requiredHeaders.Where(h => !r.ContainsKey(h)));
+			string missing = string.Join(',', _requiredTags.Where(h => !r.ContainsKey(h)));
 			if (missing.Length > 0) return new PgnParseError(pgn, PgnParseErrorType.MissingRequiredHeaders, missing);
 			if (!evtDate.HasValue || whiteName == null || blackName == null) return new PgnParseError(pgn, PgnParseErrorType.MissingRequiredHeaders);
 			GameResult result = GameResult.Unknown;
@@ -195,14 +197,14 @@ namespace Chess.Lib.Pgn.Parsing
 		internal static string ExportPgn(IReadOnlyDictionary<string,string> tags, string moves)
 		{
 			StringBuilder s = new StringBuilder();
-			foreach(string tag in _requiredHeaders)
+			foreach(string tag in _requiredTags)
 			{
 				string val = tags[tag];
 				s.Append($"[{tag} \"{val}\"]\n");
 			}
 			foreach(var nvp in tags)
 			{
-				if (_requiredHeaders.Contains(nvp.Key)) continue;
+				if (_requiredTags.Contains(nvp.Key)) continue;
 				s.Append($"[{nvp.Key} \"{nvp.Value}\"]\n");
 			}
 			s.Append('\n');

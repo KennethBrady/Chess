@@ -1,14 +1,53 @@
-﻿<Window x:Class="ChessGame.MainWindow"
+﻿<ui:AppWindow x:Class="ChessGame.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChessGame"
 				xmlns:cui="clr-namespace:Chess.Lib.UI;assembly=Chess.Lib.UI"
+				xmlns:ui="clr-namespace:Common.Lib.UI;assembly=Common.Lib.UI"
+				xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn;assembly=Chess.Lib.UI"
+				xmlns:models="clr-namespace:ChessGame.Models"
+				xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
         mc:Ignorable="d"
-        Title="Chess Game" Height="450" Width="800" WindowState="Maximized">
+				Icon="king.ico" Height="450" Width="800" WindowState="Maximized">
+	<ui:AppWindow.Menu>
+		<Menu Background="Black" Foreground="White" FontSize="14" VerticalAlignment="Center" VerticalContentAlignment="Center">
+			<Menu.Resources>
+				<Style TargetType="MenuItem">
+					<Setter Property="Background" Value="Black"/>
+					<Setter Property="Foreground" Value="White"/>
+					<Setter Property="BorderThickness" Value="0"/>
+				</Style>
+			</Menu.Resources>
+			<MenuItem Header="Game">
+				<MenuItem Header="New ..." Command="{Binding Command}" CommandParameter="newGame" InputGestureText="Ctrl-N"/>
+				<MenuItem Header="Export as PGN ..." Command="{Binding Command}" CommandParameter="exportPgn" InputGestureText="Ctrl-X"/>
+			</MenuItem>
+		</Menu>
+	</ui:AppWindow.Menu>
+	<ui:AppWindow.InputBindings>
+		<KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="newGame"/>
+		<KeyBinding Key="X" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="exportPgn"/>
+	</ui:AppWindow.InputBindings>
+	<ui:AppWindow.Dialogs>
+		<ui:DialogDef DialogType="{x:Type local:NewGameDialog}" ModelType="{x:Type models:NewGameDialogModel}"/>
+		<ui:DialogDef DialogType="{x:Type pgn:PgnEditorDialog}" ModelType="{x:Type pgn:PgnEditorModel}"/>
+	</ui:AppWindow.Dialogs>
+	<ui:AppWindow.DialogStyle>
+		<Style TargetType="{x:Type dlg:DialogView}">
+			<Setter Property="Background" Value="LightSkyBlue"/>
+			<Setter Property="BorderBrush" Value="Navy"/>
+			<Setter Property="BorderThickness" Value="2"/>
+			<Setter Property="Foreground" Value="Navy"/>
+			<Setter Property="Padding" Value="1"/>
+			<Setter Property="TitleBackground" Value="Navy"/>
+			<Setter Property="TitleForeground"  Value="Yellow"/>
+			<Setter Property="Animation" Value="Fade"/>
+		</Style>
+	</ui:AppWindow.DialogStyle>
 	<Grid>
 		<cui:ChessGame HorizontalAlignment="Center" VerticalAlignment="Center" BoardDimension="800"
 											BorderBrush="Black" BorderThickness="1" Game="{Binding Game}"/>
 	</Grid>
-</Window>
+</ui:AppWindow>

@@ -1,7 +1,7 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Moves;
-using Common.Lib.MVVM;
 using Common.Lib.UI;
+using Common.Lib.UI.MVVM;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;

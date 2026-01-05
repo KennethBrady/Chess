@@ -6,13 +6,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>king.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="king.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Chess.Lib.UI\Chess.Lib.UI.csproj" />
     <ProjectReference Include="..\Chess.Lib\Chess.Lib.csproj" />
     <ProjectReference Include="..\Common.Lib.UI\Common.Lib.UI.csproj" />
     <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="king.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,37 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Converters\" />
+    <None Remove="Images\close-dark.png" />
+    <None Remove="Images\delete-faded.png" />
+    <None Remove="Images\delete.png" />
+    <None Remove="Images\maximize-dark.png" />
+    <None Remove="Images\minimize-dark.png" />
+    <None Remove="Images\restore-dark.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\close-dark.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\delete-faded.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\delete.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\maximize-dark.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\minimize-dark.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\restore-dark.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
   </ItemGroup>
 
 </Project>

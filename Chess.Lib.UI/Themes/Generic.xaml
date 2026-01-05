@@ -3,7 +3,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:Chess.Lib.UI"
 		xmlns:lconv="clr-namespace:Chess.Lib.UI.Converters"
+		xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn"
+		xmlns:tkit="http://schemas.xceed.com/wpf/xaml/toolkit"
 	>
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="/Common.Lib.UI;component/CommonStyles.xaml"/>
+	</ResourceDictionary.MergedDictionaries>
 	<lconv:PieceToImageConverter x:Key="p2ic"/>
 	<Style TargetType="{x:Type local:ChessBoard}">
 		<Setter Property="Template">
@@ -44,12 +49,12 @@
 					<Grid Name="grid" DataContext="{x:Null}">
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="*"/>
+							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
-						<Border BorderBrush="Black" BorderThickness="1">
-							<TextBlock Text="{Binding Name}" FontWeight="{Binding FontWeight}"/>
+						<Border BorderBrush="Black" BorderThickness="1" Grid.Row="{Binding NameRow}">
+							<TextBlock Text="{Binding Name}" FontWeight="{Binding FontWeight}" Margin="2" TextWrapping="Wrap"/>
 						</Border>
-						<GroupBox Name="removed" Grid.Row="2" Header="Removed Pieces" Visibility="Collapsed">
+						<GroupBox Name="removed" Grid.Row="{Binding PiecesRow}" Header="Removed Pieces" Visibility="Collapsed">
 							<ItemsControl ItemsSource="{Binding Pieces}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>

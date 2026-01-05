@@ -18,6 +18,7 @@ namespace Common.Lib.UI
 		internal const string DefaultTag = "DEFAULT";
 
 		public static readonly Border Border = new Border() { Tag = DefaultTag };
+		public static readonly Button Button = new Button() { Tag = DefaultTag };
 		public static readonly ContentControl ContentControl = new ContentControl() { Tag = DefaultTag };
 		public static readonly ContentPresenter ContentPresenter = new ContentPresenter() { Tag = DefaultTag };
 		public static readonly DataGrid DataGrid = new DataGrid() { Tag = DefaultTag };

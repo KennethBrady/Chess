@@ -1,0 +1,29 @@
+﻿<dlg:DialogView x:Class="ChessGame.NewGameDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChessGame"
+						 xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" DialogButtons="All" Header="New Chess Game" Width="300">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+		<Label Grid.Row="0" Grid.Column="0"  Content="White Name:"/>
+		<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding White}"/>
+		<Label Grid.Row="1" Grid.Column="0" Content="Black Name:"/>
+		<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Black}"/>
+		<DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False">
+			<Button DockPanel.Dock="Right" Content="Cancel" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
+			<Button DockPanel.Dock="Right" Content="Create Game" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
+		</DockPanel>
+	</Grid>
+</dlg:DialogView>

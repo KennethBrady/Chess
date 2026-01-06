@@ -112,13 +112,14 @@ namespace Chess.Lib.UI
 			if (e.LeftButton == MouseButtonState.Pressed && Board.State.DownSquare == this)
 			{
 				Size size = new Size(Piece.ActualWidth, Piece.ActualHeight);
-				Point position = Mouse.GetPosition(Board);
-
+				Point downPoint = Mouse.GetPosition(Board);
 				IsDragging = true;
-				Board.MovingPiece.SetImage(ImageLoader.LoadImage(Square.Piece)!, size, position);
+				Board.MovingPiece.StartDragImage(this, Piece, downPoint);
 				DragDrop.DoDragDrop(this, new DataObject(typeof(IChessSquare), Square), DragDropEffects.Move);
+				// DragDrop has now completed.
 				IsDragging = false;
 				Board.MovingPiece.Reset();
+
 				Board.MainAdorner.Update(Board);
 			}
 		}
@@ -127,6 +128,7 @@ namespace Chess.Lib.UI
 		{
 			base.OnDragOver(e);
 			e.Effects = Adornments.HasFlag(SquareAdornment.MoveTarget) ? DragDropEffects.Move : DragDropEffects.None;
+			Board.MovingPiece.UpdateDragImage(e.GetPosition(Board));
 			Board.MainAdorner.Update(Board);
 		}
 
@@ -134,6 +136,7 @@ namespace Chess.Lib.UI
 		{
 			base.OnDragEnter(e);
 			e.Effects = Adornments.HasFlag(SquareAdornment.MoveTarget) ? DragDropEffects.None : DragDropEffects.Move;
+			Board.MovingPiece.UpdateDragImage(e.GetPosition(Board));
 			Board.MainAdorner.Update(Board);
 		}
 

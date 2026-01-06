@@ -169,22 +169,19 @@ namespace Common.Lib.UI.Dialogs
 
 		#region DialogViewDragger
 
-		private class DialogViewDragger : DragHelper
+		private class DialogViewDragger : ElementDragHelper
 		{
 			internal DialogViewDragger(DialogView view)
 			{
 				View = view;
 			}
 
-			protected override void InitDrag(Point downPoint)
-			{
-				System.Diagnostics.Debug.WriteLine(StartPoint);
-			}
+			protected override void InitDrag(Point downPoint) { }
 
 			private DialogView View { get; init; }
 			internal Point StartPoint { get; set; }
 
-			protected override void SetDragOffset(Point lastDelta)
+			protected override void ApplyDragOffset(Point lastDelta)
 			{
 				double nux = Math.Max(0, StartPoint.X + Offset.X), nuy = Math.Max(0, StartPoint.Y + Offset.Y);
 				Canvas.SetLeft(View, nux); Canvas.SetTop(View, nuy);

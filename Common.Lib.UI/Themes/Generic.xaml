@@ -6,13 +6,8 @@
 		xmlns:lconv="clr-namespace:Common.Lib.UI.Converters"
 		xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs"
 		xmlns:anim="clr-namespace:Common.Lib.UI.Animations"
+		xmlns:img="clr-namespace:Common.Lib.UI.Images"
 	>
-	<BitmapImage x:Key="closeImg" UriSource="Images/close-dark.png"/>
-	<BitmapImage x:Key="restoreImg" UriSource="Images/restore-dark.png"/>
-	<BitmapImage x:Key="minimizeImg" UriSource="Images/minimize-dark.png"/>
-	<BitmapImage x:Key="maximizeImg" UriSource="Images/maximize-dark.png"/>
-	<BitmapImage x:Key="deleteImg" UriSource="Images/delete.png"/>
-	<BitmapImage x:Key="deleteFadedImg" UriSource="Images/delete-faded.png"/>
 	<Style TargetType="{x:Type local:TitleBar}" x:Key="tbarDefaultStyle">
 		<Setter Property="Background" Value="Black"/>
 		<Setter Property="Foreground" Value="White"/>
@@ -80,7 +75,7 @@
 											Style="{StaticResource btnStyle}"
 											ToolTip="Close this window"
 											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=close}">
-								<Image Source="{StaticResource closeImg}" Width="18" Height="18" Stretch="UniformToFill" StretchDirection="Both"/>
+								<Image img:ImageProvider.ImageType="Close" Width="18" Height="18" Stretch="UniformToFill" StretchDirection="Both"/>
 							</Button>
 							<Button Name="PART_RestoreButton" DockPanel.Dock="Right" 
 											Style="{StaticResource btnStyle}"
@@ -91,7 +86,7 @@
 										<Binding RelativeSource="{RelativeSource AncestorType={x:Type Window}}" Path="WindowState"/>
 									</MultiBinding>
 								</Button.Visibility>
-								<Image Source="{StaticResource restoreImg}"/>
+								<Image img:ImageProvider.ImageType="Restore"/>
 							</Button>
 							<Button Name="PART_MaximizeButton" DockPanel.Dock="Right"
 											Style="{StaticResource btnStyle}"
@@ -102,13 +97,13 @@
 										<Binding RelativeSource="{RelativeSource AncestorType={x:Type Window}}" Path="WindowState"/>
 									</MultiBinding>
 								</Button.Visibility>
-								<Image Source="{StaticResource maximizeImg}"/>
+								<Image img:ImageProvider.ImageType="Maximize"/>
 							</Button>
 							<Button Name="PART_MinimizeButton" DockPanel.Dock="Right"
 											Style="{StaticResource btnStyle}"
 											ToolTip="Minimize this window"
 											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=minimize}">
-								<Image Source="{StaticResource minimizeImg}"/>
+								<Image img:ImageProvider.ImageType="Minimize"/>
 							</Button>
 							<TextBlock Name="PART_Title" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="4" 
 												 Foreground="{TemplateBinding Foreground}" Style="{TemplateBinding TitleStyle}">
@@ -194,11 +189,11 @@
 											</StackPanel.Resources>
 											<Button Foreground="White" Name="restorer" ToolTip="Restore this popup"
 															Visibility="{TemplateBinding DialogButtons,Converter={StaticResource dbt2vc},ConverterParameter=Restore}">
-												<Image Source="{StaticResource restoreImg}"/>
+												<Image img:ImageProvider.ImageType="Restore"/>
 											</Button>
 											<Button Foreground="Red" Name="closer" ToolTip="Close this popup"
 															Visibility="{TemplateBinding DialogButtons,Converter={StaticResource dbt2vc},ConverterParameter=Close}">
-												<Image Source="{StaticResource closeImg}"/>
+												<Image img:ImageProvider.ImageType="Close"/>
 											</Button>
 										</StackPanel>
 										<ContentPresenter Margin="4" ContentSource="Header" RecognizesAccessKey="True"

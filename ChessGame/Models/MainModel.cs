@@ -71,10 +71,10 @@ namespace ChessGame.Models
 
 		private async void ExportPgn()
 		{
-			var result = await ShowDialog<Pgn>(new PgnEditorModel(_game));
+			var result = await ShowDialog<PGN>(new PgnEditorModel(_game));
 			switch(result)
 			{
-				case IDialogResultAccepted<Pgn> s: 
+				case IDialogResultAccepted<PGN> s: 
 					Clipboard.SetText(s.Value.ToString()); 
 					//TODO: indicate status
 					break;

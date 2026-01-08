@@ -104,7 +104,7 @@
 								<ColumnDefinition Width="Auto"/>
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
-							<DockPanel Grid.Column="0" Width="160">
+							<DockPanel Grid.Column="0" Width="160" Margin="0,0,2,0">
 								<local:PlayerView DockPanel.Dock="Top" Hue="Dark" Game="{TemplateBinding Game}"/>
 								<local:PlayerView DockPanel.Dock="Bottom" Hue="Light" Game="{TemplateBinding Game}"/>
 								<local:MovesView Game="{TemplateBinding Game}"/>

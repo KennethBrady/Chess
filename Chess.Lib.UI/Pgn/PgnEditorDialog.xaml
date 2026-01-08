@@ -7,21 +7,33 @@
 						 xmlns:dialogs="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
 						 xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn"
 						 xmlns:conv="clr-namespace:Common.Lib.UI.Converters;assembly=Common.Lib.UI"
+						 xmlns:ext="clr-namespace:Common.Lib.UI.Extensions;assembly=Common.Lib.UI"
+						 xmlns:img="clr-namespace:Common.Lib.UI.Images;assembly=Common.Lib.UI"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Header="Export Game as PGN" DialogButtons="All" MinWidth="500">
 	<dialogs:DialogView.Resources>
+		<BooleanToVisibilityConverter x:Key="b2vc"/>
 		<conv:ColonConverter x:Key="cconv"/>
 		<DataTemplate x:Key="string">
-			<TextBox Width="160" Text="{Binding Value}" BorderBrush="{Binding RequiredBorder}" BorderThickness="2"/>
+			<DockPanel Width="160">
+				<Button DockPanel.Dock="Right" Style="{x:Null}" Width="16" Height="16" Command="{Binding DelCommand}" CommandParameter="{Binding}">
+					<Image img:ImageProvider.ImageType="Delete"/>
+				</Button>
+				<TextBox Text="{Binding Value}" BorderThickness="2" ext:TextBoxEx.SelectAllOnFocus="True" ext:TextBoxEx.UpdateBindingOnEnter="True"/>
+			</DockPanel>
+		</DataTemplate>
+		<DataTemplate x:Key="reqString">
+			<TextBox Width="160" Text="{Binding Value}" BorderBrush="{Binding RequiredBorder}" BorderThickness="2"
+							 ext:TextBoxEx.SelectAllOnFocus="True" ext:TextBoxEx.UpdateBindingOnEnter="True"/>
 		</DataTemplate>
 		<DataTemplate x:Key="gameResult">
 			<ComboBox Width="160" ItemsSource="{Binding GameResults}" SelectedItem="{Binding GameResult}"/>
 		</DataTemplate>
 		<DataTemplate x:Key="date">
 			<DatePicker SelectedDate="{Binding EventDate}" SelectedDateFormat="Short" Width="160" VerticalAlignment="Center" VerticalContentAlignment="Center"
-									Height="22"/>
+									Height="26"/>
 		</DataTemplate>
-		<pgn:PgnEditorTemplateSelector x:Key="pets" StringTemplate="{StaticResource string}"
+		<pgn:PgnEditorTemplateSelector x:Key="pets" StringTemplate="{StaticResource string}" ReqStringTemplate="{StaticResource reqString}"
 																		 DateTemplate="{StaticResource date}" ResultTemplate="{StaticResource gameResult}"/>
 	</dialogs:DialogView.Resources>
 	<Grid>
@@ -35,25 +47,35 @@
 				<ColumnDefinition Width="260"/>
 				<ColumnDefinition Width="320"/>
 			</Grid.ColumnDefinitions>
-			<ItemsControl Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Tags}">
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<DockPanel>
-							<Label Content="{Binding Tag,Converter={StaticResource cconv}}" Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
-							<ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource pets}" Width="160"/>
-						</DockPanel>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
+			<ScrollViewer Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+				<ItemsControl ItemsSource="{Binding Tags}" MaxHeight="440">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<DockPanel>
+								<Label Content="{Binding Tag,Converter={StaticResource cconv}}" FontWeight="{Binding TagWeight}"
+										 Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
+								<ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource pets}" Width="160"/>
+							</DockPanel>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
 			<GroupBox Header="Moves" Grid.Row="1" Grid.Column="0">
-				<TextBox Text="{Binding Moves}" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="{Binding CanEditMoves}"/>
+				<TextBox Text="{Binding Moves}" Style="{StaticResource multiLine}" IsReadOnly="{Binding CanEditMoves}" MinHeight="80" MaxHeight="220"/>
 			</GroupBox>
 			<GroupBox Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"  Header="Resulting PGN">
 				<TextBox Style="{StaticResource multiLine}" Text="{Binding ResultingPGN,Mode=OneWay}" IsReadOnly="True"/>
 			</GroupBox>
 			<DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False">
-				<Button DockPanel.Dock="Left" Content="Close" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
-				<Button DockPanel.Dock="Right" Content="Copy to Clipboard" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
+				<Button DockPanel.Dock="Left" Content="{Binding AddTagLabel}" Command="{Binding Command}" CommandParameter="addTag"/>
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Visibility="{Binding IsAddingTag,Converter={StaticResource b2vc}}">
+					<Label Content="Tag Name:"/>
+					<TextBox Width="160" Text="{Binding NewTag}" HorizontalAlignment="Left" ext:TextBoxEx.UpdateBindingOnEnter="True"
+									 Name="newTag" ToolTip="Press &lt;Enter&gt; to add tag"/>
+				</StackPanel>
+				<Button DockPanel.Dock="Right" Content="Close" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
+				<Button DockPanel.Dock="Right" Content="{Binding AcceptLabel}" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
+				<CheckBox DockPanel.Dock="Right" Content="Include Empty Tags" IsChecked="{Binding IncludeEmptyTags}"/>
 			</DockPanel>
 		</Grid>
 	</Grid>

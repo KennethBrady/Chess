@@ -1,4 +1,5 @@
-﻿using Chess.Lib.Pgn.DataModel;
+﻿using Chess.Lib.Moves.Parsing;
+using Chess.Lib.Pgn.DataModel;
 using Chess.Lib.Pgn.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;

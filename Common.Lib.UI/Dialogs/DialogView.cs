@@ -167,6 +167,14 @@ namespace Common.Lib.UI.Dialogs
 			Canvas.SetTop(this, canvasPosition.Y);
 		}
 
+		protected virtual void OnDataContextChanged(object? oldValue, object? newValue) { }
+
+		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+		{
+			base.OnPropertyChanged(e);
+			if (e.Property.Name == nameof(DataContext)) OnDataContextChanged(e.OldValue, e.NewValue);
+		}
+
 		#region DialogViewDragger
 
 		private class DialogViewDragger : ElementDragHelper

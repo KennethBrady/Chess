@@ -1,10 +1,7 @@
-﻿using Common.Lib.UI.Win32;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Chess.Lib.UI.Adorners

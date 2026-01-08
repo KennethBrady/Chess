@@ -16,7 +16,11 @@ namespace Common.Lib.UI.Dialogs
 
 		protected void Accept(T acceptedValue) => Me.Closing?.Invoke(new DialogResultSuccess<T>(acceptedValue));
 
-		void ICloseable.Close() => Cancel(OperationCancelled);
-		
+		void ICloseable.Close() => Cancel(OperationCancelled);		
 	}
+
+	public interface ISettings;
+
+	//TODO: ability to save/restore dialog defaults, perhaps like this:
+	//public abstract class DialogModel<T,S> : DialogModel<T> where S : ISettings { }
 }

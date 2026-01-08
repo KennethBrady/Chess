@@ -7,10 +7,9 @@
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="list"></param>
-		/// <returns>The same list, shuffled.</returns>
-		public static List<T> Shuffle<T>(this List<T> list)
+		public static void ShuffleInPlace<T>(this List<T> list)
 		{
-			if (list.Count < 2) return list;
+			if (list.Count < 2) return;
 			for (int i = list.Count - 1; i >= 1; --i)
 			{
 				int ndx = Random.Shared.Next(i + 1);
@@ -20,8 +19,15 @@
 				list[i] = list[ndx];
 				list[ndx] = t;
 			}
-			return list;
 		}
+
+		public static List<T> Shuffled<T>(this IReadOnlyList<T> list)
+		{
+			List<T> r = new(list);
+			r.ShuffleInPlace();
+			return r;
+		}
+		
 
 	}
 }

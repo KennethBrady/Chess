@@ -9,41 +9,66 @@ using System.Collections.Immutable;
 using Chess.Lib.Moves.Parsing;
 using Common.Lib.UI.Dialogs;
 using System.Windows.Media;
+using Common.Lib.Contracts;
+using System.Windows;
+using System.Windows.Input;
+using System.Diagnostics;
 
 namespace Chess.Lib.UI.Pgn
 {
-	public class PgnEditorModel : DialogModel<Lib.Pgn.Pgn>
+	public class PgnEditorModel : DialogModel<PGN>
 	{
-		private bool _canEditMoves;
-		private string _moves;
+		private bool _canEditMoves, _includeEmptyTags;
+		private string _moves, _acceptLabel = "Copy to Clipboard", _newTag = string.Empty;
 		private List<TagModel> _tags;
 		private ICollectionView _tagsView;
+		private RelayCommand<TagModel> _delCmd;
 
 		public PgnEditorModel(IChessGame game): this(game.ToPgn()) { }
 		public PgnEditorModel(IPgnChessGame game) : this(game.ToPgn()) { }
 
-		public PgnEditorModel(Lib.Pgn.Pgn pgn)
+		public PgnEditorModel(PGN pgn)
 		{
-			Pgn = pgn;
+			PGN = pgn;
 			_tags = pgn.Tags.Select(t => new TagModel(t.Key, t.Value)).ToList();
-			foreach (string tag in PgnSourceParser.RequiredTags.Where(t => !_tags.Any(tt => tt.Tag == t))) _tags.Add(new TagModel(tag, string.Empty));		
+			_tags.Sort((mx, my) => PgnTags.TagComparer.Compare(mx.Tag, my.Tag));
+			foreach (string tag in PgnTags.Required.Where(t => !_tags.Any(tt => tt.Tag == t))) _tags.Add(new TagModel(tag, string.Empty));		
 			_tagsView = CollectionViewSource.GetDefaultView(_tags);
-			_moves = Pgn.Moves;
-			ResultingPGN = Pgn.ToString();
-			_tags.ForEach(t =>
-			{
-				t.PropertyChanged += (_, n) =>
-				{
-					if (n.PropertyName == "Value") RegeneratePGN();
-					RaiseCanExecuteChanged();
-				};
-			});
+			_moves = PGN.Moves;
+			RegeneratePGN();
+			_tags.ForEach(t => AttachModel(t));
+			_delCmd = new RelayCommand<TagModel>(Delete);
 		}
+
 		public string Title => "Export Game as PGN";
 
-		public Lib.Pgn.Pgn Pgn { get; init; }
+		/// <summary>
+		/// Get/set the label on the "OK" button
+		/// </summary>
+		public string AcceptLabel
+		{
+			get => _acceptLabel;
+			set
+			{
+				_acceptLabel = value;
+				Notify(nameof(AcceptLabel));
+			}
+		}
+
+		public PGN PGN { get; init; }
 
 		public IEnumerable Tags => _tagsView;
+
+		public string NewTag
+		{
+			get => _newTag;
+			set
+			{
+				_newTag = value;
+				Notify(nameof(NewTag));
+				if (!string.IsNullOrEmpty(_newTag)) FinishNewTag(false);
+			}
+		}
 
 		public bool CanEditMoves
 		{
@@ -52,6 +77,20 @@ namespace Chess.Lib.UI.Pgn
 			{
 				_canEditMoves = value;
 				Notify(nameof(CanEditMoves));
+			}
+		}
+
+		public bool IncludeEmptyTags
+		{
+			get => _includeEmptyTags;
+			set
+			{
+				if (value != _includeEmptyTags)
+				{
+					_includeEmptyTags = value;
+					Notify(nameof(IncludeEmptyTags));
+					RegeneratePGN();
+				}
 			}
 		}
 		public string Moves
@@ -65,6 +104,13 @@ namespace Chess.Lib.UI.Pgn
 		}
 
 		public string ResultingPGN { get; private set; } = string.Empty;
+
+		public bool IsAddingTag { get; private set; }
+
+		public string AddTagLabel => IsAddingTag ? "Cancel" : "Add Tag";
+
+		public Action FocusNewTagTextBox { get; internal set; } = Actions.Empty;
+
 		private bool AreMovesValid()
 		{
 			if (!_canEditMoves) return true;
@@ -81,6 +127,7 @@ namespace Chess.Lib.UI.Pgn
 			{
 				case CancelParameter: return true;
 				case OKParameter: return _tags.All(t => t.IsValid) && AreMovesValid();
+				case "addTag": return true;			 //return IsAddingTag || _tags.All(t => t.IsValid);
 			}
 			return false;
 		}
@@ -89,25 +136,70 @@ namespace Chess.Lib.UI.Pgn
 		{
 			switch (parameter)
 			{
-				case CancelParameter: Cancel(); break;
+				case CancelParameter: if (IsAddingTag) FinishNewTag(true); else Cancel(); break;
 				case OKParameter:
-					Accept(Lib.Pgn.Pgn.Empty with 
+					Accept(PGN.Empty with 
 						{ Moves = _moves, Tags = ImmutableDictionary<string, string>.Empty.AddRange(_tags.ToDictionary(t => t.Tag, t => t.Value)) });
 					break;
+				case "addTag": AddNewTag(); break;
+			}
+		}
+
+		private void AttachModel(TagModel tm)
+		{
+			tm.PropertyChanged += (_, n) =>
+			{
+				if (n.PropertyName == "Value") RegeneratePGN();
+				RaiseCanExecuteChanged();
+			};
+		}
+
+		private void AddNewTag()
+		{
+			NewTag = string.Empty;
+			IsAddingTag = true;
+			Notify(nameof(IsAddingTag), nameof(AddTagLabel));
+			FocusNewTagTextBox();
+		}
+
+		private void FinishNewTag(bool cancel)
+		{
+			if (cancel)
+			{
+				IsAddingTag = false;
+				Notify(nameof(IsAddingTag), nameof(AddTagLabel));
+			}
+			if (IsAddingTag && !string.IsNullOrEmpty(_newTag) && !_tags.Any(t => string.Equals(t.Tag, _newTag, StringComparison.OrdinalIgnoreCase)))
+			{
+				_tags.Add(new TagModel(_newTag, _delCmd));
+				AttachModel(_tags.Last());
+				_tagsView.Refresh();
+				IsAddingTag = false;
+				NewTag = string.Empty;
+				Notify(nameof(IsAddingTag),nameof(AddTagLabel));
 			}
 		}
 
 		private void RegeneratePGN()
 		{
-			var result = _tags.First(t => t.Tag == "Result");
-
+			var result = _tags.First(t => t.Tag == PgnTags.Result);
 			string m = Moves, gr = result.GameResult.ToTag();
 			if (!m.EndsWith(gr)) m = $"{m} {gr}";
-			Lib.Pgn.Pgn pgn = new Lib.Pgn.Pgn(_tags.Where(t => t.IsValid).Select(t => (t.Tag, t.Value)), m);
+			PGN pgn = new PGN(_tags.Where(t => IncludeEmptyTags || t.IsValid).Select(t => (t.Tag, t.Value)), m);
 			ResultingPGN = pgn.ToString();
 			Notify(nameof(ResultingPGN));
 		}
 
+		private void Delete(TagModel? tm)
+		{
+			if (tm != null && _tags.Remove(tm))
+			{
+				_tagsView.Refresh();
+				RegeneratePGN();
+			}
+		}
+
+		[DebuggerDisplay("{Tag}: {Value}")]
 		public class TagModel : ViewModel
 		{
 			private static readonly GameResult[] _gameResults = (GameResult[])Enum.GetValues(typeof(GameResult));
@@ -118,7 +210,16 @@ namespace Chess.Lib.UI.Pgn
 			{
 				_tag = tag;
 				_value = value;
+				if (_tag == "Date" && string.IsNullOrEmpty(_value)) _value = _date.ToShortDateString();
 			}
+
+			internal TagModel(string tag, ICommand delCmd)
+			{
+				_tag = tag;
+				DelCommand = delCmd;
+			}
+
+			public ICommand? DelCommand { get; private init; }
 
 			public string Tag
 			{
@@ -141,7 +242,9 @@ namespace Chess.Lib.UI.Pgn
 				}
 			}
 
-			public bool IsRequired => PgnSourceParser.RequiredTags.Contains(_tag);
+			public bool IsRequired => PgnTags.Required.Contains(_tag);
+
+			public FontWeight TagWeight => IsRequired ? FontWeights.Bold : FontWeights.Regular;
 
 			internal bool HasValue => !string.IsNullOrEmpty(_value);
 			public IEnumerable<GameResult> GameResults => _gameResults;
@@ -151,7 +254,7 @@ namespace Chess.Lib.UI.Pgn
 				get => _result;
 				set
 				{
-					if (_tag == PgnSourceParser.ResultTag)
+					if (_tag == PgnTags.Result)
 					{
 						_result = value;
 						Value = _result.ToTag();
@@ -164,7 +267,7 @@ namespace Chess.Lib.UI.Pgn
 				get => _date;
 				set
 				{
-					if (_tag == PgnSourceParser.DateTag)
+					if (_tag == PgnTags.Date)
 					{
 						_date = value;
 						Value = _date.ToShortDateString();

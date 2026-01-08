@@ -11,6 +11,7 @@ namespace Chess.Lib.Pgn.Parsing
 		public bool IsEmpty => string.IsNullOrEmpty(Name);
 	}
 
+	//TODO: Use PGN instead of Moves/Tags
 	public record struct GameImport(SourceInfo SourceInfo, string Pgn, DateTime EventDate, PgnPlayer White, PgnPlayer Black,
 		string Moves, GameResult Result, bool HasUnexpectedMoves, ImmutableDictionary<string, string> Tags) : IPgnGame
 	{

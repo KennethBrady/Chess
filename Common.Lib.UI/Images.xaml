@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<BitmapImage x:Key="closeImg" UriSource="Images/close-dark.png"/>
+	<BitmapImage x:Key="restoreImg" UriSource="Images/restore-dark.png"/>
+	<BitmapImage x:Key="minimizeImg" UriSource="Images/minimize-dark.png"/>
+	<BitmapImage x:Key="maximizeImg" UriSource="Images/maximize-dark.png"/>
+	<BitmapImage x:Key="deleteImg" UriSource="Images/delete.png"/>
+	<BitmapImage x:Key="deleteFadedImg" UriSource="Images/delete-faded.png"/>
+</ResourceDictionary>

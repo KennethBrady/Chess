@@ -11,7 +11,7 @@
 				xmlns:models="clr-namespace:ChessGame.Models"
 				xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
         mc:Ignorable="d"
-				Icon="king.ico" Height="450" Width="800" WindowState="Maximized">
+				Icon="king.ico" Height="450" Width="800" WindowState="Maximized" ModalBackground="#442222aa">
 	<win:AppWindow.Menu>
 		<Menu Background="Black" Foreground="White" FontSize="14" VerticalAlignment="Center" VerticalContentAlignment="Center">
 			<Menu.Resources>

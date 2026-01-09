@@ -5,7 +5,7 @@ using Common.Lib.UI.MVVM;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Common.Lib.UI.Windows
 {
@@ -21,6 +21,7 @@ namespace Common.Lib.UI.Windows
 	/// </summary>
 	public class AppWindow : Window, IAppWindow
 	{
+		private static readonly DialogLayer DefaultDialogLayer = new();
 		#region Static Interface
 		static AppWindow()
 		{
@@ -38,6 +39,8 @@ namespace Common.Lib.UI.Windows
 
 		public static readonly DependencyProperty DialogStyleProperty = DependencyProperty.Register("DialogStyle", typeof(Style),
 			typeof(AppWindow), new PropertyMetadata(null, null, CoerceDialogStyle));
+
+		public static readonly DependencyProperty ModalBackgroundProperty = DialogLayer.ModalBackgroundProperty.AddOwner(typeof(AppWindow));
 
 		private static object? CoerceTitleBarStyle(DependencyObject o, object? value) => (value is Style s && s.TargetType == typeof(TitleBar)) ? s : null;
 
@@ -71,13 +74,18 @@ namespace Common.Lib.UI.Windows
 			set => SetValue(DialogStyleProperty, value);
 		}
 
+		public Brush ModalBackground
+		{
+			get => (Brush)GetValue(ModalBackgroundProperty);
+			set => SetValue(ModalBackgroundProperty, value);
+		}
+
 		#endregion
 
 		public AppWindow()
 		{
 			Loaded += (o, e) => OnLoaded();
 			SizeChanged += (o, e) => OnSizeChanged(e.PreviousSize, e.NewSize);
-			DialogLayer = new DialogLayer();
 		}
 
 		protected virtual void OnLoaded() { }
@@ -89,7 +97,7 @@ namespace Common.Lib.UI.Windows
 		protected bool IsTemplateApplied { get; private set; }
 
 		private Grid Grid { get; set; } = DefaultControls.Grid;
-		private DialogLayer DialogLayer { get; init; }
+		private DialogLayer DialogLayer { get; set; } = DefaultDialogLayer;
 		private ContentPresenter ContentPresenter { get; set; } = DefaultControls.ContentPresenter;
 		public override void OnApplyTemplate()
 		{
@@ -98,9 +106,8 @@ namespace Common.Lib.UI.Windows
 			Grid = (Grid)GetTemplateChild("grid");
 			TitleBar = (TitleBar)GetTemplateChild("titleBar");
 			TitleBar.MouseDoubleClick += (o, e) => TitleBarDoubleClick(e.GetPosition(TitleBar));
+			DialogLayer = (DialogLayer)GetTemplateChild("dialogLayer");
 			ContentPresenter = (ContentPresenter)GetTemplateChild("content");
-			Grid.SetRow(DialogLayer, 1);
-			Grid.Children.Add(DialogLayer);
 		}
 
 		protected virtual void TitleBarDoubleClick(Point position)
@@ -116,16 +123,10 @@ namespace Common.Lib.UI.Windows
 			}
 		}
 
-		//TODO: use an Adorner to accomplish this?
 		protected IDisposable GoModal()
 		{
-			TitleBar.IsEnabled = false;
-			ContentPresenter.IsEnabled = false;
-			return new ActionDisposer(() =>
-			{
-				TitleBar.IsEnabled = true;
-				ContentPresenter.IsEnabled = true;
-			});
+			DialogLayer.IsHitTestVisible = true;
+			return new ActionDisposer(() => DialogLayer.IsHitTestVisible = false);
 		}
 
 		private static readonly Type DialogViewType = typeof(DialogView);
@@ -142,7 +143,7 @@ namespace Common.Lib.UI.Windows
 			DialogView? dialog = (DialogView)c.Invoke(null);
 			if (dialog == null) return new DialogResultFailure<T>("Constructor returned null.");
 			if (dialog.Style == null && DialogStyle != null) dialog.Style = DialogStyle;
-			using IDisposable modal = dialog.IsModal ? GoModal() : ActionDisposer.NoAction;
+			//using IDisposable modal = dialog.IsModal ? GoModal() : ActionDisposer.NoAction;
 			return await DialogLayer.PushDialog(dialog, ex);
 		}
 	}

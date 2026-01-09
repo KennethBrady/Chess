@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:ChessGame"
 						 xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" DialogButtons="All" Header="New Chess Game" Width="300">
+             d:DesignHeight="450" d:DesignWidth="800" DialogButtons="All" Header="New Chess Game" Width="300" IsResizable="False">
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>

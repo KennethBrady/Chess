@@ -1,7 +1,4 @@
-﻿using Org.BouncyCastle.Ocsp;
-using System.Runtime.CompilerServices;
-
-namespace Chess.Lib.Pgn
+﻿namespace Chess.Lib.Pgn
 {
 	/// <summary>
 	/// Just a bunch of string constants relevant to PGN

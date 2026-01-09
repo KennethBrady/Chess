@@ -1,4 +1,5 @@
 ﻿using Common.Lib.UI.Dialogs;
+using Common.Lib.UI.Windows;
 
 namespace Common.Lib.UI.MVVM
 {

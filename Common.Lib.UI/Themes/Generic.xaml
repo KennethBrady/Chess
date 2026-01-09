@@ -7,8 +7,11 @@
 		xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs"
 		xmlns:anim="clr-namespace:Common.Lib.UI.Animations"
 		xmlns:img="clr-namespace:Common.Lib.UI.Images"
+		xmlns:win="clr-namespace:Common.Lib.UI.Windows"
 	>
-	<Style TargetType="{x:Type local:TitleBar}" x:Key="tbarDefaultStyle">
+	<lconv:NullToVisibilityConverter x:Key="null2vis"/>
+	<BooleanToVisibilityConverter x:Key="b2vc"/>
+	<Style TargetType="{x:Type win:TitleBar}" x:Key="tbarDefaultStyle">
 		<Setter Property="Background" Value="Black"/>
 		<Setter Property="Foreground" Value="White"/>
 		<Setter Property="FontSize" Value="16"/>
@@ -16,15 +19,13 @@
 			<Setter.Value>
 				<Binding Path="Title">
 					<Binding.RelativeSource>
-						<RelativeSource AncestorType="{x:Type local:AppWindow}" Mode="FindAncestor"/>
+						<RelativeSource AncestorType="{x:Type win:AppWindow}" Mode="FindAncestor"/>
 					</Binding.RelativeSource>
 				</Binding>
 			</Setter.Value>
 		</Setter>
 	</Style>
-	<lconv:NullToVisibilityConverter x:Key="null2vis"/>
-	<BooleanToVisibilityConverter x:Key="b2vc"/>
-	<Style TargetType="{x:Type local:TitleBar}">
+	<Style TargetType="{x:Type win:TitleBar}">
 		<Style.Resources>
 			<Style x:Key="btnStyle" TargetType="{x:Type primitives:ButtonBase}">
 				<Setter Property="Width" Value="25"/>
@@ -37,10 +38,10 @@
 				<Setter Property="BorderThickness" Value="0"/>
 				<Setter Property="BorderBrush" Value="Black"/>
 			</Style>
-			<local:WindowButtonTypeToVisibilityConverter x:Key="btConv"/>
-			<local:WindowStateButtonTypeToVisibilityConverter x:Key="wsbtConv"/>
-			<local:TitleBarTitleConverter x:Key="tbtc" />
-			<Style TargetType="{x:Type local:TitleBar}" x:Key="defaultStyle">
+			<win:WindowButtonTypeToVisibilityConverter x:Key="btConv"/>
+			<win:WindowStateButtonTypeToVisibilityConverter x:Key="wsbtConv"/>
+			<win:TitleBarTitleConverter x:Key="tbtc" />
+			<Style TargetType="{x:Type win:TitleBar}" x:Key="defaultStyle">
 				<Setter Property="Background" Value="Black"/>
 				<Setter Property="Foreground" Value="White"/>
 				<Setter Property="FontSize" Value="16"/>
@@ -48,7 +49,7 @@
 					<Setter.Value>
 						<Binding Path="Title">
 							<Binding.RelativeSource>
-								<RelativeSource AncestorType="{x:Type local:AppWindow}" Mode="FindAncestor"/>
+								<RelativeSource AncestorType="{x:Type win:AppWindow}" Mode="FindAncestor"/>
 							</Binding.RelativeSource>
 						</Binding>
 					</Setter.Value>
@@ -63,7 +64,7 @@
 		</Style.Resources>
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type local:TitleBar}">
+				<ControlTemplate TargetType="{x:Type win:TitleBar}">
 					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}"
 									Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}">
 						<DockPanel LastChildFill="True">
@@ -74,7 +75,7 @@
 							<Button x:Name="PART_CloseButton" DockPanel.Dock="Right" 
 											Style="{StaticResource btnStyle}"
 											ToolTip="Close this window"
-											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=close}">
+											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type win:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=close}">
 								<Image img:ImageProvider.ImageType="Close" Width="18" Height="18" Stretch="UniformToFill" StretchDirection="Both"/>
 							</Button>
 							<Button Name="PART_RestoreButton" DockPanel.Dock="Right" 
@@ -82,7 +83,7 @@
 											ToolTip="Restore this window">
 								<Button.Visibility>
 									<MultiBinding Converter="{StaticResource wsbtConv}" ConverterParameter="restore">
-										<Binding RelativeSource="{RelativeSource AncestorType={x:Type local:TitleBar}}" Path="ButtonTypes"/>
+										<Binding RelativeSource="{RelativeSource AncestorType={x:Type win:TitleBar}}" Path="ButtonTypes"/>
 										<Binding RelativeSource="{RelativeSource AncestorType={x:Type Window}}" Path="WindowState"/>
 									</MultiBinding>
 								</Button.Visibility>
@@ -93,7 +94,7 @@
 											ToolTip="Maximize this window">
 								<Button.Visibility>
 									<MultiBinding Converter="{StaticResource wsbtConv}" ConverterParameter="maximize">
-										<Binding RelativeSource="{RelativeSource AncestorType={x:Type local:TitleBar}}" Path="ButtonTypes"/>
+										<Binding RelativeSource="{RelativeSource AncestorType={x:Type win:TitleBar}}" Path="ButtonTypes"/>
 										<Binding RelativeSource="{RelativeSource AncestorType={x:Type Window}}" Path="WindowState"/>
 									</MultiBinding>
 								</Button.Visibility>
@@ -102,7 +103,7 @@
 							<Button Name="PART_MinimizeButton" DockPanel.Dock="Right"
 											Style="{StaticResource btnStyle}"
 											ToolTip="Minimize this window"
-											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=minimize}">
+											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type win:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=minimize}">
 								<Image img:ImageProvider.ImageType="Minimize"/>
 							</Button>
 							<TextBlock Name="PART_Title" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="4" 
@@ -110,7 +111,7 @@
 								<TextBlock.Text>
 									<MultiBinding Converter="{StaticResource tbtc}">
 										<Binding RelativeSource="{RelativeSource AncestorType={x:Type Window}}" Path="Title" />
-										<Binding RelativeSource="{RelativeSource AncestorType={x:Type local:TitleBar}}" Path="Title"/>
+										<Binding RelativeSource="{RelativeSource AncestorType={x:Type win:TitleBar}}" Path="Title"/>
 									</MultiBinding>
 								</TextBlock.Text>
 							</TextBlock>
@@ -122,7 +123,7 @@
 			</Setter.Value>
 		</Setter>
 	</Style>
-	<Style TargetType="{x:Type local:AppWindow}">
+	<Style TargetType="{x:Type win:AppWindow}">
 		<Setter Property="WindowStyle" Value="None"/>
 		<Setter Property="ResizeMode" Value="CanResizeWithGrip"/>
 		<Setter Property="Content" Value="{Binding}"/>
@@ -132,7 +133,7 @@
 		<Setter Property="Background" Value="White"/>
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type local:AppWindow}">
+				<ControlTemplate TargetType="{x:Type win:AppWindow}">
 					<AdornerDecorator>
 						<Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
@@ -142,7 +143,7 @@
 									<RowDefinition Height="Auto"/>
 									<RowDefinition Height="*"/>
 								</Grid.RowDefinitions>
-								<local:TitleBar Grid.Row="0" Style="{TemplateBinding TitleBarStyle}" x:Name="titleBar"
+								<win:TitleBar Grid.Row="0" Style="{TemplateBinding TitleBarStyle}" x:Name="titleBar"
 																Menu="{TemplateBinding Menu}"/>
 								<ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" Name="content"/>
 							</Grid>

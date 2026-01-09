@@ -10,7 +10,7 @@
 						 xmlns:ext="clr-namespace:Common.Lib.UI.Extensions;assembly=Common.Lib.UI"
 						 xmlns:img="clr-namespace:Common.Lib.UI.Images;assembly=Common.Lib.UI"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Header="Export Game as PGN" DialogButtons="All" MinWidth="500">
+             d:DesignHeight="450" d:DesignWidth="800" Header="Export Game as PGN" DialogButtons="All" MinWidth="526" MinHeight="315" IsResizable="True">
 	<dialogs:DialogView.Resources>
 		<BooleanToVisibilityConverter x:Key="b2vc"/>
 		<conv:ColonConverter x:Key="cconv"/>
@@ -40,12 +40,12 @@
 		<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="260"/>
-				<ColumnDefinition Width="320"/>
+				<ColumnDefinition Width="*" MinWidth="260"/>
 			</Grid.ColumnDefinitions>
 			<ScrollViewer Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
 				<ItemsControl ItemsSource="{Binding Tags}" MaxHeight="440">
@@ -61,7 +61,7 @@
 				</ItemsControl>
 			</ScrollViewer>
 			<GroupBox Header="Moves" Grid.Row="1" Grid.Column="0">
-				<TextBox Text="{Binding Moves}" Style="{StaticResource multiLine}" IsReadOnly="{Binding CanEditMoves}" MinHeight="80" MaxHeight="220"/>
+				<TextBox Text="{Binding Moves}" Style="{StaticResource multiLine}" IsReadOnly="{Binding CanEditMoves}" MinHeight="80"/>
 			</GroupBox>
 			<GroupBox Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"  Header="Resulting PGN">
 				<TextBox Style="{StaticResource multiLine}" Text="{Binding ResultingPGN,Mode=OneWay}" IsReadOnly="True"/>

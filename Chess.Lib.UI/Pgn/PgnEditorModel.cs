@@ -1,7 +1,6 @@
 ﻿using Chess.Lib.Games;
 using Common.Lib.UI.MVVM;
 using Chess.Lib.Pgn;
-using Chess.Lib.Pgn.Parsing;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Collections;

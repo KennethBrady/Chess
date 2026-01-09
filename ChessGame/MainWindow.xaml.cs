@@ -1,5 +1,5 @@
 ﻿using ChessGame.Models;
-using Common.Lib.UI;
+using Common.Lib.UI.Windows;
 
 namespace ChessGame
 {

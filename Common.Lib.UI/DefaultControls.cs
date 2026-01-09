@@ -34,6 +34,7 @@ namespace Common.Lib.UI
 		public static readonly StackPanel StackPanel = new StackPanel() { Tag = DefaultTag };
 		public static readonly TextBlock TextBlock = new TextBlock() { Tag = DefaultTag };
 		public static readonly TextBox TextBox = new TextBox() { Tag = DefaultTag };
+		public static readonly Thumb Thumb = new Thumb() { Tag = DefaultTag };
 		public static readonly UIElement UIElement = new UIElement();
 	}
 }

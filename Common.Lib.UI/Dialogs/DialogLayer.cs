@@ -1,12 +1,15 @@
 ﻿using Common.Lib.UI.Animations;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Common.Lib.UI.Dialogs
 {
 	public class DialogLayer : Canvas
 	{
 		private Stack<DialogView> _openDialogs = new();
+
+		internal int OpenDialogCount => _openDialogs.Count;
 
 		internal Task<IDialogResult<T>> PushDialog<T>(DialogView dialog, IDialogModelEx<T> model)
 		{
@@ -58,7 +61,6 @@ namespace Common.Lib.UI.Dialogs
 				case DialogPlacement.CenterRight: x = ActualWidth - size.Width; y = center.Y - ho2; break;
 				case DialogPlacement.BottomRight: x = ActualWidth - size.Width; y = ActualHeight - size.Height; break;
 				case DialogPlacement.Custom: x = dialog.CustomPlacement.X; y= dialog.CustomPlacement.Y; break;
-
 			}
 			dialog.SetInitialPosition(new Point(x, y));
 		}

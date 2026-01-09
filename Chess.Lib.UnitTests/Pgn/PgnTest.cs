@@ -1,6 +1,5 @@
 ﻿using Chess.Lib.Moves.Parsing;
 using Chess.Lib.Pgn;
-using Chess.Lib.Pgn.Parsing;
 using Common.Lib.Extensions;
 using System.Text.RegularExpressions;
 

@@ -1,9 +1,12 @@
-﻿using Common.Lib.UI.Animations;
+﻿using Common.Lib.UI.Adorners;
+using Common.Lib.UI.Animations;
 using Common.Lib.UI.DragDrop;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Common.Lib.UI.Dialogs
@@ -65,6 +68,9 @@ namespace Common.Lib.UI.Dialogs
 		public static readonly DependencyProperty IsModalProperty = DependencyProperty.Register("IsModal", typeof(bool),
 			typeof(DialogView), new PropertyMetadata(true));
 
+		public static readonly DependencyProperty IsResizableProperty = DependencyProperty.Register("IsResizable", typeof(bool),
+			typeof(DialogView), new PropertyMetadata(true));
+
 		#endregion
 
 		#region Dependency Properties
@@ -123,6 +129,12 @@ namespace Common.Lib.UI.Dialogs
 			set => SetValue(IsModalProperty, value);
 		}
 
+		public bool IsResizable
+		{
+			get => (bool)GetValue(IsResizableProperty);
+			set => SetValue(IsResizableProperty, value);
+		}
+
 		#endregion
 
 		public DialogView()
@@ -134,6 +146,8 @@ namespace Common.Lib.UI.Dialogs
 		private Button Closer { get; set; } = DefaultControls.Button;
 		private Button Restorer { get; set; } = DefaultControls.Button;
 		private Point StartPosition { get; set; }
+
+		private ResizeAdorner? ResizeAdorner { get; set; }
 
 		public override void OnApplyTemplate()
 		{
@@ -149,9 +163,10 @@ namespace Common.Lib.UI.Dialogs
 			if (DataContext is ICloseable ic) ic.Close();
 		}
 
+		//TODO: What does "Restore" mean - occupy full window, return to a preset size?
 		private void Restorer_Click(object sender, RoutedEventArgs e)
 		{
-			SetInitialPosition(StartPosition);
+			SetInitialPosition(StartPosition);	// for now, just return to start pos
 		}
 
 		protected internal virtual void Show(Point canvasPosition)
@@ -165,6 +180,10 @@ namespace Common.Lib.UI.Dialogs
 			Dragger.StartPoint = canvasPosition;
 			Canvas.SetLeft(this, canvasPosition.X);
 			Canvas.SetTop(this, canvasPosition.Y);
+			if (IsResizable && ResizeAdorner == null)
+			{
+				AdornerLayer.GetAdornerLayer(this)?.Add(ResizeAdorner = new ResizeAdorner(this));
+			}
 		}
 
 		protected virtual void OnDataContextChanged(object? oldValue, object? newValue) { }
@@ -173,6 +192,11 @@ namespace Common.Lib.UI.Dialogs
 		{
 			base.OnPropertyChanged(e);
 			if (e.Property.Name == nameof(DataContext)) OnDataContextChanged(e.OldValue, e.NewValue);
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
 		}
 
 		#region DialogViewDragger

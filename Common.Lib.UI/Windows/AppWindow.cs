@@ -1,4 +1,5 @@
 ﻿using Common.Lib.Contracts;
+using Common.Lib.UI;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.MVVM;
 using System.Reflection;
@@ -6,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Common.Lib.UI
+namespace Common.Lib.UI.Windows
 {
 	public interface IAppWindow : IWindow
 	{
@@ -96,7 +97,7 @@ namespace Common.Lib.UI
 			base.OnApplyTemplate();
 			Grid = (Grid)GetTemplateChild("grid");
 			TitleBar = (TitleBar)GetTemplateChild("titleBar");
-			TitleBar.MouseDoubleClick += TitleBar_MouseDoubleClick;
+			TitleBar.MouseDoubleClick += (o, e) => TitleBarDoubleClick(e.GetPosition(TitleBar));
 			ContentPresenter = (ContentPresenter)GetTemplateChild("content");
 			Grid.SetRow(DialogLayer, 1);
 			Grid.Children.Add(DialogLayer);
@@ -115,9 +116,7 @@ namespace Common.Lib.UI
 			}
 		}
 
-		private void TitleBar_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
-			TitleBarDoubleClick(e.GetPosition(TitleBar));
-
+		//TODO: use an Adorner to accomplish this?
 		protected IDisposable GoModal()
 		{
 			TitleBar.IsEnabled = false;
@@ -134,7 +133,7 @@ namespace Common.Lib.UI
 		{
 			if (dialogContext is not IDialogModelEx<T> ex) return new DialogResultFailure<T>($"{nameof(dialogContext)} is not a DialogModel.");
 			Type modelType = dialogContext.GetType();
-			DialogDef? dd= Dialogs?.FirstOrDefault(d => d.ModelType == modelType);
+			DialogDef? dd = Dialogs?.FirstOrDefault(d => d.ModelType == modelType);
 			if (!dd.HasValue) return new DialogResultFailure<T>($"Dialog with model type {modelType.Name} is not registered.");
 			Type dialogType = dd.Value.DialogType;
 			if (!dialogType.IsAssignableTo(DialogViewType)) return new DialogResultFailure<T>($"Type {dialogType.Name} is not derived from {DialogViewType.Name}.");

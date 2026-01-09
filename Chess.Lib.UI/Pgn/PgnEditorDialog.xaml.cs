@@ -1,5 +1,4 @@
 ﻿using Chess.Lib.Pgn;
-using Chess.Lib.Pgn.Parsing;
 using Common.Lib.UI;
 using Common.Lib.UI.Dialogs;
 using System.Windows;

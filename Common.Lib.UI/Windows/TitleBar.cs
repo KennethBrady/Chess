@@ -1,11 +1,12 @@
-﻿using System.Runtime.InteropServices;
+﻿using Common.Lib.UI;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace Common.Lib.UI
+namespace Common.Lib.UI.Windows
 {
 	/// <summary>
 	/// Represents a window's title bar, with sizing/dragging capabilities
@@ -129,7 +130,7 @@ namespace Common.Lib.UI
 			if (Menu != null) ApplyMenu();
 		}
 
-		protected override void OnMouseMove(System.Windows.Input.MouseEventArgs e)
+		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
 			if (IsMouseCaptured) Window.GetWindow(this).DragMove();

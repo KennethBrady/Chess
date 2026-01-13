@@ -12,7 +12,6 @@ namespace Common.Lib.UI.MVVM
 
 		public IAppWindow Window { get; private init; }
 
-
 		public Task<IDialogResult<T>> ShowDialog<T>(IDialogModel<T> dialogContext)
 		{
 			return Window.ShowDialog(dialogContext);

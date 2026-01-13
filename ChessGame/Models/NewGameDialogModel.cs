@@ -1,4 +1,5 @@
 ﻿using Common.Lib.UI.Dialogs;
+using Common.Lib.UI.Settings;
 
 namespace ChessGame.Models
 {
@@ -8,6 +9,7 @@ namespace ChessGame.Models
 		public static readonly PlayerNames Empty = new PlayerNames(string.Empty, string.Empty);
 		public static readonly PlayerNames Default = new PlayerNames("White", "Black");
 	}
+
 	public class NewGameDialogModel : DialogModel<PlayerNames>
 	{
 		private string _white, _black;
@@ -17,6 +19,7 @@ namespace ChessGame.Models
 			_black = playerNames.Black;
 		}
 
+		[SavedSetting]
 		public string White
 		{
 			get => _white;
@@ -27,6 +30,7 @@ namespace ChessGame.Models
 			}
 		}
 
+		[SavedSetting]
 		public string Black
 		{
 			get => _black;

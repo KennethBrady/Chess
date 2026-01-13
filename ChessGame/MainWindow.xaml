@@ -32,8 +32,8 @@
 		<KeyBinding Key="X" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="exportPgn"/>
 	</win:AppWindow.InputBindings>
 	<win:AppWindow.Dialogs>
-		<win:DialogDef DialogType="{x:Type local:NewGameDialog}" ModelType="{x:Type models:NewGameDialogModel}"/>
-		<win:DialogDef DialogType="{x:Type pgn:PgnEditorDialog}" ModelType="{x:Type pgn:PgnEditorModel}"/>
+		<win:DialogDef DialogType="{x:Type local:NewGameDialog}" ModelType="{x:Type models:NewGameDialogModel}" SettingsKey="NewGameDialogSettings"/>
+		<win:DialogDef DialogType="{x:Type pgn:PgnEditorDialog}" ModelType="{x:Type pgn:PgnEditorModel}" SettingsKey="PgnDialogSettings"/>
 	</win:AppWindow.Dialogs>
 	<win:AppWindow.DialogStyle>
 		<Style TargetType="{x:Type dlg:DialogView}">

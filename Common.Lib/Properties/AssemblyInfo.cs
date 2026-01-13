@@ -1,8 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: System.Windows.ThemeInfo(System.Windows.ResourceDictionaryLocation.None, System.Windows.ResourceDictionaryLocation.SourceAssembly)]
-
 // In SDK-style projects such as this one, several assembly attributes that were historically
 // defined in this file are now automatically added during build and populated with
 // values defined in project properties. For details of which attributes are included
@@ -17,5 +15,5 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM.
 
-[assembly: Guid("30b115c4-9c80-4d67-bd6b-6725f6721519")]
-[assembly:InternalsVisibleTo("Common.Lib.UI.UnitTests")]
+[assembly: Guid("2a969ce7-bb8f-4964-8e43-15353aed40f3")]
+[assembly:InternalsVisibleTo("Common.Lib.UnitTests")]

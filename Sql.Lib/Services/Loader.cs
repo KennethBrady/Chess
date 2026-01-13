@@ -216,7 +216,7 @@ namespace Sql.Lib.Services
 				if (orig is string sval)
 				{
 					if (DBTableAttr.IsFilePathField(fieldName)) sval = sval.Replace("\\", "/");
-					if (sval.Contains('\'')) sval = sval.SingleQuoteEscaped();
+					if (sval.Contains('\'')) sval = sval.SingleQuoteEscaped;
 					return $"'{sval}'";
 				}
 				else

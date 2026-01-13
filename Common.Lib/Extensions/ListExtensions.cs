@@ -1,6 +1,6 @@
 ﻿namespace Common.Lib.Extensions
 {
-	public static class ListEx
+	public static class ListExtensions
 	{
 		/// <summary>
 		/// Apply a Fisher-Yates shuffle in-place

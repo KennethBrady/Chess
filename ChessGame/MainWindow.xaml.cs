@@ -10,6 +10,7 @@ namespace ChessGame
 		public MainWindow()
 		{
 			InitializeComponent();
+			AppSettings = Settings.Default;
 			DataContext = Model = new MainModel(this);
 		}
 

@@ -12,12 +12,13 @@ using Common.Lib.Contracts;
 using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
+using Common.Lib.UI.Settings;
 
 namespace Chess.Lib.UI.Pgn
 {
 	public class PgnEditorModel : DialogModel<PGN>
 	{
-		private bool _canEditMoves, _includeEmptyTags;
+		private bool _canEditMoves, _includeEmptyTags, _allowIncompleteTags, _allowInvalidMoves;
 		private string _moves, _acceptLabel = "Copy to Clipboard", _newTag = string.Empty;
 		private List<TagModel> _tags;
 		private ICollectionView _tagsView;
@@ -79,6 +80,31 @@ namespace Chess.Lib.UI.Pgn
 			}
 		}
 
+		[SavedSetting]
+		public bool AllowIncompleteTags
+		{
+			get => _allowIncompleteTags;
+			set
+			{
+				_allowIncompleteTags = value;
+				Notify(nameof(AllowIncompleteTags));
+				RaiseCanExecuteChanged();
+			}
+		}
+
+		[SavedSetting]
+		public bool AllowInvalidMoves
+		{
+			get => _allowInvalidMoves;
+			set
+			{
+				_allowInvalidMoves = value;
+				Notify(nameof(AllowInvalidMoves));
+				RaiseCanExecuteChanged();
+			}
+		}
+
+		[SavedSetting]
 		public bool IncludeEmptyTags
 		{
 			get => _includeEmptyTags;
@@ -125,7 +151,7 @@ namespace Chess.Lib.UI.Pgn
 			switch (parameter)
 			{
 				case CancelParameter: return true;
-				case OKParameter: return _tags.All(t => t.IsValid) && AreMovesValid();
+				case OKParameter: return (AllowIncompleteTags || _tags.All(t => t.IsValid)) && (AllowInvalidMoves || AreMovesValid());
 				case "addTag": return true;			 //return IsAddingTag || _tags.All(t => t.IsValid);
 			}
 			return false;

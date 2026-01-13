@@ -53,7 +53,7 @@
 						<DataTemplate>
 							<DockPanel>
 								<Label Content="{Binding Tag,Converter={StaticResource cconv}}" FontWeight="{Binding TagWeight}"
-										 Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right"/>
+										 Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right" IsTabStop="False"/>
 								<ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource pets}" Width="160"/>
 							</DockPanel>
 						</DataTemplate>

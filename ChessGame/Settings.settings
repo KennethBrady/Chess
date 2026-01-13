@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ChessGame" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="NewGameDialogSettings" Type="System.String" Scope="User">
+      <Value Profile="(Default)">White:White|Black:Black</Value>
+    </Setting>
+    <Setting Name="PgnDialogSettings" Type="System.String" Scope="User">
+      <Value Profile="(Default)">IncludeEmptyTags:True</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

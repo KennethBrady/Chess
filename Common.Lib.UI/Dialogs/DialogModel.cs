@@ -1,26 +1,39 @@
-﻿using Common.Lib.Contracts;
-
-namespace Common.Lib.UI.Dialogs
+﻿namespace Common.Lib.UI.Dialogs
 {
-	public abstract class DialogModel<T> : CommandModel, IDialogModelEx<T>, ICloseable
+	public delegate void DialogResultHandler<T>(IDialogResult<T> result);
+
+	public abstract class DialogModel<T> : CommandModel, IDialogModelEx<T>
 	{
 		public const string CancelParameter = "cancel";
 		public const string OKParameter = "ok";
 		protected const string OperationCancelled = "Operation Cancelled";
 
-		Action<IDialogResult<T>> IDialogModelEx<T>.Closing { get; set; } = Actions<IDialogResult<T>>.Empty;
+		private List<DialogResultHandler<T>> _resultHandlers = new();
 
-		private IDialogModelEx<T> Me => (IDialogModelEx<T>)this;
+		public IDialogResult<T>? FinalResult { get; private set; } = null;
 
-		protected void Cancel(string reason = OperationCancelled) => Me.Closing?.Invoke(new DialogResultFailure<T>(reason));
+		protected void Cancel(string reason = OperationCancelled) => OnClosed(new DialogResultFailure<T>(reason));
 
-		protected void Accept(T acceptedValue) => Me.Closing?.Invoke(new DialogResultSuccess<T>(acceptedValue));
+		protected void Accept(T acceptedValue) => OnClosed(new DialogResultSuccess<T>(acceptedValue));
 
-		void ICloseable.Close() => Cancel(OperationCancelled);		
+		protected virtual void OnClosed(IDialogResult<T> result)
+		{
+			FinalResult = result;
+			foreach (var handler in _resultHandlers) handler(result);
+		}
+
+		void IDialogModel.Close(string reason) => Cancel(string.IsNullOrEmpty(reason) ? OperationCancelled : reason);
+
+		event DialogResultHandler<T>? IDialogModelEx<T>.Closing
+		{
+			add
+			{
+				if (value != null) _resultHandlers.Add(value);
+			}
+			remove
+			{
+				if (value != null) _resultHandlers.Remove(value);
+			}
+		}
 	}
-
-	public interface ISettings;
-
-	//TODO: ability to save/restore dialog defaults, perhaps like this:
-	//public abstract class DialogModel<T,S> : DialogModel<T> where S : ISettings { }
 }

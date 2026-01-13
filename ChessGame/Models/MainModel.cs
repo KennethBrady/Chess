@@ -71,7 +71,7 @@ namespace ChessGame.Models
 
 		private async void ExportPgn()
 		{
-			var result = await ShowDialog<PGN>(new PgnEditorModel(_game));
+			var result = await ShowDialog<PGN>(new PgnEditorModel(_game) { AllowIncompleteTags = true });
 			switch(result)
 			{
 				case IDialogResultAccepted<PGN> s: 

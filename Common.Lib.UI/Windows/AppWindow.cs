@@ -2,6 +2,8 @@
 using Common.Lib.UI;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.MVVM;
+using Common.Lib.UI.Settings;
+using System.Configuration;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,13 +11,6 @@ using System.Windows.Media;
 
 namespace Common.Lib.UI.Windows
 {
-	public interface IAppWindow : IWindow
-	{
-		Task<IDialogResult<T>> ShowDialog<T>(IDialogModel<T> dialogContext);
-	}
-
-	public record struct DialogDef(Type DialogType, Type ModelType);
-
 	/// <summary>
 	/// Represents a window with customizable chrome, menu and dialogs
 	/// </summary>
@@ -41,6 +36,9 @@ namespace Common.Lib.UI.Windows
 			typeof(AppWindow), new PropertyMetadata(null, null, CoerceDialogStyle));
 
 		public static readonly DependencyProperty ModalBackgroundProperty = DialogLayer.ModalBackgroundProperty.AddOwner(typeof(AppWindow));
+
+		public static readonly DependencyProperty AppSettingsProperty = DependencyProperty.Register("AppSettings", typeof(ApplicationSettingsBase),
+			typeof(AppWindow), new PropertyMetadata(new DefaultAppSettings()));
 
 		private static object? CoerceTitleBarStyle(DependencyObject o, object? value) => (value is Style s && s.TargetType == typeof(TitleBar)) ? s : null;
 
@@ -80,6 +78,12 @@ namespace Common.Lib.UI.Windows
 			set => SetValue(ModalBackgroundProperty, value);
 		}
 
+		public ApplicationSettingsBase AppSettings
+		{
+			get => (ApplicationSettingsBase)GetValue(AppSettingsProperty);
+			set => SetValue(AppSettingsProperty, value);
+		}
+
 		#endregion
 
 		public AppWindow()
@@ -99,6 +103,7 @@ namespace Common.Lib.UI.Windows
 		private Grid Grid { get; set; } = DefaultControls.Grid;
 		private DialogLayer DialogLayer { get; set; } = DefaultDialogLayer;
 		private ContentPresenter ContentPresenter { get; set; } = DefaultControls.ContentPresenter;
+
 		public override void OnApplyTemplate()
 		{
 			IsTemplateApplied = true;
@@ -123,27 +128,39 @@ namespace Common.Lib.UI.Windows
 			}
 		}
 
+		protected override void OnClosed(EventArgs e)
+		{
+			if (!AppSettings.IsDefault) AppSettings.Save();
+			base.OnClosed(e);
+		}
+
 		protected IDisposable GoModal()
 		{
 			DialogLayer.IsHitTestVisible = true;
 			return new ActionDisposer(() => DialogLayer.IsHitTestVisible = false);
 		}
 
-		private static readonly Type DialogViewType = typeof(DialogView);
 		async Task<IDialogResult<T>> IAppWindow.ShowDialog<T>(IDialogModel<T> dialogContext)
 		{
+			if (Dialogs == null || Dialogs.Count == 0) return new DialogResultFailure<T>($"No dialogs have been registered.");
 			if (dialogContext is not IDialogModelEx<T> ex) return new DialogResultFailure<T>($"{nameof(dialogContext)} is not a DialogModel.");
 			Type modelType = dialogContext.GetType();
-			DialogDef? dd = Dialogs?.FirstOrDefault(d => d.ModelType == modelType);
-			if (!dd.HasValue) return new DialogResultFailure<T>($"Dialog with model type {modelType.Name} is not registered.");
-			Type dialogType = dd.Value.DialogType;
-			if (!dialogType.IsAssignableTo(DialogViewType)) return new DialogResultFailure<T>($"Type {dialogType.Name} is not derived from {DialogViewType.Name}.");
-			ConstructorInfo? c = dialogType.GetConstructor(Type.EmptyTypes);
+			DialogDef dd = Dialogs.FirstOrDefault(d => d.ModelType == modelType);
+			if (dd.IsViewTypeValid) return new DialogResultFailure<T>($"Dialog with model type {modelType.Name} is not registered.");
+			if (!dd.IsModelTypeValid) return new DialogResultFailure<T>($"Type {dd.DialogType.Name} is not derived from {typeof(DialogView).Name}.");
+
+			ConstructorInfo? c = dd.DialogType.GetConstructor(Type.EmptyTypes);
 			if (c == null) return new DialogResultFailure<T>("DialogView must have an empty public constructor.");
 			DialogView? dialog = (DialogView)c.Invoke(null);
 			if (dialog == null) return new DialogResultFailure<T>("Constructor returned null.");
 			if (dialog.Style == null && DialogStyle != null) dialog.Style = DialogStyle;
-			//using IDisposable modal = dialog.IsModal ? GoModal() : ActionDisposer.NoAction;
+			// If dialog is using the settings infrastructure, attach it:
+			var settingsKey = SettingsApplier.Attach((IViewModel)dialogContext, AppSettings, dd.SettingsKey);
+			ex.Closing += (result) =>
+			{
+				if (result.Accepted) settingsKey.ApplyChanges();
+			};
+			System.Diagnostics.Debug.WriteLine("Pushing dialog");
 			return await DialogLayer.PushDialog(dialog, ex);
 		}
 	}

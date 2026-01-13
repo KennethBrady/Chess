@@ -160,7 +160,7 @@ namespace Common.Lib.UI.Dialogs
 
 		private void Closer_Click(object sender, RoutedEventArgs e)
 		{
-			if (DataContext is ICloseable ic) ic.Close();
+			if (DataContext is IDialogModel idm) idm.Close();
 		}
 
 		//TODO: What does "Restore" mean - occupy full window, return to a preset size?

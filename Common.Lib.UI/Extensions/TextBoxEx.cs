@@ -39,8 +39,10 @@ namespace Common.Lib.UI.Extensions
 
 		#endregion
 
+		#region SelectAllOnFocus Implementation
+
 		public static readonly DependencyProperty SelectAllOnFocusProperty = DependencyProperty.RegisterAttached("SelectAllOnFocus",
-	typeof(bool), typeof(TextBoxEx), new FrameworkPropertyMetadata(false, HandleSelectAllOnFocusChanged));
+			typeof(bool), typeof(TextBoxEx), new FrameworkPropertyMetadata(false, HandleSelectAllOnFocusChanged));
 
 		private static void HandleSelectAllOnFocusChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
 		{
@@ -70,7 +72,6 @@ namespace Common.Lib.UI.Extensions
 			t.Start();
 		}
 
-
-
+		#endregion
 	}
 }

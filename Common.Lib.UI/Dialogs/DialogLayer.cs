@@ -49,7 +49,7 @@ namespace Common.Lib.UI.Dialogs
 				}
 			}
 			Animator.SetNotifier(dialog, notify);
-			model.Closing = (result) =>
+			model.Closing += (result) =>
 			{
 				dlgResult = result;
 				var dlg = _openDialogs.Pop();

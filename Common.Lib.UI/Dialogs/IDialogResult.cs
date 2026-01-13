@@ -1,17 +1,5 @@
 ﻿namespace Common.Lib.UI.Dialogs
 {
-	public interface IDialogModel<T>;
-
-	internal interface IDialogModelEx<T> : IDialogModel<T>
-	{
-		Action<IDialogResult<T>> Closing { get; set; }
-	}
-
-	internal interface ICloseable
-	{
-		void Close();
-	}
-
 	public interface IDialogResult<T>
 	{
 		bool Accepted { get; }

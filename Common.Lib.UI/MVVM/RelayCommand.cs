@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+//using Application = System.Windows.Application;
 
 namespace Common.Lib.UI.MVVM
 {
@@ -33,7 +34,12 @@ namespace Common.Lib.UI.MVVM
 				CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 				CommandManager.InvalidateRequerySuggested();
 			}
-			if (Application.Current == null) return;
+			if (Application.Current == null)
+			{
+				// Not relevant except for testing?
+				CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+				return;
+			}
 			if (Application.Current.Dispatcher.Thread == Thread.CurrentThread) raise();
 			else Application.Current.Dispatcher.Invoke(raise);
 		}

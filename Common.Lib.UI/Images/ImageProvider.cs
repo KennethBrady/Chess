@@ -22,7 +22,7 @@ namespace Common.Lib.UI.Images
 					switch (it)
 					{
 						case ImageType.Delete: return "delete";
-						case ImageType.DeleteFaded: return "delte-faded";
+						case ImageType.DeleteFaded: return "delete-faded";
 						case ImageType.Maximize: return "maximize-dark";
 						case ImageType.Minimize: return "minimize-dark";
 						case ImageType.Restore: return "restore-dark";

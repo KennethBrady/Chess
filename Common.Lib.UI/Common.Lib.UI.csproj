@@ -41,4 +41,12 @@
     <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

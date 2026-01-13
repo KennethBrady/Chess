@@ -146,7 +146,7 @@ namespace Common.Lib.UI.Windows
 			if (dialogContext is not IDialogModelEx<T> ex) return new DialogResultFailure<T>($"{nameof(dialogContext)} is not a DialogModel.");
 			Type modelType = dialogContext.GetType();
 			DialogDef dd = Dialogs.FirstOrDefault(d => d.ModelType == modelType);
-			if (dd.IsViewTypeValid) return new DialogResultFailure<T>($"Dialog with model type {modelType.Name} is not registered.");
+			if (!dd.IsViewTypeValid) return new DialogResultFailure<T>($"Dialog with model type {modelType.Name} is not registered.");
 			if (!dd.IsModelTypeValid) return new DialogResultFailure<T>($"Type {dd.DialogType.Name} is not derived from {typeof(DialogView).Name}.");
 
 			ConstructorInfo? c = dd.DialogType.GetConstructor(Type.EmptyTypes);

@@ -1,7 +1,6 @@
 ﻿using Common.Lib.Contracts;
 using Common.Lib.UI;
 using Common.Lib.UI.Dialogs;
-using Common.Lib.UI.MVVM;
 using Common.Lib.UI.Settings;
 using System.Configuration;
 using System.Reflection;
@@ -149,19 +148,18 @@ namespace Common.Lib.UI.Windows
 			if (!dd.IsViewTypeValid) return new DialogResultFailure<T>($"Dialog with model type {modelType.Name} is not registered.");
 			if (!dd.IsModelTypeValid) return new DialogResultFailure<T>($"Type {dd.DialogType.Name} is not derived from {typeof(DialogView).Name}.");
 
+			// Create dialog:
 			ConstructorInfo? c = dd.DialogType.GetConstructor(Type.EmptyTypes);
 			if (c == null) return new DialogResultFailure<T>("DialogView must have an empty public constructor.");
 			DialogView? dialog = (DialogView)c.Invoke(null);
 			if (dialog == null) return new DialogResultFailure<T>("Constructor returned null.");
 			if (dialog.Style == null && DialogStyle != null) dialog.Style = DialogStyle;
-			// If dialog is using the settings infrastructure, attach it:
-			var settingsKey = SettingsApplier.Attach((IViewModel)dialogContext, AppSettings, dd.SettingsKey);
+			SettingsManager.ApplySettings(dialogContext, AppSettings, dd.SettingsKey);
 			ex.Closing += (result) =>
 			{
-				if (result.Accepted) settingsKey.ApplyChanges();
+				if (result.Accepted) SettingsManager.ExtractAndSaveSettings(dialogContext, AppSettings, dd.SettingsKey);
 			};
-			System.Diagnostics.Debug.WriteLine("Pushing dialog");
-			return await DialogLayer.PushDialog(dialog, ex);
+			return await DialogLayer.PushDialog(dialog, ex);	
 		}
 	}
 }

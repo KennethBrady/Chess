@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Common.Lib.UI.UnitTests" GeneratedClassName="TestSettings">
   <Profiles />
   <Settings>
-    <Setting Name="MyTestDialogSettings" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="TestDialogSettings" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

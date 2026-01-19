@@ -25,7 +25,7 @@ namespace ChessGame {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("White:White|Black:Black")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string NewGameDialogSettings {
             get {
                 return ((string)(this["NewGameDialogSettings"]));
@@ -37,13 +37,25 @@ namespace ChessGame {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("IncludeEmptyTags:True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string PgnDialogSettings {
             get {
                 return ((string)(this["PgnDialogSettings"]));
             }
             set {
                 this["PgnDialogSettings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ClockSettings {
+            get {
+                return ((string)(this["ClockSettings"]));
+            }
+            set {
+                this["ClockSettings"] = value;
             }
         }
     }

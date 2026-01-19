@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿using Common.Lib.UI.MVVM;
+using Common.Lib.UI.Settings;
 
 namespace Common.Lib.UI.Dialogs
 {
-    public interface IDialogModel : INotifyPropertyChanged
+    public interface IDialogModel : IViewModel
 	{
 		/// <summary>
 		/// Close the associated dialog with a default (cancel) value

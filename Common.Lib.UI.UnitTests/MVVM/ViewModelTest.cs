@@ -1,4 +1,6 @@
 ﻿using Common.Lib.UI.MVVM;
+using Common.Lib.UI.Settings;
+using System.Reflection;
 
 namespace Common.Lib.UI.UnitTests.MVVM
 {
@@ -31,6 +33,9 @@ namespace Common.Lib.UI.UnitTests.MVVM
 			using var nc = vm.SuspendNotifications();
 			m.Value = 6;
 			Assert.IsFalse(pcCalled);
+			nc.Dispose();
+			m.Value = 8;
+			Assert.IsTrue(pcCalled);
 		}
 
 		private class MyVM : ViewModel
@@ -44,6 +49,25 @@ namespace Common.Lib.UI.UnitTests.MVVM
 				{
 					_value = value;
 					Notify(nameof(Value));
+				}
+			}
+		}
+
+		private class MyVM2 : ViewModel
+		{
+			private int _value;
+
+			[SavedSetting]
+			public int Value
+			{
+				get => _value;
+				set
+				{
+					if (value != _value)
+					{
+						_value = value;
+						Notify(nameof(Value));
+					}
 				}
 			}
 		}

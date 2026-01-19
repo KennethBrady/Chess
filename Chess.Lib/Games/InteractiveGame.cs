@@ -1,28 +1,39 @@
-﻿using Chess.Lib.Moves;
+﻿using Chess.Lib.Hardware.Timing;
+using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
 using System.Diagnostics;
 
 namespace Chess.Lib.Games
 {
+	public record struct GameStartDefinition(string WhiteName, string BlackName, ChessClockSetup ClockSetup)
+	{
+		public static readonly GameStartDefinition Empty = new GameStartDefinition(string.Empty, string.Empty, ChessClockSetup.Empty);
+	}
+
 	internal sealed class InteractiveGame : ChessGame, IInteractiveChessGame
 	{
-		public InteractiveGame(): base(false) { }
+		public InteractiveGame() : base(false) { }
 
-		internal InteractiveGame(IChessPlayer white, IChessPlayer black): base(false, white.Name, black.Name) { }
+		internal InteractiveGame(IChessPlayer white, IChessPlayer black) : base(false, white.Name, black.Name) { }
 
-		internal InteractiveGame(IGame basedOn): this(basedOn.White, basedOn.Black) 
+		internal InteractiveGame(IGame basedOn) : this(basedOn.White, basedOn.Black)
 		{
 			IGame r = new InteractiveGame(basedOn.White, basedOn.Black);
-			foreach(MoveRequest mr in basedOn.Moves.PriorMoves.Select(m => new MoveRequest(m.AsEngineMove)))
+			foreach (MoveRequest mr in basedOn.Moves.PriorMoves.Select(m => new MoveRequest(m.AsEngineMove)))
 			{
-				switch(r.NextPlayer.AttemptMove(mr))
+				switch (r.NextPlayer.AttemptMove(mr))
 				{
 					case IMoveAttemptFail f: throw new UnreachableException(f.Reason.ToString());
 				}
 			}
 		}
 
-		internal InteractiveGame(string whiteName, string blackName): base(false, whiteName, blackName) { }
+		internal InteractiveGame(string whiteName, string blackName) : base(false, whiteName, blackName) { }
+
+		internal InteractiveGame(GameStartDefinition gameDefinition): base(false, gameDefinition.WhiteName, gameDefinition.BlackName) 
+		{
+			Me.AttachClock(gameDefinition.ClockSetup);
+		}
 
 		public override bool IsReadOnly => false;
 
@@ -32,11 +43,13 @@ namespace Chess.Lib.Games
 			return ex.ParseFor(this);
 		}
 
+		public IChessClock Clock { get; private set; } = NullClock.Instance;
+
 		public int ApplyMoves(string moves, MoveFormat format = MoveFormat.Unknown)
 		{
 			if (format == MoveFormat.Unknown) format = Parsers.DetectFormat(moves);
 			IMoveParserEx? parser = null;
-			switch(format)
+			switch (format)
 			{
 				case MoveFormat.Unknown: return 0;
 				case MoveFormat.Algebraic: parser = AlgebraicMoves.Create(moves); break;
@@ -46,5 +59,16 @@ namespace Chess.Lib.Games
 			}
 			return parser.ParseFor(this);
 		}
+
+		bool IInteractiveChessGame.AttachClock(ChessClockSetup clockSetup)
+		{
+			if (clockSetup.IsEmpty) return false;
+			if (Moves.Count > 0) return false;
+			Clock = new ChessClock(clockSetup);
+			Clock.Attach(this);
+			return true;
+		}
+
+		private new IInteractiveChessGame Me => (IInteractiveChessGame)this;
 	}
 }

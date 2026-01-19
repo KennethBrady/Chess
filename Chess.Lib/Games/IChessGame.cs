@@ -1,4 +1,5 @@
 ﻿using Chess.Lib.Hardware;
+using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
 using Common.Lib.Contracts;
@@ -56,6 +57,10 @@ namespace Chess.Lib.Games
 	{
 		int ApplyMoves(IMoveParser parser);
 		int ApplyMoves(string moves, MoveFormat format = MoveFormat.Unknown);
+
+		IChessClock Clock { get; }
+
+		bool AttachClock(ChessClockSetup clockSetup);
 	}
 
 	internal interface IGame : IChessGame

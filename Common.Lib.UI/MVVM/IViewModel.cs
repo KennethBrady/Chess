@@ -2,7 +2,7 @@
 
 namespace Common.Lib.UI.MVVM
 {
-	internal interface IViewModel : INotifyPropertyChanged
+	public interface IViewModel : INotifyPropertyChanged
 	{
 		/// <summary>
 		/// Suspend PropertyChanged Notifications.

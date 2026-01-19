@@ -35,5 +35,11 @@
 				if (value != null) _resultHandlers.Remove(value);
 			}
 		}
+
+		protected override void Notify(params string[] propertyNames)
+		{
+			base.Notify(propertyNames);
+			RaiseCanExecuteChanged();
+		}
 	}
 }

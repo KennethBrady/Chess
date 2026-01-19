@@ -5,10 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ChessGame"
 						 xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
+						 xmlns:clock="clr-namespace:Chess.Lib.UI.Clock;assembly=Chess.Lib.UI"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" DialogButtons="All" Header="New Chess Game" Width="300" IsResizable="False">
+             d:DesignHeight="450" d:DesignWidth="800" DialogButtons="All" Header="New Chess Game" MinWidth="500" IsResizable="False"
+								FocusManager.FocusedElement="{Binding ElementName=white}">
+	<dlg:DialogView.Resources>
+		<BooleanToVisibilityConverter x:Key="b2vc"/>
+	</dlg:DialogView.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
@@ -16,14 +22,17 @@
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
-		<Label Grid.Row="0" Grid.Column="0"  Content="White Name:"/>
-		<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding White}"/>
-		<Label Grid.Row="1" Grid.Column="0" Content="Black Name:"/>
-		<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Black}"/>
-		<DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False">
-			<Button DockPanel.Dock="Right" Content="Cancel" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
-			<Button DockPanel.Dock="Right" Content="Create Game" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
+		<Label Grid.Row="0" Grid.Column="0"  Content="White Player:"/>
+		<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding White}" Name="white"/>
+		<Label Grid.Row="0" Grid.Column="2" Content="Black Player:"/>
+		<TextBox Grid.Row="0" Grid.Column="3" Text="{Binding Black}"/>
+		<clock:ClockSettingsView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" DataContext="{Binding ClockSettings}"/>
+		<DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" LastChildFill="False">
+			<Button Content="Create Game" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
+			<Button Content="Cancel" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
 		</DockPanel>
 	</Grid>
 </dlg:DialogView>

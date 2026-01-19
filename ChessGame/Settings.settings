@@ -3,10 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="NewGameDialogSettings" Type="System.String" Scope="User">
-      <Value Profile="(Default)">White:White|Black:Black</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="PgnDialogSettings" Type="System.String" Scope="User">
-      <Value Profile="(Default)">IncludeEmptyTags:True</Value>
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ClockSettings" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

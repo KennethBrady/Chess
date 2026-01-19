@@ -141,6 +141,7 @@ namespace Common.Lib.UI.Dialogs
 		{
 			Dragger = new DialogViewDragger(this);
 			ElementDragger.SetAllowDrag(this, Dragger);
+			Loaded += (_, _) => { OnLoaded(); };
 		}
 		private DialogViewDragger Dragger { get; init; }
 		private Button Closer { get; set; } = DefaultControls.Button;
@@ -168,6 +169,8 @@ namespace Common.Lib.UI.Dialogs
 		{
 			SetInitialPosition(StartPosition);	// for now, just return to start pos
 		}
+
+		protected virtual void OnLoaded() { }
 
 		protected internal virtual void Show(Point canvasPosition)
 		{

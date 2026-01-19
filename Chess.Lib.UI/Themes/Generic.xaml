@@ -2,9 +2,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:Chess.Lib.UI"
+		xmlns:conv="clr-namespace:Common.Lib.UI.Converters;assembly=Common.Lib.UI"
 		xmlns:lconv="clr-namespace:Chess.Lib.UI.Converters"
 		xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn"
 		xmlns:tkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+		xmlns:clock="clr-namespace:Chess.Lib.UI.Clock"
 	>
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="/Common.Lib.UI;component/CommonStyles.xaml"/>
@@ -112,6 +114,74 @@
 							<local:ChessBoard Grid.Column="1" Game="{TemplateBinding Game}" 
 																Width="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" 
 																Height="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" />
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type clock:ClockSettingsView}">
+		<Style.Resources>
+			<Style TargetType="{x:Type tkit:IntegerUpDown}">
+				<Setter Property="Width" Value="50"/>
+				<Setter Property="HorizontalAlignment" Value="Left"/>
+			</Style>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type clock:ClockSettingsView}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="Auto"/>
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<UniformGrid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Columns="3">
+								<CheckBox Content="Enable Clock" IsChecked="{Binding UseClock}"/>
+								<CheckBox Content="Use Dual Clock Settings" IsChecked="{Binding UseDual}" Margin="10,0" IsEnabled="{Binding UseClock}"/>
+								<StackPanel Orientation="Horizontal">
+									<Label Content="Presets:"/>
+									<ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}"/>
+								</StackPanel>
+							</UniformGrid>
+							<GroupBox Grid.Row="1" Grid.Column="0" Header="{Binding SingleClockHeader}" IsEnabled="{Binding UseClock}">
+								<Grid DataContext="{Binding SingleSettings}">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+									</Grid.RowDefinitions>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="*"/>
+									</Grid.ColumnDefinitions>
+									<Label Grid.Row="0" Grid.Column="0" Content="Time Limit (min):"/>
+									<tkit:IntegerUpDown Grid.Row="0" Grid.Column="1" Value="{Binding TimeLimit}" Minimum="1" Maximum="120" />
+									<Label Grid.Row="1" Grid.Column="0" Content="Increment (s):"/>
+									<tkit:IntegerUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Increment}" Minimum="0" Maximum="10"/>
+								</Grid>
+							</GroupBox>
+							<GroupBox Grid.Row="1" Grid.Column="1" Header="Black Clock" IsEnabled="{Binding UseDual}">
+								<Grid DataContext="{Binding DualSettings}">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+									</Grid.RowDefinitions>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="*"/>
+									</Grid.ColumnDefinitions>
+									<Label Grid.Row="0" Grid.Column="0" Content="Time Limit (min):"/>
+									<tkit:IntegerUpDown Grid.Row="0" Grid.Column="1" Value="{Binding TimeLimit}" Minimum="1" Maximum="120" />
+									<Label Grid.Row="1" Grid.Column="0" Content="Increment (s):"/>
+									<tkit:IntegerUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Increment}" Minimum="0" Maximum="10"/>
+								</Grid>
+							</GroupBox>
 						</Grid>
 					</Border>
 				</ControlTemplate>

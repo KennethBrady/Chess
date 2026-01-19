@@ -35,7 +35,12 @@ namespace Chess.Lib.Games
 		private IMoves _moves;
 		private Dictionary<int, IGameState> _gameStates = new();
 
-		// KnownGame constructor
+		/// <summary>
+		/// KnownGame constructor, such as a PGN game with known moves.
+		/// </summary>
+		/// <param name="game">The game parsed from PGN</param>
+		/// <param name="whiteName">The white player's name</param>
+		/// <param name="blackName">The black player's name</param>
 		protected ChessGame(ChessGame game, string whiteName = "", string blackName = "")
 		{
 			_board = game._board;

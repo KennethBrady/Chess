@@ -1,6 +1,7 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
+using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
 using File = Chess.Lib.Hardware.File;
@@ -27,6 +28,8 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.IsFalse(g.Black.HasNextMove);
 			Assert.HasCount(0, g.Moves);
 			Assert.AreEqual(-1, g.Moves.CurrentPosition);
+			Assert.IsNotNull(g.Clock);
+			Assert.IsTrue(g.Clock.IsNull);
 		}
 
 		[TestMethod]
@@ -116,6 +119,35 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.IsFalse(g.White.HasNextMove);
 			Assert.AreSame(g.LastMoveMade, g.White.LastMoveMade);
 			Assert.IsTrue(g.Black.LastMoveMade is NoMove);
+		}
+
+		[TestMethod]
+		public async Task AttachClock()
+		{
+			IInteractiveChessGame g = new InteractiveGame();
+			Assert.IsTrue(g.Clock.IsNull);
+			TimeSpan ts5 = TimeSpan.FromMinutes(5);
+			bool attached = g.AttachClock(new ChessClockSetup(ts5));
+			Assert.IsTrue(attached);
+			Assert.IsFalse(g.Clock.IsNull);
+			Assert.AreEqual(ts5, g.Clock.White.MaxTime);
+			Assert.AreEqual(ts5, g.Clock.Black.MaxTime);
+			Assert.AreEqual(TimeSpan.Zero, g.Clock.White.Increment);
+			Assert.AreEqual(TimeSpan.Zero, g.Clock.Black.Increment);	
+			Assert.IsFalse(g.Clock.IsRunning);
+			Assert.IsFalse(g.Clock.IsStarted);
+			switch(g.White.AttemptMove("e2e4"))
+			{
+				case IMoveAttemptSuccess mas:
+					Assert.IsTrue(g.Clock.IsRunning);
+					Assert.IsTrue(g.Clock.IsStarted);
+					Assert.IsTrue(g.Clock.White.IsRunning);
+					Assert.IsFalse(g.Clock.Black.IsRunning);
+					break;
+				case IMoveAttemptFail f:
+					Assert.Fail(f.Reason.ToString());
+					break;
+			}
 		}
 	}
 }

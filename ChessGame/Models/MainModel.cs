@@ -61,11 +61,11 @@ namespace ChessGame.Models
 
 		private async void StartNewGame()
 		{
-			var result = await ShowDialog(new NewGameDialogModel(PlayerNames.Default));
+			var result = await ShowDialog(new NewGameDialogModel(GameStartDefinition.Empty));
 			if (result.Accepted)
 			{
-				var s = (IDialogResultAccepted<PlayerNames>)result;
-				Game = GameFactory.CreateInteractive(s.Value.White, s.Value.Black);
+				var s = (IDialogResultAccepted<GameStartDefinition>)result;
+				Game = GameFactory.CreateInteractive(s.Value);
 			}
 		}
 

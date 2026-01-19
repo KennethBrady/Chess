@@ -1,22 +1,19 @@
-﻿using Common.Lib.UI.Dialogs;
+﻿using Chess.Lib.Games;
+using Chess.Lib.UI.Clock;
+using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.Settings;
 
 namespace ChessGame.Models
 {
 
-	public record struct PlayerNames(string White, string Black)
-	{
-		public static readonly PlayerNames Empty = new PlayerNames(string.Empty, string.Empty);
-		public static readonly PlayerNames Default = new PlayerNames("White", "Black");
-	}
-
-	public class NewGameDialogModel : DialogModel<PlayerNames>
+	public class NewGameDialogModel : DialogModel<GameStartDefinition>
 	{
 		private string _white, _black;
-		public NewGameDialogModel(PlayerNames playerNames)
+		public NewGameDialogModel(GameStartDefinition gameDefinition)
 		{
-			_white = playerNames.White;
-			_black = playerNames.Black;
+			_white = gameDefinition.WhiteName;
+			_black = gameDefinition.BlackName;
+			ClockSettings = new ClockSettingsModel(gameDefinition.ClockSetup);
 		}
 
 		[SavedSetting]
@@ -41,12 +38,15 @@ namespace ChessGame.Models
 			}
 		}
 
+		[SavedSetting]
+		public ClockSettingsModel ClockSettings { get; private init; }
+
 		protected override bool CanExecute(string? parameter)
 		{
 			switch (parameter)
 			{
 				case CancelParameter: return true;
-				case OKParameter: return !string.IsNullOrEmpty(_white) && !string.IsNullOrEmpty(_black);
+				case OKParameter: return !string.IsNullOrEmpty(_white) && !string.IsNullOrEmpty(_black) && ClockSettings.AreClockSettingsValid();
 			}
 			return false;
 		}
@@ -56,7 +56,9 @@ namespace ChessGame.Models
 			switch (parameter)
 			{
 				case CancelParameter: Cancel(); break;
-				case OKParameter: Accept(PlayerNames.Empty with { White = _white, Black = _black }); break;
+				case OKParameter: 
+					Accept(GameStartDefinition.Empty with { WhiteName = _white, BlackName = _black, ClockSetup = ClockSettings.ResultingClockSetup }); 
+					break;
 			}
 		}
 	}

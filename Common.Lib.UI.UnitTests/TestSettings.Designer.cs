@@ -26,18 +26,6 @@ namespace Common.Lib.UI.UnitTests {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string MyTestDialogSettings {
-            get {
-                return ((string)(this["MyTestDialogSettings"]));
-            }
-            set {
-                this["MyTestDialogSettings"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string TestDialogSettings {
             get {
                 return ((string)(this["TestDialogSettings"]));

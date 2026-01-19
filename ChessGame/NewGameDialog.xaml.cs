@@ -11,5 +11,9 @@ namespace ChessGame
 		{
 			InitializeComponent();
 		}
+		protected async override void OnLoaded()
+		{
+			white.Focus();
+		}
 	}
 }

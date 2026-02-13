@@ -119,7 +119,7 @@ namespace Chess.Lib.Moves.Parsing
 					{
 						foreach (IPiece p in B.ActivePieces.Where(p => p.Type == PieceType.Pawn && p.Side == hue))
 						{
-							if (p.Square.File.FileChar() == t && p.CanCaptureTo(toSquare))
+							if (p.Square.File.FileChar == t && p.CanCaptureTo(toSquare))
 							{
 								movedPiece = p;
 								break;
@@ -133,7 +133,7 @@ namespace Chess.Lib.Moves.Parsing
 					char t = taker[0], rf = taker[1];
 					foreach (IPiece p in B.ActivePieces.Where(p => p.Side == hue))
 					{
-						if (p.Type.PGNChar() == t && (p.Square.File.FileChar() == rf || p.Square.Rank.RankChar() == rf) && p.CanCaptureTo(toSquare))
+						if (p.Type.PGNChar() == t && (p.Square.File.FileChar == rf || p.Square.Rank.RankChar == rf) && p.CanCaptureTo(toSquare))
 						{
 							movedPiece = p;
 							break;
@@ -220,7 +220,7 @@ namespace Chess.Lib.Moves.Parsing
 						type = pt.Value;
 						toSquare = B.ParseSquare(move.Substring(2));
 						if (toSquare == null) return new ParseError(this, ParseErrorType.TargetSquareUndefined);
-						addMovable(p => p.Type == type && p.Square.File.FileChar() == move[1] && p.CanMoveTo(toSquare));
+						addMovable(p => p.Type == type && p.Square.File.FileChar == move[1] && p.CanMoveTo(toSquare));
 						switch (movable.Count)
 						{
 							case 0: movedPiece = NoPiece.Default; break;
@@ -238,7 +238,7 @@ namespace Chess.Lib.Moves.Parsing
 							type = pt.Value;
 							toSquare = B.ParseSquare(move.Substring(2));
 							if (toSquare == null) return new ParseError(this, ParseErrorType.TargetSquareUndefined);
-							addMovable(p => p.Type == type && p.Square.Rank.RankChar() == move[1] && p.CanMoveTo(toSquare));
+							addMovable(p => p.Type == type && p.Square.Rank.RankChar == move[1] && p.CanMoveTo(toSquare));
 							switch(movable.Count)
 							{
 								case 1: movedPiece = movable[0]; break;

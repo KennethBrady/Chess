@@ -1,125 +1,62 @@
-﻿using Common.Lib.Contracts;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
-namespace Common.Lib.UI.Animations
+namespace Common.Lib.UI.Dialogs
 {
-	/// <summary>
-	/// Provides simple animations
-	/// </summary>
-	/// <remarks>
-	/// When a control is registered for animation by setting the Animation attached property to a value other than None, 
-	/// the animation will occur just once when that control first changes size.
-	/// </remarks>
-	public static class Animator
+	internal static class DialogAnimator
 	{
-		#region Attached Properties
-
-		public static readonly DependencyProperty AnimationProperty = DependencyProperty.RegisterAttached("Animation", typeof(AnimationType),
-			typeof(Animator), new PropertyMetadata(AnimationType.None, HandleAnimationChanged));
-
-		public static readonly DependencyProperty DurationProperty = DependencyProperty.RegisterAttached("Duration", typeof(double),
-			typeof(Animator), new PropertyMetadata(0.5));
-
-		public static readonly DependencyProperty NotifierProperty = DependencyProperty.RegisterAttached("Notifier", typeof(Action<AnimationPhase, FrameworkElement>),
-			typeof(Animator), new PropertyMetadata(Actions<AnimationPhase, FrameworkElement>.Empty));
-
-
-		public static AnimationType GetAnimation(FrameworkElement e) => (AnimationType)e.GetValue(AnimationProperty);
-
-		public static void SetAnimation(FrameworkElement e, AnimationType newValue) => e.SetValue(AnimationProperty, newValue);
-
-		public static double GetDuration(FrameworkElement e) => (double)e.GetValue(DurationProperty);
-
-		public static void SetDuration(FrameworkElement e, double newValue) => e.SetValue(DurationProperty, newValue);
-
-		public static Action<AnimationPhase, FrameworkElement> GetNotifier(FrameworkElement e) => (Action<AnimationPhase, FrameworkElement>)e.GetValue(NotifierProperty);
-
-		public static void SetNotifier(FrameworkElement e, Action<AnimationPhase, FrameworkElement> action) => e.SetValue(NotifierProperty, action);
-
-		#endregion
-
-		private static void HandleAnimationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			if (e.NewValue is AnimationType a && d is FrameworkElement fe)
-			{
-				if (a == AnimationType.None) fe.SizeChanged -= Element_SizeChanged;
-				else
-				{
-					fe.Visibility = Visibility.Hidden;
-					fe.SizeChanged += Element_SizeChanged;
-				}
-			}
-		}
-
-		public static void RunCloseAnimation(FrameworkElement element) =>
-			RunCloseAnimation(element, GetAnimation(element), GetDuration(element), GetNotifier(element));
-
-		public static void RunCloseAnimation(FrameworkElement element, AnimationType type, double duration, Action<AnimationPhase, FrameworkElement>? notifier = null)
+		internal static void BeginOpenAnimation(DialogView view)
 		{
 			AnimInfo? anim = null;
-			switch (type)
+			switch (view.Animation)
 			{
-				case AnimationType.Empty: anim = CreateEmpty(element); break;
-				case AnimationType.Fade: anim = CreateFadeOut(element); break;
-				case AnimationType.SlideFromLeft: anim = CreateSlideOutLeft(element); break;
-				case AnimationType.SlideFromRight: anim = CreateSlideOutRight(element); break;
-				case AnimationType.SlideFromTop: anim = CreateSlideOutFromTop(element); break;
-				case AnimationType.SlideFromBottom: anim = CreateSlideOutFromBottom(element); break;
-				case AnimationType.ExpandFromCenter: anim = CreateExpandOutFromCenter(element); break;
+				case AnimationType.Fade: anim = CreateFadeIn(view); break;
+				case AnimationType.SlideFromLeft:anim = CreateSlideInLeft(view); break;
+				case AnimationType.SlideFromRight: anim = CreateSlideInRight(view); break;
+				case AnimationType.SlideFromTop: anim = CreateSlideInFromTop(view); break;
+				case AnimationType.SlideFromBottom: anim = CreateSlideInFromBottom(view); break;
+				case AnimationType.ExpandFromCenter: anim = CreateExpandFromCenter(view); break;
 			}
-			if (anim.HasValue)
+			if(anim.HasValue)
 			{
-				RunAnimation(anim.Value, false, element);
+				view.Visibility = Visibility.Visible;
+				RunAnimation(view, anim.Value);
 			}
 		}
 
-		private static void Element_SizeChanged(object sender, SizeChangedEventArgs e)
-		{
-			FrameworkElement fe = (FrameworkElement)sender;
-			fe.SizeChanged -= Element_SizeChanged;
-			RunOpenAnimation(fe);
-		}
-
-		private static async void RunOpenAnimation(FrameworkElement fe)
+		internal static void RunCloseAnimation(DialogView view, Action after)
 		{
 			AnimInfo? anim = null;
-			switch (GetAnimation(fe))
+			switch(view.Animation)
 			{
-				case AnimationType.Empty: anim = CreateEmpty(fe); break;
-				case AnimationType.Fade: anim = CreateFadeIn(fe); break;
-				case AnimationType.SlideFromLeft: anim = CreateSlideInLeft(fe); break;
-				case AnimationType.SlideFromRight: anim = CreateSlideInRight(fe); break;
-				case AnimationType.SlideFromTop: anim = CreateSlideInFromTop(fe); break;
-				case AnimationType.SlideFromBottom: anim = CreateSlideInFromBottom(fe); break;
-				case AnimationType.ExpandFromCenter: anim = CreateExpandFromCenter(fe); break;
+				case AnimationType.Fade: anim = CreateFadeOut(view); break;
+				case AnimationType.SlideFromLeft: anim = CreateSlideOutLeft(view); break;
+				case AnimationType.SlideFromRight: anim = CreateSlideOutRight(view);break;
+				case AnimationType.SlideFromTop: anim = CreateSlideOutFromTop(view); break;
+				case AnimationType.SlideFromBottom: anim = CreateSlideOutFromBottom(view); break;
+				case AnimationType.ExpandFromCenter: anim = CreateExpandOutFromCenter(view); break;
 			}
-			if (anim.HasValue)
-			{
-				fe.Visibility = Visibility.Visible;
-				RunAnimation(anim.Value, true, fe);
-			}
+			if (anim.HasValue) RunAnimation(view, anim.Value, after, 20);
 		}
 
-		private static async void RunAnimation(AnimInfo anim, bool isOpenAnimation, FrameworkElement fe)
+		private static async void RunAnimation(DialogView view, AnimInfo anim, Action? after = null, int delay = 0)
 		{
-			double dur = GetDuration(fe);
-			if (GetAnimation(fe) == AnimationType.Empty) dur = 0.01;
-			AnimationPhase ap = isOpenAnimation ? AnimationPhase.Opening : AnimationPhase.Closing;
-			GetNotifier(fe)?.Invoke(ap, fe);
+			// For reasons I don't understand, this brief delay allows the close animation to be fully visible.
+			// Without it, the dialogs suddenly disapper.
+			if (delay > 0) await Task.Delay(delay);
 			double rel = 0;
 			DateTime start = DateTime.Now;
 			while (rel < 1.0)
 			{
 				await Task.Delay(10);
-				rel = Math.Min(1.0, (DateTime.Now - start).TotalSeconds / dur);
+				rel = Math.Min(1.0, (DateTime.Now - start).TotalSeconds / view.AnimationDuration);
 				anim.Update(rel);
 			}
-			ap = isOpenAnimation ? AnimationPhase.Opened : AnimationPhase.Closed;
-			GetNotifier(fe)?.Invoke(ap, fe);
 			anim.Cleanup();
+			after?.Invoke();
 		}
 
+		//TODO: Make these implementations public and re-usable.
 		private record struct AnimInfo(Action<double> Update, Action Cleanup);
 
 		private static AnimInfo CreateEmpty(FrameworkElement fe)
@@ -321,12 +258,13 @@ namespace Common.Lib.UI.Animations
 			b.GradientStops.Add(new GradientStop { Color = Colors.Transparent, Offset = 1 });
 			void adjust(double rel)
 			{
-				b.GradientStops[1].Offset = 1-rel;
-				b.GradientStops[2].Offset = 1-rel;
+				b.GradientStops[1].Offset = 1 - rel;
+				b.GradientStops[2].Offset = 1 - rel;
 			}
 			void reset() => fe.OpacityMask = null;
 			fe.OpacityMask = b;
 			return new AnimInfo(adjust, reset);
 		}
+
 	}
 }

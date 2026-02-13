@@ -1,0 +1,182 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Common.Lib.UI.Controls"
+		xmlns:ext="clr-namespace:Common.Lib.UI.Extensions;assembly=Common.Lib.UI"
+	  xmlns:lext="clr-namespace:Common.Lib.UI.Controls.Extensions"
+		xmlns:conv="clr-namespace:Common.Lib.UI.Converters;assembly=Common.Lib.UI"
+		xmlns:images="clr-namespace:Common.Lib.UI.Images;assembly=Common.Lib.UI"
+	>
+	<BooleanToVisibilityConverter x:Key="b2vc"/>
+	<Style TargetType="{x:Type local:Link}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:Link}">
+					<Border Name="outerBorder" Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+						<Border Background="Transparent" Name="border">
+							<ContentPresenter Name="content" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+						</Border>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type local:RatingsView}">
+		<Style.Resources>
+			<conv:IntToStringConverter MinValue="0" x:Key="i2sc"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:RatingsView}">
+					<Grid>
+						<Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" ToolTip="{TemplateBinding Rating}"
+										ToolTipService.ShowOnDisabled="True">
+							<Border Background="Transparent">
+								<StackPanel Name="starPanel" Orientation="{TemplateBinding Orientation}"
+												HorizontalAlignment="Center" VerticalAlignment="Center"
+												FlowDirection="{TemplateBinding FlowDirection}"/>
+							</Border>
+						</Border>
+						<Popup Name="popup" IsOpen="False">
+							<Border Background="White" BorderBrush="Black" BorderThickness="1" Padding="2">
+								<DockPanel>
+									<Label Content="Rating:"/>
+									<TextBox Text="{Binding Rating,Converter={StaticResource i2sc}}" Width="80" AcceptsReturn="True"
+													 ext:TextBoxEx.UpdateBindingOnEnter="True" Name="rating"/>
+								</DockPanel>
+							</Border>
+						</Popup>
+					</Grid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type local:StatusBar}">
+		<Style.Resources>
+			<local:StatusBarContentCoverter x:Key="sbcc"/>
+		</Style.Resources>
+		<Setter Property="ClipToBounds" Value="True"/>
+		<Setter Property="IsEnabled" Value="{Binding HasEntries}"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:StatusBar}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+						<Grid>
+							<local:Link Command="{Binding Command}" CommandParameter="show" Foreground="{TemplateBinding Foreground}"
+													FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}"
+													UnderlineBehavior="{TemplateBinding UnderlineBehavior}" UnderlineBrush="{TemplateBinding UnderlineBrush}"
+													lext:Fader.Fade="{Binding Fading}" DisabledBackground="Transparent" x:Name="link">
+								<TextBlock Name="txt">
+									<TextBlock.Text>
+										<MultiBinding Converter="{StaticResource sbcc}">
+											<Binding Path="LastEntry"/>
+											<Binding RelativeSource="{RelativeSource AncestorType={x:Type local:StatusBar}}" Path="DisplayMemberPath"/>
+										</MultiBinding>
+									</TextBlock.Text>
+								</TextBlock>
+							</local:Link>
+							<Popup ext:PopupEx.CloseOnEscape="True"  ext:PopupEx.HideOnAppDeactivate="True" IsOpen="{Binding IsOpen}"
+										 Placement="Bottom" PlacementTarget="{Binding ElementName=txt}" Name="popup">
+								<Border Background="White" BorderBrush="Navy" BorderThickness="1" Padding="2">
+									<StackPanel>
+										<GroupBox Header="Latest" Foreground="Black">
+											<ContentControl Content="{Binding LastEntry}" Name="lastEntry" BorderBrush="Navy" BorderThickness="1" Margin="1"
+																		ContentTemplate="{TemplateBinding ItemTemplate}"/>
+										</GroupBox>
+										<GroupBox Header="Previous" Foreground="Black" Visibility="{Binding HasPastEntries,Converter={StaticResource b2vc}}">
+											<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" MaxHeight="{TemplateBinding MaxPopupHeight}">
+												<ItemsControl ItemsSource="{Binding PastEntries}" Name="pastEntries">
+													<ItemsControl.ItemContainerStyle>
+														<Style TargetType="ContentPresenter">
+															<Setter Property="Margin" Value="2"/>
+														</Style>
+													</ItemsControl.ItemContainerStyle>
+												</ItemsControl>
+											</ScrollViewer>
+										</GroupBox>
+									</StackPanel>
+								</Border>
+							</Popup>
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type local:SearchTextBox}">
+		<Style.Resources>
+			<local:TextToEnabledConverter x:Key="t2ec"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:SearchTextBox}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+						<DockPanel>
+							<Button Name="clear" Style="{x:Null}" DockPanel.Dock="Right" ToolTip="Clear Filter" ToolTipService.ShowOnDisabled="True" Width="{Binding ElementName=text,Path=ActualHeight}" Height="{Binding ElementName=text,Path=ActualHeight}" 
+											IsEnabled="{Binding ElementName=text,Path=Text,Converter={StaticResource t2ec}}">
+								<Button.Content>
+									<Grid>
+										<Image images:ImageProvider.ImageType="DeleteFaded" />
+										<Image images:ImageProvider.ImageType="Delete"  
+													 Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type Button}},Path=IsEnabled,Converter={StaticResource b2vc}}"/>
+									</Grid>
+								</Button.Content>
+							</Button>
+							<Grid Margin="0,0,2,0">
+								<TextBox Text="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Text,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+												 Name="text" ext:TextBoxEx.UpdateBindingOnEnter="{TemplateBinding UpdateBindingOnEnter}"/>
+								<TextBlock IsHitTestVisible="False" Text="{Binding RelativeSource={RelativeSource TemplatedParent},Path=WatermarkText,UpdateSourceTrigger=PropertyChanged}" 
+													 VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Foreground="DarkGray">
+									<TextBlock.Style>
+										<Style TargetType="{x:Type TextBlock}">
+											<Setter Property="Visibility" Value="Collapsed"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding Text, ElementName=text}" Value="">
+													<Setter Property="Visibility" Value="Visible"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</TextBlock.Style>
+								</TextBlock>
+							</Grid>
+						</DockPanel>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type local:HyperLink}">
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:HyperLink}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+						<TextBlock VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+											 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+											 Foreground="{TemplateBinding Foreground}" TextTrimming="{TemplateBinding TextTrimming}"
+											 TextWrapping="{TemplateBinding TextWrapping}"
+											 Name="hlink" Text="{TemplateBinding Text}"/>
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsEnabled" Value="False">
+							<Setter Property="Cursor" Value="None"/>
+							<Setter TargetName="hlink" Property="TextBlock.Foreground" Value="Gray"/>
+							<Setter TargetName="hlink" Property="TextBlock.TextDecorations" Value="{x:Null}"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+</ResourceDictionary>

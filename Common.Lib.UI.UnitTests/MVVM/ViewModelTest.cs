@@ -1,6 +1,5 @@
 ﻿using Common.Lib.UI.MVVM;
 using Common.Lib.UI.Settings;
-using System.Reflection;
 
 namespace Common.Lib.UI.UnitTests.MVVM
 {

@@ -58,6 +58,8 @@
 			public string SingleQuoteEscaped => str.Replace("'", "''");
 
 			public string SingleQuoteUnescaped => str.Replace("''", "'");
+
+			public string DoubleQuoted => $"\"{str}\"";
 		}
 	}
 }

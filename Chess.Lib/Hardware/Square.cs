@@ -19,7 +19,7 @@ namespace Chess.Lib.Hardware
 		bool HasPiece => !(Piece is NoPiece);
 		string Name => $"{File}{Rank.ToString()[1]}".ToLower();
 		NeighborSquares Neighbors { get; }
-		event TypeHandler<PieceChange>? PieceChanged;
+		event Handler<PieceChange>? PieceChanged;
 	}
 
 	internal interface ISquare : IChessSquare
@@ -44,7 +44,7 @@ namespace Chess.Lib.Hardware
 		NeighborSquares IChessSquare.Neighbors => NeighborSquares.Empty;
 		FileRank IChessSquare.Position => FileRank.OffBoard;
 #pragma warning disable 00067
-		public event TypeHandler<PieceChange>? PieceChanged;
+		public event Handler<PieceChange>? PieceChanged;
 #pragma warning restore
 	}
 
@@ -76,7 +76,7 @@ namespace Chess.Lib.Hardware
 		NeighborSquares IChessSquare.Neighbors => new NeighborSquares(this);
 		public override string ToString() => ((ISquare)this).Name;
 		public FileRank Position => new FileRank(File, Rank);
-		public event TypeHandler<PieceChange>? PieceChanged;
+		public event Handler<PieceChange>? PieceChanged;
 		public override int GetHashCode() => Index;
 	}
 }

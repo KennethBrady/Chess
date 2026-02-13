@@ -1,4 +1,6 @@
-﻿namespace Chess.Lib.Pgn
+﻿using System.Globalization;
+
+namespace Chess.Lib.Pgn
 {
 	/// <summary>
 	/// Just a bunch of string constants relevant to PGN
@@ -20,6 +22,9 @@
 		public const string White = "White";
 		public const string Result = "Result";
 
+		public const string FEN = "FEN";
+		public const string DateFormat = "yyyy.MM.dd";
+
 		private static readonly string[] _reqTags = { Event, Site, Date, Round, White, Black, Result };
 
 		public static bool IsRequired(string tagName) =>
@@ -28,9 +33,20 @@
 		/// <summary>
 		/// Returns an ordered list of required PGN tags.
 		/// </summary>
-		public static IEnumerable<string> Required => _reqTags;		
+		public static IEnumerable<string> Required => _reqTags;
+
+		public static bool TryParseDate(string sDate, out DateTime date) =>
+			DateTime.TryParseExact(sDate, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+
 
 		internal static int IndexOf(string requiredTag) => _reqTags.IndexOf(requiredTag);
+
+		public static class ResultTags
+		{
+			public const string WhiteWin = "1-0";
+			public const string BlackWin = "0-1";
+			public const string Draw = "1/2-1/2";
+		}
 
 		public static class PlayerTags
 		{

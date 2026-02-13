@@ -16,8 +16,14 @@
 
 		protected void Accept(T acceptedValue) => OnClosed(new DialogResultSuccess<T>(acceptedValue));
 
+		protected virtual void HandleEscapeKey() => Cancel();
+
+		protected bool HasClosed { get; private set; }
+
 		protected virtual void OnClosed(IDialogResult<T> result)
 		{
+			if (HasClosed) return;	// prevent calling twice.
+			HasClosed = true;
 			FinalResult = result;
 			foreach (var handler in _resultHandlers) handler(result);
 		}
@@ -41,5 +47,8 @@
 			base.Notify(propertyNames);
 			RaiseCanExecuteChanged();
 		}
+
+		void IDialogModelEx.ProcessEscapeKey() => HandleEscapeKey();
+		
 	}
 }

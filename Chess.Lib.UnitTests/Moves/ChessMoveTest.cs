@@ -51,7 +51,7 @@ namespace Chess.Lib.UnitTests.Moves
 		}
 
 		[TestMethod]
-		public void RepetitionCounts()
+		public async Task RepetitionCounts()
 		{
 			IInteractiveChessGame g = new InteractiveGame();
 			List<MoveRequest> moves = MoveRequest.ParseMoves("d2d4d7d5b1c3b8c6c3b1c6b8b1c3b8c6c3b1c6b8b1c3b8c6").ToList();
@@ -73,7 +73,7 @@ namespace Chess.Lib.UnitTests.Moves
 			};
 			for (int i = 0; i < moves.Count; i++)
 			{
-				switch (g.NextPlayer.AttemptMove(moves[i]))
+				switch (await g.NextPlayer.AttemptMove(moves[i]))
 				{
 					case MoveAttemptFail f: Assert.Fail($"{i}: {f.Reason}"); break;
 					case MoveAttemptSuccess s:

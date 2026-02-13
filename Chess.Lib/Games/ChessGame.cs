@@ -3,7 +3,6 @@ using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
 using Common.Lib.Contracts;
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace Chess.Lib.Games
 {
@@ -11,6 +10,8 @@ namespace Chess.Lib.Games
 	{
 		public int SerialNumber => Move.SerialNumber;
 		public bool IsCheck => Move.IsCheck;
+
+		public bool IsCheckMate => Move.IsCheckMate;
 		public bool IsPromotion => Move.Promotion.IsValid;
 		public IChessKing CheckedKing
 		{
@@ -22,6 +23,7 @@ namespace Chess.Lib.Games
 			}
 		}
 		private IMove M => (IMove)Move;
+
 	}
 
 	/// <summary>
@@ -32,7 +34,7 @@ namespace Chess.Lib.Games
 		private IPlayer _white, _black;
 		private readonly IBoard _board;
 		private IChessMove _lastMoveMade = NoMove.Default;
-		private IMoves _moves;
+		protected readonly IMoves _moves;
 		private Dictionary<int, IGameState> _gameStates = new();
 
 		/// <summary>
@@ -111,23 +113,10 @@ namespace Chess.Lib.Games
 			}
 		}
 		public IChessMove LastMoveMade => _lastMoveMade;
-		public event TypeHandler<CompletedMove>? MoveCompleted;
-		public event TypeHandler<IChessMove>? MoveUndone;
-		public event TypeHandler<IChessgameState>? GameStateApplied;
+		public event Handler<CompletedMove>? MoveCompleted;
+		public event Handler<IChessgameState>? GameStateApplied;
 
-		bool IChessGame.UndoLastMove()
-		{
-			if (!IsReadOnly && _moves.AllMoves.Count > 0)
-			{
-				IChessMove last = LastMoveMade;
-				int n = LastMoveMade.SerialNumber;
-				_gameStates.Remove(n);
-				_moves.UndoLastMove();
-				MoveUndone?.Invoke(last);
-				return true;
-			}
-			return false;
-		}
+		protected Dictionary<int, IGameState> GameStates => _gameStates;
 
 		protected virtual void OnMoveMade(IChessMove move)
 		{
@@ -161,14 +150,21 @@ namespace Chess.Lib.Games
 			string engineMoves = string.Concat(Moves.PriorMoves.Select(m => m.AsEngineMove));
 			InteractiveGame r = new InteractiveGame(this);
 			IInteractiveChessGame g = new InteractiveGame(White, Black);
-			foreach (MoveRequest req in MoveRequest.ParseMoves(engineMoves))
-			{
-				switch(g.NextPlayer.AttemptMove(req))
-				{
-					case MoveAttemptFail f: throw new UnreachableException($"Unable to replay moves: {f.Reason}");
-				}
-			}
+			g.ApplyMoves(engineMoves, MoveFormat.Engine);
 			return g;
+		}
+
+		protected IMove UndoLastMove()
+		{
+			if (!IsReadOnly && _moves.AllMoves.Count > 0)
+			{
+				IChessMove last = LastMoveMade;
+				int n = LastMoveMade.SerialNumber;
+				_gameStates.Remove(n);
+				_moves.UndoLastMove();
+				return (IMove)last;
+			}
+			return NoMove.Default;
 		}
 	}
 

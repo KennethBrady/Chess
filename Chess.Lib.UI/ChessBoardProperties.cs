@@ -12,8 +12,9 @@ public static class ChessBoardProperties
 	private static Brush _moveTargetBrush = Brushes.Lime;
 	private static Brush _lastMoveBrush = new SolidColorBrush(Color.FromArgb(127, 0, 127, 0));
 	private static Brush _checkBrush = new SolidColorBrush(Color.FromArgb(127, 0xff, 0, 0));
+	private static Brush _matedBrush = new SolidColorBrush(Color.FromArgb(0xff, 0xff, 0, 0));
 
-	internal static event TypeHandler<BrushChange>? BrushChanged;
+	internal static event Handler<BrushChange>? BrushChanged;
 
 	public static Brush LightSquareBrush
 	{
@@ -47,4 +48,6 @@ public static class ChessBoardProperties
 	}
 
 	public static Brush CheckedKingBrush => _checkBrush;
+
+	public static Brush MatedKingBrush => _matedBrush;
 }

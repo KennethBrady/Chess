@@ -1,4 +1,5 @@
 ﻿using Chess.Lib.Hardware;
+using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
@@ -17,7 +18,7 @@ namespace Chess.Lib.Games
 		IReadOnlyChessPlayer Black { get; }
 		IReadOnlyChessPlayer PlayerOf(Hue hue);
 		IChessMove LastMoveMade { get; }
-		event TypeHandler<CompletedMove>? MoveCompleted;
+		event Handler<CompletedMove>? MoveCompleted;
 		IChessMoves Moves { get; }
 
 		/// <summary>
@@ -25,7 +26,11 @@ namespace Chess.Lib.Games
 		/// </summary>
 		IInteractiveChessGame Branch();
 		IChessgameState CurrentState { get; }
-		event TypeHandler<IChessgameState>? GameStateApplied;
+
+		/// <summary>
+		/// This event is raised upon setting Moves.CurrentMove.
+		/// </summary>
+		event Handler<IChessgameState>? GameStateApplied;
 	}
 
 	public interface IKnownChessGame : IChessGame
@@ -49,18 +54,20 @@ namespace Chess.Lib.Games
 		new IChessPlayer Black { get; }
 		IChessPlayer NextPlayer { get; }
 		new IChessPlayer PlayerOf(Hue hue);
-		bool UndoLastMove();
-		event TypeHandler<IChessMove>? MoveUndone;
 	}
 
 	public interface IInteractiveChessGame : IChessGame
 	{
+		//Do these belong here?  Need something like IGameBuilder?
 		int ApplyMoves(IMoveParser parser);
 		int ApplyMoves(string moves, MoveFormat format = MoveFormat.Unknown);
 
 		IChessClock Clock { get; }
 
 		bool AttachClock(ChessClockSetup clockSetup);
+		bool UndoLastMove();
+		event Handler<IChessMove>? MoveUndone;
+		event AsyncHandler<Promotion,Promotion>? PromotionRequest;
 	}
 
 	internal interface IGame : IChessGame
@@ -73,6 +80,11 @@ namespace Chess.Lib.Games
 		bool IsReadOnly { get; }
 		new IMoves Moves { get; }
 		IReadOnlyList<IMove> MoveList { get; }
+	}
+
+	internal interface IPromotingGame
+	{
+		Task<PieceType> RequestPromotion(Hue forPlayer, ISquare onSquare);
 	}
 
 	public interface INoGame : IChessGame;

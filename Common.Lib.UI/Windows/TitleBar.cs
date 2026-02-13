@@ -168,7 +168,12 @@ namespace Common.Lib.UI.Windows
 			if (!IsTemplateApplied) return;
 			StackPanel mc = (StackPanel)GetTemplateChild("menu");
 			mc.Children.Clear();
-			if (Menu != null) mc.Children.Add(Menu);
+			if (Menu != null)
+			{
+				Dock dock = DockPanel.GetDock(Menu);
+				DockPanel.SetDock(mc, dock);
+				mc.Children.Add(Menu);
+			}
 		}
 
 

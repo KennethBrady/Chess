@@ -1,8 +1,11 @@
-﻿namespace CommonTools.Lib.Contracts
+﻿namespace Common.Lib.Contracts
 {
+	/// <summary>
+	/// IDisposable implementation using the Disposable pattern
+	/// </summary>
 	public abstract class Disposable : IDisposable
 	{
-		protected bool IsDisposed { get; private set; }
+		public bool IsDisposed { get; private set; }
 
 		protected void CheckNotDisposed()
 		{

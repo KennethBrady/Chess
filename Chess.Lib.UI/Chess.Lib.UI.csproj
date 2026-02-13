@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Chess.Lib.Pgn\Chess.Lib.Pgn.csproj" />
     <ProjectReference Include="..\Chess.Lib\Chess.Lib.csproj" />
+    <ProjectReference Include="..\Common.Lib.UI.Controls\Common.Lib.UI.Controls.csproj" />
     <ProjectReference Include="..\Common.Lib.UI\Common.Lib.UI.csproj" />
     <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
   </ItemGroup>

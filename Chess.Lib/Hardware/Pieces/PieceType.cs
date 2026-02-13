@@ -107,6 +107,24 @@ namespace Chess.Lib.Hardware.Pieces
 			}
 		}
 
+		extension(PieceType pieceType)
+		{
+			internal bool IsPromotionTarget
+			{
+				get
+				{
+					switch (pieceType)
+					{
+						case PieceType.Knight:
+						case PieceType.Bishop:
+						case PieceType.Rook:
+						case PieceType.Queen: return true;
+						default: return false;
+					}
+				}
+			}
+		}
+
 	}
 
 }

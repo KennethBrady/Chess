@@ -7,10 +7,13 @@
 		xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn"
 		xmlns:tkit="http://schemas.xceed.com/wpf/xaml/toolkit"
 		xmlns:clock="clr-namespace:Chess.Lib.UI.Clock"
+		xmlns:img="clr-namespace:Common.Lib.UI.Images;assembly=Common.Lib.UI"
+		xmlns:ext="clr-namespace:Common.Lib.UI.Extensions;assembly=Common.Lib.UI"
 	>
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="/Common.Lib.UI;component/CommonStyles.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
+	<BooleanToVisibilityConverter x:Key="b2vc"/>
 	<lconv:PieceToImageConverter x:Key="p2ic"/>
 	<Style TargetType="{x:Type local:ChessBoard}">
 		<Setter Property="Template">
@@ -80,7 +83,7 @@
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type local:MovesView}">
 					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-						<DataGrid Name="moves" IsReadOnly="True" AutoGenerateColumns="False">
+						<DataGrid Name="moves" IsReadOnly="True" AutoGenerateColumns="False" SelectionUnit="Cell" SelectionMode="Single">
 							<DataGrid.Columns>
 								<DataGridTextColumn Header="#" Binding="{Binding MoveNumber}"/>
 								<DataGridTextColumn Header="White" Binding="{Binding WhiteMove.AlgebraicMove}"/>
@@ -111,7 +114,7 @@
 								<local:PlayerView DockPanel.Dock="Bottom" Hue="Light" Game="{TemplateBinding Game}"/>
 								<local:MovesView Game="{TemplateBinding Game}"/>
 							</DockPanel>
-							<local:ChessBoard Grid.Column="1" Game="{TemplateBinding Game}" 
+							<local:ChessBoard Grid.Column="1" Game="{TemplateBinding Game}"
 																Width="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" 
 																Height="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" />
 						</Grid>
@@ -182,6 +185,69 @@
 									<tkit:IntegerUpDown Grid.Row="1" Grid.Column="1" Value="{Binding Increment}" Minimum="0" Maximum="10"/>
 								</Grid>
 							</GroupBox>
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type pgn:PgnTagEditor}">
+		<Style.Resources>
+			<conv:ColonConverter x:Key="cconv"/>
+			<DataTemplate x:Key="string">
+				<DockPanel Width="150">
+					<Button DockPanel.Dock="Right" Style="{x:Null}" Width="16" Height="16" Command="{Binding DelCommand}" CommandParameter="{Binding}">
+						<Image img:ImageProvider.ImageType="Delete"/>
+					</Button>
+					<TextBox Text="{Binding Value}" BorderThickness="2" ext:TextBoxEx.SelectAllOnFocus="True" ext:TextBoxEx.UpdateBindingOnEnter="True"/>
+				</DockPanel>
+			</DataTemplate>
+			<DataTemplate x:Key="reqString">
+				<TextBox Width="150" Text="{Binding Value}" BorderBrush="{Binding RequiredBorder}" BorderThickness="2"
+							 ext:TextBoxEx.SelectAllOnFocus="True" ext:TextBoxEx.UpdateBindingOnEnter="True"/>
+			</DataTemplate>
+			<DataTemplate x:Key="gameResult">
+				<ComboBox Width="160" ItemsSource="{Binding GameResults}" SelectedItem="{Binding GameResult}"/>
+			</DataTemplate>
+			<DataTemplate x:Key="date">
+				<DatePicker SelectedDate="{Binding EventDate}" SelectedDateFormat="Short" Width="150" VerticalAlignment="Center" VerticalContentAlignment="Center"
+									Height="26"/>
+			</DataTemplate>
+			<pgn:TagEditorTemplateSelector  x:Key="tets" StringTemplate="{StaticResource string}" ReqStringTemplate="{StaticResource reqString}"
+																		 DateTemplate="{StaticResource date}" ResultTemplate="{StaticResource gameResult}"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type pgn:PgnTagEditor}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="*"/>
+								<RowDefinition Height="Auto"/>
+							</Grid.RowDefinitions>
+							<ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+								<ItemsControl ItemsSource="{Binding Tags}" MaxHeight="440">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate>
+											<DockPanel>
+												<Label Content="{Binding Tag,Converter={StaticResource cconv}}" FontWeight="{Binding TagWeight}"
+													 Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right" IsTabStop="False"/>
+												<ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource tets}" Width="150"/>
+											</DockPanel>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</ScrollViewer>
+							<DockPanel Grid.Row="1" LastChildFill="False">
+								<Button Content="Add Tag" Command="{Binding Command}" CommandParameter="addTag"/>
+								<StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Visibility="{Binding IsAddingTag,Converter={StaticResource b2vc}}">
+									<Label Content="Tag Name:"/>
+									<TextBox Width="160" Text="{Binding NewTag}" HorizontalAlignment="Left" ext:TextBoxEx.UpdateBindingOnEnter="True"
+									 Name="newTag" ToolTip="Press &lt;Enter&gt; to add tag"/>
+								</StackPanel>
+							</DockPanel>
 						</Grid>
 					</Border>
 				</ControlTemplate>

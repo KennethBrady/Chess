@@ -24,7 +24,7 @@ namespace Chess.Lib.Games
 		bool HasNextMove { get; }
 		IEnumerable<IChessPiece> ActivePieces { get; }
 		IEnumerable<IChessPiece> CapturedPieces { get; }
-		event TypeHandler<PlayerMove>? MoveMade;
+		event Handler<PlayerMove>? MoveMade;
 		IChessMove LastMoveMade => CompletedMoves.Count == 0 ? NoMove.Default : CompletedMoves[0];
 	}
 
@@ -33,12 +33,12 @@ namespace Chess.Lib.Games
 	/// </summary>
 	public interface IChessPlayer : IReadOnlyChessPlayer
 	{
-		IMoveAttempt AttemptMove(IParseableMove move);
-		IMoveAttempt AttemptMove(string move, MoveFormat format = MoveFormat.Engine);
-		IMoveAttempt AttemptMove(MoveRequest moveRequest);
+		Task<IMoveAttempt> AttemptMove(IParseableMove move);
+		Task<IMoveAttempt> AttemptMove(string move, MoveFormat format = MoveFormat.Engine);
+		Task<IMoveAttempt> AttemptMove(MoveRequest moveRequest);
 		bool CanUndo => !IsReadOnly && !HasNextMove && CompletedMoves.Count > 0;
 		bool UndoLastMove();
-		event TypeHandler<bool>? CanMoveChanged;
+		event Handler<bool>? CanMoveChanged;
 
 	}
 

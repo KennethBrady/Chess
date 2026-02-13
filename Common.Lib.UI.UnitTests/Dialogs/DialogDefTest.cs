@@ -10,14 +10,14 @@ namespace Common.Lib.UI.UnitTests.Dialogs
 		public void IsValid()
 		{
 			DialogDef dd = new();
-			Assert.IsFalse(dd.IsViewTypeValid);
-			Assert.IsFalse(dd.IsModelTypeValid);
+			Assert.IsFalse(dd.IsViewValid);
+			Assert.IsFalse(dd.IsModelValid);
 			dd = new DialogDef(typeof(object), typeof(object), string.Empty);
-			Assert.IsFalse(dd.IsViewTypeValid);
-			Assert.IsFalse(dd.IsModelTypeValid);
+			Assert.IsFalse(dd.IsViewValid);
+			Assert.IsFalse(dd.IsModelValid);
 			dd = new DialogDef(typeof(MyDialog), typeof(MyDlgModel), string.Empty);
-			Assert.IsTrue(dd.IsViewTypeValid);
-			Assert.IsTrue(dd.IsModelTypeValid);
+			Assert.IsTrue(dd.IsViewValid);
+			Assert.IsTrue(dd.IsModelValid);
 		}
 
 		private record struct MyRetVal;

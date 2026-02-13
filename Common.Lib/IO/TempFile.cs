@@ -1,14 +1,17 @@
-﻿using Common.Lib.IO;
+﻿using Common.Lib.Contracts;
 
-namespace CommonTools.Lib.IO
+namespace Common.Lib.IO
 {
 	/// <summary>
 	/// A disposable file for holding temporary data
 	/// </summary>
-	public class TempFile : IDisposable
+	public class TempFile : Disposable
 	{
-		private bool _isDisposed;
-
+		/// <summary>
+		/// Creates a TempFile with the specified text content.
+		/// </summary>
+		/// <param name="content"></param>
+		/// <returns></returns>
 		public static TempFile FromContent(string content)
 		{
 			TempFile r = new TempFile();
@@ -16,12 +19,30 @@ namespace CommonTools.Lib.IO
 			return r;
 		}
 
+		/// <summary>
+		/// Creates a TempFile with the given text content.
+		/// </summary>
+		/// <param name="lines"></param>
+		/// <returns></returns>
 		public static TempFile FromContent(IEnumerable<string> lines)
 		{
 			TempFile r = new TempFile();
 			File.WriteAllLines(r.FilePath, lines);
 			return r;
 		}
+
+		/// <summary>
+		/// Creates a TempFile with the given binary content.
+		/// </summary>
+		/// <param name="content"></param>
+		/// <returns></returns>
+		public static TempFile FromContent(byte[] content)
+		{
+			TempFile r = new TempFile();
+			File.WriteAllBytes(r.FilePath, content);
+			return r;
+		}
+
 
 		public static TempFile FromSourceContent(string sourcePath, string? destName = null)
 		{
@@ -31,18 +52,24 @@ namespace CommonTools.Lib.IO
 			return r;
 		}
 
-		public static TempFile InFolderWithExtension(string? folder, string ext)
+		public static TempFile InFolder(string folder)
 		{
-			if (folder == null) folder = Path.GetTempPath();
+			return new TempFile(PathEx.RandomFileName(), folder);
+		}
+
+		public static TempFile InFolderWithExtension(string folder, string ext)
+		{
+			if (!string.IsNullOrEmpty(ext) && !ext.StartsWith('.')) ext = '.' + ext;
 			string nme = PathEx.RandomFileName() + ext;
 			return new TempFile(nme, folder);
 		}
 
-		public static TempFile InFolderWithExtension(string filePath) => InFolderWithExtension(Path.GetDirectoryName(filePath), Path.GetExtension(filePath));
-
-		public static TempFile InFolder(string folder)
+		public static TempFile InFolderWithExtension(string filePath)
 		{
-			return new TempFile(PathEx.RandomFileName(), folder);
+			string? folder = Path.GetDirectoryName(filePath), ext = Path.GetExtension(filePath);
+			if (folder == null) folder = Path.GetTempPath();
+			if (ext == null) ext = string.Empty;
+			return InFolderWithExtension(folder, ext);
 		}
 
 		public static TempFile WithExtension(string ext)
@@ -69,7 +96,7 @@ namespace CommonTools.Lib.IO
 		{
 			get
 			{
-				switch(Path.GetDirectoryName(FilePath))
+				switch (Path.GetDirectoryName(FilePath))
 				{
 					case null: return Path.GetTempPath();
 					case string path: return path;
@@ -93,11 +120,10 @@ namespace CommonTools.Lib.IO
 			return Exists;
 		}
 
-		public void SaveTo(string fpath, bool overWrite = false) => File.Copy(FilePath, fpath, overWrite);
+		public void CopyTo(string fpath, bool overWrite = false) => File.Copy(FilePath, fpath, overWrite);
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			if (_isDisposed) return;
 			if (File.Exists(FilePath))
 			{
 				try
@@ -105,11 +131,11 @@ namespace CommonTools.Lib.IO
 					File.Delete(FilePath);
 				}
 				catch(Exception ex)
-				{ 
-					System.Diagnostics.Debug.WriteLine(ex);
+				{
+					System.Diagnostics.Debug.WriteLine($"Unable to delete {nameof(TempFile)}: {ex.Message}");
 				}
 			}
-			_isDisposed = true;
+			base.Dispose(disposing);
 		}
 
 		public static implicit operator string(TempFile tempFile) => tempFile.FilePath;

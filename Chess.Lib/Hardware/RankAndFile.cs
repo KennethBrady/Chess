@@ -19,7 +19,7 @@ namespace Chess.Lib.Hardware
 			get
 			{
 				if (IsOffBoard) return string.Empty;
-				return $"{File.FileChar()}{Rank.RankChar()}";
+				return $"{File.FileChar}{Rank.RankChar}";
 			}
 		}
 		public static FileRank FromSquareIndex(int squareIndex) => Board.PositionOf(squareIndex);
@@ -30,10 +30,10 @@ namespace Chess.Lib.Hardware
 
 		public int ToSquareIndex => Board.IndexOf(File, Rank);
 
-		public override string ToString() => $"{File.FileChar()}{Rank.RankChar()}";
+		public override string ToString() => $"{File.FileChar}{Rank.RankChar}";
 
 		public static FileRank Parse(string engineLocation) =>
-			engineLocation != null && engineLocation.Length == 2 ? new FileRank(FileEx.Parse(engineLocation[0]), RankEx.Parse(engineLocation[1])) :
+			engineLocation != null && engineLocation.Length == 2 ? new FileRank(RFExtensions.ParseFile(engineLocation[0]), RFExtensions.ParseRank(engineLocation[1])) :
 			OffBoard;
 
 		public override int GetHashCode() => ToSquareIndex;
@@ -69,28 +69,42 @@ namespace Chess.Lib.Hardware
 		}
 	}
 
-	public static class HueEx
+	public static class RFExtensions
 	{
-		public static Hue Other(this Hue h) => h == Hue.Light ? Hue.Dark : h == Hue.Dark ? Hue.Light : Hue.Dark;
-	}
+		extension(Hue h)
+		{
+			public Hue Other
+			{
+				get
+				{
+					switch(h)
+					{
+						case Hue.Light: return Hue.Dark;
+						case Hue.Dark: return Hue.Light;
+						default: return Hue.Default;
+					}
+				}
+			}
+		}
+		extension(File f)
+		{
+			public char FileChar => (char)('a' + f);
+		}
 
-	internal static class FileEx
-	{
-		public static char FileChar(this File f) => (char)('a' + f);
-		public static File Parse(char loc)
+		public static File ParseFile(char loc)
 		{
 			int nFile = Char.ToLower(loc) - 'a';
 			return nFile < 0 || nFile > (int)File.H ? File.Offboard : (File)nFile;
 		}
-	}
 
-	internal static class RankEx
-	{
-		public static char RankChar(this Rank r) => (char)('1' + r);
-
-		public static Rank Parse(char loc)
+		extension(Rank r)
 		{
-			if (int.TryParse(loc.ToString(), out int nRank) && nRank > 0 && (nRank -1) <= (int)Rank.R8) return (Rank)(nRank - 1);
+			public char RankChar => (char)('1' + r);
+
+		}
+		public static Rank ParseRank(char loc)
+		{
+			if (int.TryParse(loc.ToString(), out int nRank) && nRank > 0 && (nRank - 1) <= (int)Rank.R8) return (Rank)(nRank - 1);
 			return Rank.Offboard;
 		}
 	}

@@ -11,7 +11,7 @@
 				xmlns:models="clr-namespace:ChessGame.Models"
 				xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
         mc:Ignorable="d"
-				Icon="king.ico" Height="450" Width="800" WindowState="Maximized" ModalBackground="#442222aa">
+				Icon="king.ico" Height="450" Width="800" WindowState="Maximized" ModalBackground="#222222aa">
 	<win:AppWindow.Menu>
 		<Menu Background="Black" Foreground="White" FontSize="14" VerticalAlignment="Center" VerticalContentAlignment="Center">
 			<Menu.Resources>
@@ -23,17 +23,25 @@
 			</Menu.Resources>
 			<MenuItem Header="Game">
 				<MenuItem Header="New ..." Command="{Binding Command}" CommandParameter="newGame" InputGestureText="Ctrl-N"/>
+				<MenuItem Header="Branch Game" Command="{Binding Command}" CommandParameter="branchGame"/>
+				<Separator/>
 				<MenuItem Header="Export as PGN ..." Command="{Binding Command}" CommandParameter="exportPgn" InputGestureText="Ctrl-X"/>
+				<MenuItem Header="Import PGN ..." Command="{Binding Command}" CommandParameter="importPgn" InputGestureText="Ctrl-I"/>
+			</MenuItem>
+			<MenuItem Header="Moves">
+				<MenuItem Header="Undo" Command="{Binding Command}" CommandParameter="undo"/>
 			</MenuItem>
 		</Menu>
 	</win:AppWindow.Menu>
 	<win:AppWindow.InputBindings>
 		<KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="newGame"/>
 		<KeyBinding Key="X" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="exportPgn"/>
+		<KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="importPgn"/>
 	</win:AppWindow.InputBindings>
 	<win:AppWindow.Dialogs>
 		<win:DialogDef DialogType="{x:Type local:NewGameDialog}" ModelType="{x:Type models:NewGameDialogModel}" SettingsKey="NewGameDialogSettings"/>
 		<win:DialogDef DialogType="{x:Type pgn:PgnEditorDialog}" ModelType="{x:Type pgn:PgnEditorModel}" SettingsKey="PgnDialogSettings"/>
+		<win:DialogDef DialogType="{x:Type pgn:ImportPgnDialog}" ModelType="{x:Type pgn:ImportPgnModel}"/>
 	</win:AppWindow.Dialogs>
 	<win:AppWindow.DialogStyle>
 		<Style TargetType="{x:Type dlg:DialogView}">

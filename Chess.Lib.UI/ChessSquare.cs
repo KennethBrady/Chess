@@ -16,7 +16,8 @@ namespace Chess.Lib.UI
 		None = 0x0000,
 		MoveTarget = 0x0001,
 		LastMove = 0x0002,
-		Check = 0x0004
+		Check = 0x0004,
+		CheckMate = 0x0008
 	}
 
 	[DebuggerDisplay("{FileRank}")]
@@ -103,6 +104,7 @@ namespace Chess.Lib.UI
 			Board.State.ApplyMouseDown(this);
 		}
 
+		#region Piece Drag/Drop 
 		private bool IsDragging { get; set; }
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
@@ -146,5 +148,6 @@ namespace Chess.Lib.UI
 			if (e.Data.GetData(typeof(IChessSquare)) is IChessSquare sq) Board.State.AttemptMove(sq, this);
 		}
 
+		#endregion
 	}
 }

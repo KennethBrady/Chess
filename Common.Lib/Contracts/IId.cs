@@ -1,10 +1,16 @@
 ﻿namespace Common.Lib.Contracts
 {
+	/// <summary>
+	/// Represents any type with an Id (int) property
+	/// </summary>
 	public interface IId
 	{
 		public int Id { get; }
 	}
 
+	/// <summary>
+	/// A Comperer for objects implementing IId.
+	/// </summary>
 	public class IIdComparer : IComparer<IId>
 	{
 		public static readonly IIdComparer Instance = new();

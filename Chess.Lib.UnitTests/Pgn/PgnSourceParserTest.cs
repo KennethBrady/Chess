@@ -1,4 +1,5 @@
 ﻿using Chess.Lib.Moves.Parsing;
+using Chess.Lib.Pgn;
 using Chess.Lib.Pgn.Parsing;
 
 namespace Chess.Lib.UnitTests.Pgn
@@ -37,7 +38,7 @@ namespace Chess.Lib.UnitTests.Pgn
 			Assert.IsTrue(result.Succeeded);
 			var succ = result as IPgnParseSuccess;
 			Assert.IsNotNull(succ);
-			string pgn2 = PgnSourceParser.ExportPgn(succ.Import.Tags, succ.Import.Moves);
+			string pgn2 = PGN.ToPgn(succ.Import.Tags, succ.Import.Moves);
 
 			// Cannot guarantee exactly same formatting of moves, but presence (not order) of tags is predictable:
 			var result2 = PgnSourceParser.Parse(pgn2);

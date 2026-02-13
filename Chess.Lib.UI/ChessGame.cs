@@ -1,6 +1,12 @@
-﻿using System.Globalization;
+﻿using Chess.Lib.Games;
+using Chess.Lib.Moves;
+using Chess.Lib.UI.Dialogs;
+using Common.Lib.UI.Dialogs;
+using Common.Lib.UI.Windows;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace Chess.Lib.UI
 {
@@ -21,6 +27,20 @@ namespace Chess.Lib.UI
 		}
 
 		protected override void UseTemplate() { }
+
+		protected override void ApplyGame(Games.IChessGame oldGame, Games.IChessGame newGame)
+		{
+			base.ApplyGame(oldGame, newGame);
+			if (newGame is IInteractiveChessGame ig) ig.PromotionRequest += Ig_PromotionRequest;
+		}
+
+		private async Task<Promotion> Ig_PromotionRequest(Promotion value)
+		{
+			PromotionDialogModel pdm = new PromotionDialogModel(value, Mouse.GetPosition(this));
+			IAppWindow window = (IAppWindow)Window.GetWindow(this);
+			IDialogResultAccepted<Promotion> acc = (IDialogResultAccepted<Promotion>)(await window.ShowDialog(pdm));
+			return acc.Value;
+		}
 	}
 
 	internal class BoardDimensionConverter : IValueConverter

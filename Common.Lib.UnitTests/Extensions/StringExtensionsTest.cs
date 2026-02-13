@@ -19,13 +19,20 @@ namespace Common.Lib.UnitTests.Extensions
 		}
 
 		[TestMethod]
-		public void SingleQuoteEscape()
+		public void SingleQuoteEscaped()
 		{
 			string s = "How's it goin'?";
 			string sesc = s.SingleQuoteEscaped;
 			Assert.AreEqual("How''s it goin''?", sesc);
 			string unesc = sesc.SingleQuoteUnescaped;
 			Assert.AreEqual(s, unesc);
+		}
+
+		[TestMethod]
+		public void DoubleQuoted()
+		{
+			const string S = "Hello";
+			Assert.AreEqual("\"Hello\"", S.DoubleQuoted);
 		}
 
 		[TestMethod]

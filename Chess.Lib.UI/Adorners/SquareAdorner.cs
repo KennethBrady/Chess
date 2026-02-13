@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using Chess.Lib.UI.Images;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Chess.Lib.UI.Adorners
 {
@@ -16,6 +18,16 @@ namespace Chess.Lib.UI.Adorners
 		protected override void OnRender(DrawingContext drawingContext)
 		{
 			base.OnRender(drawingContext);
+			if (Square.Adornments.HasFlag(SquareAdornment.CheckMate))
+			{
+				Rect r = new Rect(0, 0, Square.ActualWidth, Square.ActualHeight);
+				drawingContext.DrawRectangle(ChessBoardProperties.MatedKingBrush, null, r);
+				var image = ImageLoader.LoadImage(Square.Square.Piece);
+				RotateTransform rt = new RotateTransform { Angle = 90 };
+				TransformedBitmap tb = new TransformedBitmap(image, rt);				
+				drawingContext.DrawImage(tb, r);
+				return;
+			}
 			if (Square.Adornments.HasFlag(SquareAdornment.MoveTarget))
 			{
 				double ctr = Square.ActualWidth / 2, rad = ctr * 0.5;

@@ -1,5 +1,4 @@
 ﻿using Common.Lib.UI.Adorners;
-using Common.Lib.UI.Animations;
 using Common.Lib.UI.DragDrop;
 using System.Globalization;
 using System.Windows;
@@ -32,7 +31,8 @@ namespace Common.Lib.UI.Dialogs
 
 	public class DialogView : HeaderedContentControl
 	{
-		public static Duration AnimationDuration { get; set; } = new Duration(TimeSpan.FromSeconds(0.5));
+		public static TimeSpan DefaultAnimationDuration { get; set; } = TimeSpan.FromSeconds(0.70);
+		public static double DefaultOpacityReduction { get; set; } = 0.5;
 
 		#region Static Interface
 
@@ -46,6 +46,9 @@ namespace Common.Lib.UI.Dialogs
 
 		public static readonly DependencyProperty PlacementProperty = DependencyProperty.Register("Placement", typeof(DialogPlacement),
 			typeof(DialogView), new PropertyMetadata(DialogPlacement.Center));
+
+		public static readonly DependencyProperty PlacementOffsetProperty = DependencyProperty.Register("PlacementOffset", typeof(Size),
+			typeof(DialogView), new PropertyMetadata(Size.Empty));
 
 		public static readonly DependencyProperty CustomPlacementProperty = DependencyProperty.Register("CustomPlacement", typeof(Point),
 			typeof(DialogView), new PropertyMetadata(new Point()));
@@ -64,6 +67,12 @@ namespace Common.Lib.UI.Dialogs
 
 		public static readonly DependencyProperty AnimationProperty = DependencyProperty.Register("Animation", typeof(AnimationType),
 			typeof(DialogView), new PropertyMetadata(AnimationType.None));
+
+		public static DependencyProperty AnimationDurationProperty = DependencyProperty.Register("AnimationDuration", typeof(double),
+			typeof(DialogView), new PropertyMetadata(DefaultAnimationDuration.TotalSeconds));
+
+		public static readonly DependencyProperty CloseIndicatorProperty = DependencyProperty.Register("CloseIndicator", typeof(CloseIndicatorType),
+			typeof(DialogView), new PropertyMetadata(CloseIndicatorType.ReducedOpacity));
 
 		public static readonly DependencyProperty IsModalProperty = DependencyProperty.Register("IsModal", typeof(bool),
 			typeof(DialogView), new PropertyMetadata(true));
@@ -91,6 +100,12 @@ namespace Common.Lib.UI.Dialogs
 		{
 			get => (DialogPlacement)GetValue(PlacementProperty);
 			set => SetValue(PlacementProperty, value);
+		}
+
+		public Size PlacementOffset
+		{
+			get => (Size)GetValue(PlacementOffsetProperty);
+			set => SetValue(PlacementOffsetProperty, value);
 		}
 
 		public Point CustomPlacement
@@ -123,6 +138,17 @@ namespace Common.Lib.UI.Dialogs
 			set => SetValue(AnimationProperty, value);
 		}
 
+		public double AnimationDuration
+		{
+			get => (double)GetValue(AnimationDurationProperty);
+			set => SetValue(AnimationDurationProperty, value);
+		}
+
+		public CloseIndicatorType CloseIndicator
+		{
+			get => (CloseIndicatorType)GetValue(CloseIndicatorProperty);
+			set => SetValue(CloseIndicatorProperty, value);
+		}
 		public bool IsModal
 		{
 			get => (bool)GetValue(IsModalProperty);
@@ -141,12 +167,11 @@ namespace Common.Lib.UI.Dialogs
 		{
 			Dragger = new DialogViewDragger(this);
 			ElementDragger.SetAllowDrag(this, Dragger);
-			Loaded += (_, _) => { OnLoaded(); };
+			Loaded += (o, e) => OnLoaded();
 		}
 		private DialogViewDragger Dragger { get; init; }
 		private Button Closer { get; set; } = DefaultControls.Button;
 		private Button Restorer { get; set; } = DefaultControls.Button;
-		private Point StartPosition { get; set; }
 
 		private ResizeAdorner? ResizeAdorner { get; set; }
 
@@ -157,6 +182,15 @@ namespace Common.Lib.UI.Dialogs
 			Restorer = (Button)GetTemplateChild("restorer");
 			Closer.Click += Closer_Click;
 			Restorer.Click += Restorer_Click;
+			SizeChanged += DialogView_SizeChanged;
+			Visibility = Visibility.Hidden;
+		}
+
+		private void DialogView_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			SizeChanged -= DialogView_SizeChanged;
+			InitialSize = e.NewSize;
+			SetInitialPosition(false);
 		}
 
 		private void Closer_Click(object sender, RoutedEventArgs e)
@@ -167,25 +201,66 @@ namespace Common.Lib.UI.Dialogs
 		//TODO: What does "Restore" mean - occupy full window, return to a preset size?
 		private void Restorer_Click(object sender, RoutedEventArgs e)
 		{
-			SetInitialPosition(StartPosition);	// for now, just return to start pos
+			Width = InitialSize.Width;
+			Height = InitialSize.Height;
+			Dragger.StartPoint = StartPosition;
+			Canvas.SetLeft(this, StartPosition.X);
+			Canvas.SetTop(this, StartPosition.Y);
 		}
 
-		protected virtual void OnLoaded() { }
+		private Point StartPosition { get; set; }
+		private Size InitialSize { get; set; } = Size.Empty;
 
-		protected internal virtual void Show(Point canvasPosition)
+		/// <summary>
+		/// Calculate the TopLeft point for initial positioning.
+		/// </summary>
+		/// <returns>
+		/// A point which determines the Dialogs's initial position (via Canvas attached properties)
+		/// and the origin for Drag operations.
+		/// </returns>
+		/// <remarks>
+		/// The base method uses the Placement, CustomPlacement, and PlacementOffset properties to calculate the position.
+		/// </remarks>
+		protected virtual Point CalculateInitialPosition()
 		{
-			Dragger.StartPoint = canvasPosition;
+			if (Parent is not DialogLayer dl || InitialSize.IsEmpty) return new Point(0, 0);
+			Point center = new Point(dl.ActualWidth / 2, dl.ActualHeight / 2);
+			double ho2 = InitialSize.Height / 2, wo2 = InitialSize.Width / 2, x = 0, y = 0;
+			switch (Placement)
+			{
+				case DialogPlacement.TopLeft: break;
+				case DialogPlacement.CenterLeft: y = center.Y - ho2; break;
+				case DialogPlacement.BottomLeft: y = dl.ActualHeight - InitialSize.Height; break;
+				case DialogPlacement.TopCenter: x = center.X - wo2; break;
+				case DialogPlacement.Center: x = center.X - wo2; y = center.Y - ho2; break;
+				case DialogPlacement.BottomCenter: x = center.X - wo2; y = dl.ActualHeight - InitialSize.Height; break;
+				case DialogPlacement.TopRight: x = dl.ActualWidth - InitialSize.Width; break;
+				case DialogPlacement.CenterRight: x = dl.ActualWidth - InitialSize.Width; y = center.Y - ho2; break;
+				case DialogPlacement.BottomRight: x = dl.ActualWidth - InitialSize.Width; y = dl.ActualHeight - InitialSize.Height; break;
+				case DialogPlacement.Custom: x = CustomPlacement.X; y = CustomPlacement.Y; break;
+			}
+			if (!PlacementOffset.IsEmpty)
+			{
+				x += PlacementOffset.Width;
+				y += PlacementOffset.Height;
+			}
+			return new Point(x, y);
 		}
 
-		internal void SetInitialPosition(Point canvasPosition)
+		private void SetInitialPosition(bool isReset)
 		{
-			StartPosition = canvasPosition;
+			Point canvasPosition = CalculateInitialPosition();
 			Dragger.StartPoint = canvasPosition;
 			Canvas.SetLeft(this, canvasPosition.X);
 			Canvas.SetTop(this, canvasPosition.Y);
-			if (IsResizable && ResizeAdorner == null)
+			if (!isReset)
 			{
-				AdornerLayer.GetAdornerLayer(this)?.Add(ResizeAdorner = new ResizeAdorner(this));
+				StartPosition = canvasPosition;
+				if (IsResizable && ResizeAdorner == null)
+				{
+					AdornerLayer.GetAdornerLayer(this)?.Add(ResizeAdorner = new ResizeAdorner(this));
+				}
+				if (Animation == AnimationType.None) Visibility = Visibility.Visible; else DialogAnimator.BeginOpenAnimation(this);
 			}
 		}
 
@@ -200,6 +275,16 @@ namespace Common.Lib.UI.Dialogs
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
+		}
+
+		protected virtual void OnLoaded() { }
+
+		internal void ApplyCloseIndicator()
+		{
+			switch (CloseIndicator)
+			{
+				case CloseIndicatorType.ReducedOpacity: Opacity = Math.Min(1.0, Math.Max(0.0, DefaultOpacityReduction)); break;
+			}
 		}
 
 		#region DialogViewDragger

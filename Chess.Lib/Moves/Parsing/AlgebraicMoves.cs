@@ -175,6 +175,8 @@ namespace Chess.Lib.Moves.Parsing
 				{
 					case IMoveParseSuccess s:
 						ChessMove move = new ChessMove(s);
+						// Although this is an interactive game, this series of moves is non-interactive,
+						// so use the synchronous Apply:
 						if (b.Apply(move)) nParsed++; else return nParsed;
 						break;
 					case IParseGameEnd:
@@ -258,34 +260,7 @@ namespace Chess.Lib.Moves.Parsing
 			return s.ToString();
 		}
 
-
 		public static IReadOnlyList<AlgebraicMove> ToMoveList(string moves) => Generate(moves).moves;
-
-		/// <summary>
-		/// Reformat moves to a maximum line-length of 80
-		/// </summary>
-		/// <param name="algebraicMoves"></param>
-		/// <returns></returns>
-		public static string ToPgnFormat(string algebraicMoves)
-		{
-			AlgebraicMoves moves = AlgebraicMoves.Create(algebraicMoves);
-			StringBuilder s = new();
-			foreach (var move in moves)
-			{
-				AlgebraicMove am = (AlgebraicMove)move;
-				if (s.Length > 0) s.Append(" ");
-				if (move.Hue == Hue.Light && !am.IsEndGame) s.Append($"{move.GameMoveNumber}. ");
-				s.Append(move.Move);
-			}
-			int i = 80;
-			while (i < s.Length)
-			{
-				while (s[i] != ' ') i--;
-				s[i] = '\n';
-				i += 80;
-			}
-			return s.ToString();
-		}
 
 		/// <summary>
 		/// Test whether the string meets basic criteria for PGN moves.

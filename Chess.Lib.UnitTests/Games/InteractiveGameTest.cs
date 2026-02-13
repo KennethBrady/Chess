@@ -4,10 +4,12 @@ using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
+using Chess.Lib.Pgn;
 using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.UnitTests.Games
 {
+	[DeploymentItem("Promotion.txt")]
 	[TestClass]
 	public class InteractiveGameTest
 	{
@@ -33,7 +35,7 @@ namespace Chess.Lib.UnitTests.Games
 		}
 
 		[TestMethod]
-		public void E4()
+		public async Task E4()
 		{
 			IChessGame g = new InteractiveGame();
 			IChessMove? lastMove = null;
@@ -51,7 +53,7 @@ namespace Chess.Lib.UnitTests.Games
 				default: Assert.Fail("Expected pawn on e2"); break;
 			}
 			Assert.IsTrue(pawn.CanMoveTo(tosq));
-			switch (g.White.AttemptMove("e4", MoveFormat.Algebraic))
+			switch (await g.White.AttemptMove("e4", MoveFormat.Algebraic))
 			{
 				case IMoveAttemptSuccess s:
 					{
@@ -93,16 +95,16 @@ namespace Chess.Lib.UnitTests.Games
 		}
 
 		[TestMethod]
-		public void UndoMove()
+		public async Task UndoMove()
 		{
 			IInteractiveChessGame g = GameFactory.CreateInteractive();
-			g.White.AttemptMove("e2e4", MoveFormat.EngineCompact);
+			await g.White.AttemptMove("e2e4", MoveFormat.EngineCompact);
 			var wLast = g.White.LastMoveMade;
 			Assert.AreSame(g.LastMoveMade, wLast);
 			Assert.IsFalse(wLast is NoMove);
 			var bLast = g.Black.LastMoveMade;
 			Assert.IsTrue(bLast is NoMove);
-			IMoveAttemptSuccess s = (IMoveAttemptSuccess)g.Black.AttemptMove("e7e5", MoveFormat.EngineCompact);
+			IMoveAttemptSuccess s = (IMoveAttemptSuccess)(await g.Black.AttemptMove("e7e5", MoveFormat.EngineCompact));
 			Assert.IsTrue(g.Black.CanUndo);
 			Assert.IsTrue(g.White.HasNextMove);
 			Assert.AreSame(s.CompletedMove, g.Black.LastMoveMade);
@@ -136,7 +138,7 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.AreEqual(TimeSpan.Zero, g.Clock.Black.Increment);	
 			Assert.IsFalse(g.Clock.IsRunning);
 			Assert.IsFalse(g.Clock.IsStarted);
-			switch(g.White.AttemptMove("e2e4"))
+			switch(await g.White.AttemptMove("e2e4"))
 			{
 				case IMoveAttemptSuccess mas:
 					Assert.IsTrue(g.Clock.IsRunning);
@@ -148,6 +150,51 @@ namespace Chess.Lib.UnitTests.Games
 					Assert.Fail(f.Reason.ToString());
 					break;
 			}
+		}
+
+		[TestMethod]
+		public async Task PromotionInvokedWithMate()
+		{
+			PGN pgn = PGN.Parse(System.IO.File.ReadAllText("Promotion.txt"));
+			IInteractiveChessGame g = GameFactory.CreateInteractive();
+			g.ApplyMoves(pgn.Moves);
+			Assert.HasCount(64, g.Moves);
+			bool promoInvoked = false;
+			PieceType toPiece = PieceType.Rook;
+			g.PromotionRequest += async promo =>
+			{
+				promoInvoked = true;
+				return promo with { PieceType = toPiece };
+			};
+			IMoveAttempt ma = await g.White.AttemptMove("d7d8");
+			Assert.IsTrue(ma.Succeeded);
+			IMoveAttemptSuccess mas = (IMoveAttemptSuccess)ma;
+			Assert.IsTrue(promoInvoked);
+			Assert.AreEqual(toPiece, mas.CompletedMove.Promotion.ToPiece.Type);
+			promoInvoked = false;
+			mas = (IMoveAttemptSuccess)(await g.Black.AttemptMove("a8d8"));
+			Assert.IsTrue(mas.CompletedMove.IsCapture);
+			Assert.IsFalse(promoInvoked);
+			toPiece = PieceType.Bishop;
+			mas = (IMoveAttemptSuccess)(await g.White.AttemptMove("c7d8"));
+			Assert.IsTrue(promoInvoked);
+			Assert.AreEqual(toPiece, mas.CompletedMove.Promotion.ToPiece.Type);
+			promoInvoked = false;
+			mas = (IMoveAttemptSuccess)(await g.Black.AttemptMove("f8d8"));
+			Assert.IsFalse(promoInvoked);
+			Assert.IsTrue(mas.CompletedMove.IsCapture);
+			mas = (IMoveAttemptSuccess)(await g.White.AttemptMove("d1d8"));
+			Assert.IsTrue(mas.CompletedMove.IsCapture);
+			Assert.IsTrue(mas.CompletedMove.IsCheck);
+			Assert.IsFalse(mas.CompletedMove.IsCheckMate);
+			mas = (IMoveAttemptSuccess)(await g.Black.AttemptMove("f6d8"));
+			Assert.IsTrue(mas.CompletedMove.IsCapture);
+			Assert.IsFalse(mas.CompletedMove.IsCheck);
+			mas = (IMoveAttemptSuccess)(await g.White.AttemptMove("a5d8"));
+			Assert.IsTrue(mas.CompletedMove.IsCheckMate);
+			IChessKing k = (IChessKing)g.Board.ActivePieces.First(p => p.Type == PieceType.King && p.Side == Hue.Dark);
+			Assert.IsTrue(k.IsMated);
+			Assert.AreSame(mas.CompletedMove.CheckedKing, k);
 		}
 	}
 }

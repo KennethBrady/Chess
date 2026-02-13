@@ -33,7 +33,7 @@ namespace Chess.Lib.Moves
 		public int Count => 0;
 
 #pragma warning disable 0067
-		public event TypeHandler<AppliedMove>? MoveApplied;
+		public event Handler<AppliedMove>? MoveApplied;
 #pragma warning restore
 		public void AddMove(IMove move) { }
 

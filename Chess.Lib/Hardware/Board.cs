@@ -8,94 +8,6 @@ using System.Text;
 
 namespace Chess.Lib.Hardware
 {
-	#region IChessBoard / IBoard Interfaces
-
-	public interface IChessBoard : IEnumerable<IChessSquare>
-	{
-		#region Square Access
-		IChessSquare this[File file, Rank rank] { get; }
-		IChessSquare this[FileRank fileRank] { get; }
-		IChessSquare this[int squareIndex] { get; }
-
-		#endregion
-
-		IReadOnlyList<IChessPiece> ActivePieces { get; }
-		IReadOnlyList<IChessPiece> Promotions { get; }
-		IReadOnlyList<IChessPiece> Removed { get; }
-		IEnumerable<IChessPiece> RemovedPieces { get; }
-		IEnumerable<IChessSquare> AllowedMovesFrom(IChessSquare square);
-		void Display(TextWriter output);
-		string Display()
-		{
-			using StringWriter w = new StringWriter();
-			Display(w);
-			return w.ToString();
-		}
-		string AsFEN();
-		IChessGame Game { get; }
-		bool IsGameBoard => Game is not INoGame;
-		event TypeHandler<IChessboardState>? StateApplied;
-		bool IsVariantBoard { get; }
-		IChessMove LastMove { get; }
-	}
-
-	internal interface IBoard : IChessBoard
-	{
-		new ISquare this[File file, Rank rank] { get; }
-		new ImmutableList<IPiece> ActivePieces { get; }
-
-		#region Methods for inspecting squares between start/end squares of a proposed move:
-
-		IEnumerable<ISquare> RankSquaresBetween(ISquare start, ISquare end);
-		IEnumerable<ISquare> FileSquaresBetween(ISquare start, ISquare end);
-		IEnumerable<ISquare> DiagonalSquaresBetween(ISquare start, ISquare end);
-		IEnumerable<ISquare> QueenMovesBetween(ISquare start, ISquare end);
-		IEnumerable<ISquare> KingSquares(ISquare fromSquare);
-		IEnumerable<ISquare> SquaresBetween(ISquare start, ISquare end);
-		IEnumerable<ISquare> AllowedKnightMovesFrom(ISquare fromSquare);
-
-		#endregion
-
-		/// <summary>
-		/// Returns a list of all promotions that have occurred
-		/// </summary>
-		new ImmutableList<IPiece> Promotions { get; }
-		new ImmutableList<IPiece> RemovedPieces { get; }
-
-		/// <summary>
-		/// Convert an engine-format move to an ISquare.
-		/// </summary>
-		/// <param name="fileRank">A file-rank (engine-move) format move</param>
-		/// <returns>An ISquare, which will be NoSquare if the string is unparseable.</returns>
-		ISquare ParseSquare(string fileRank);
-
-		/// <summary>
-		/// Apply the move to the board, changing the board state.
-		/// </summary>
-		/// <param name="move"></param>
-		/// <returns>true if the move was made; false if the move is not possible</returns>
-		bool Apply(IMove move);
-		new IMove LastMove { get; }
-		bool WouldPutMyOwnKingInCheck(IPiece movedPiece, ISquare toSquare);
-		KingState OtherKingsExpectedState(IPiece movedPiece, ISquare toSquare, PieceType promotion);
-		IBoardState GetCurrentState();
-
-		/// <summary>
-		/// Return the board to the given state
-		/// </summary>
-		/// <param name="state"></param>
-		void ApplyState(IBoardState state);
-
-		/// <summary>
-		/// Reset the board to its start position
-		/// </summary>
-		void Reset();
-		event TypeHandler<IChessMove>? MoveMade;
-		new IGame Game { get; set; }
-	}
-
-	#endregion
-
 	internal sealed class Board : IBoard
 	{
 		internal static readonly Rank[] AllRanks = { Rank.R1, Rank.R2, Rank.R3, Rank.R4, Rank.R5, Rank.R6, Rank.R7, Rank.R8 };
@@ -111,29 +23,30 @@ namespace Chess.Lib.Hardware
 		private IGame _game = NoGame.Default;
 		public Board() : this(true) { }
 
-		public Board(string fen): this(new FEN(fen)) { }
+		public Board(string fen) : this(new FEN(fen)) { }
 
-		public Board(FEN fen): this(false)
+		public Board(FEN fen) : this(false)
 		{
 			string[] parts = fen.PiecePlacement.Split('/');
 			Rank r = Rank.R8;
 			List<IPiece> pieces = new();
-			foreach(string p in parts)
+			foreach (string p in parts)
 			{
 				int nFile = 0;
-				foreach(char c in p)
+				foreach (char c in p)
 				{
-					if (char.IsDigit(c)) nFile += int.Parse(c.ToString()); else
+					if (char.IsDigit(c)) nFile += int.Parse(c.ToString());
+					else
 					{
 						Hue h = char.IsUpper(c) ? Hue.Light : Hue.Dark;
 						PieceType type = PieceTypeExtensions.Promotion(c);
 						File f = (File)nFile;
 						ISquare s = (ISquare)this[f, r];
 						IPiece piece = NoPiece.Default;
-						switch(type)
+						switch (type)
 						{
 							case PieceType.Pawn: piece = new Pawn(new FileRank(f, r), h, this); break;
-							case PieceType.Rook: piece = new Rook(new FileRank(f,r), h, this); break;
+							case PieceType.Rook: piece = new Rook(new FileRank(f, r), h, this); break;
 							case PieceType.Knight: piece = new Knight(new FileRank(f, r), h, this); break;
 							case PieceType.Bishop: piece = new Bishop(new FileRank(f, r), h, this); break;
 							case PieceType.Queen: piece = new Queen(new FileRank(f, r), h, this); break;
@@ -182,7 +95,7 @@ namespace Chess.Lib.Hardware
 		public IChessSquare this[File file, Rank rank] => SquareAt(file, rank);
 		public IChessSquare this[FileRank fileRank] => SquareAt(fileRank.File, fileRank.Rank);
 		public IChessSquare this[int squareIndex] => this[PositionOf(squareIndex)];
-		public event TypeHandler<IChessMove>? MoveMade;
+		public event Handler<IChessMove>? MoveMade;
 		ISquare IBoard.this[File file, Rank rank] => (ISquare)this[file, rank];
 		IReadOnlyList<IChessPiece> IChessBoard.ActivePieces => _pieces;
 		ImmutableList<IPiece> IBoard.ActivePieces => _pieces;
@@ -191,14 +104,14 @@ namespace Chess.Lib.Hardware
 		public IReadOnlyList<IChessPiece> Removed => _removedPieces;
 		ImmutableList<IPiece> IBoard.Promotions => _promotions;
 		ImmutableList<IPiece> IBoard.RemovedPieces => _removedPieces;
-		public event TypeHandler<IChessboardState>? StateApplied;
+		public event Handler<IChessboardState>? StateApplied;
 		public bool IsVariantBoard { get; private init; } = false;
 
 		public IEnumerable<IChessSquare> AllowedMovesFrom(IChessSquare square)
 		{
 			if (square is null || square.Piece is NoPiece) yield break;
 			if (Me.IsGameBoard && square.Piece.Side != Game.NextPlayer.Side) yield break;
-			foreach(ISquare sq in _squares)
+			foreach (ISquare sq in _squares)
 			{
 				if (sq.Index == square.Index) continue;
 				if (square.Piece.CanMoveTo(sq)) yield return sq;
@@ -273,6 +186,14 @@ namespace Chess.Lib.Hardware
 			return pos.IsOnBoard ? SquareAt(pos.File, pos.Rank) : NoSquare.Default;
 		}
 
+		async Task<bool> IBoard.ApplyInteractive(IMove move)
+		{
+			if (!move.IsPromotion || Game is not IPromotingGame g) return Me.Apply(move);
+			PieceType toType = await g.RequestPromotion(move.Player.Side, (ISquare)move.ToSquare);
+			move.SetPromotion(toType);
+			return Me.Apply(move);
+		}
+
 		bool IBoard.Apply(IMove move)
 		{
 			/*
@@ -291,14 +212,18 @@ namespace Chess.Lib.Hardware
 				switch (move.ToSquare.Piece)
 				{
 					case NoPiece: break;
-					case IPiece capture: capturedPiece = capture; break;
+					case IPiece capture:
+						capturedPiece = capture;
+						_removedPieces = _removedPieces.Add(capturedPiece);
+						_pieces = _pieces.Remove(capturedPiece);
+						break;
 				}
-				IPiece promo = pawn.Promote(move.PromoteTo, (ISquare)move.ToSquare);				
+				IPiece promo = pawn.Promote(move.PromoteTo, (ISquare)move.ToSquare);
 				_promotions = _promotions.Add(promo);
 				promo.PromotionIndex = _promotions.Count;
 				_pieces = _pieces.Add(promo).Remove(pawn);
 				_removedPieces.Add(pawn);
-				move.Promotion = new Promotion(pawn, promo, from);
+				move.Promotion = new PromotedPawn(pawn, promo, from);
 				ret = true;
 			}
 			else ret = ((IPiece)move.MovedPiece).Move(move);
@@ -330,11 +255,11 @@ namespace Chess.Lib.Hardware
 		public bool WouldPutMyOwnKingInCheck(IPiece piece, ISquare toSquare)
 		{
 			if (IsCheckingForCheck) return false;
-			// Check to see if, by remove a piece, the piece's King is put in check:
+			// Check to see if, by removing a piece, the piece's King is put in check:
 			// Cannot be certain that a king exists - this might be a composed board:
-			foreach(IPiece p in _pieces)
+			foreach (IPiece p in _pieces)
 			{
-				if(p.Type == PieceType.King && p.Side == piece.Side)
+				if (p.Type == PieceType.King && p.Side == piece.Side)
 				{
 					IKing k = (IKing)p;
 					using var rep = new PieceReplacer(this, piece, toSquare, PieceType.None);
@@ -346,7 +271,7 @@ namespace Chess.Lib.Hardware
 
 		public KingState OtherKingsExpectedState(IPiece movedPiece, ISquare toSquare, PieceType promotion)
 		{
-			foreach(IPiece p in _pieces)
+			foreach (IPiece p in _pieces)
 			{
 				if (p.Type == PieceType.King && p.Side != movedPiece.Side)
 				{
@@ -355,7 +280,7 @@ namespace Chess.Lib.Hardware
 					return new KingState(k.Side, k.IsInCheck(), k.IsMated);
 				}
 			}
-			return KingState.DefaultFor(movedPiece.Side.Other());
+			return KingState.DefaultFor(movedPiece.Side.Other);
 		}
 
 		public Board CreateCopy()
@@ -378,8 +303,8 @@ namespace Chess.Lib.Hardware
 			_promotions = state.Promotions;
 			_removedPieces = state.Removed;
 			List<IPiece> pieces = new(state.PieceStates.Count);
-			foreach(PieceAndState ps in state.PieceStates)
-			{ 
+			foreach (PieceAndState ps in state.PieceStates)
+			{
 				ISquare square = (ISquare)this[ps.State.SquareIndex];
 				IPiece p = ps.Piece;
 				p.ApplyState(ps.State);
@@ -573,6 +498,15 @@ namespace Chess.Lib.Hardware
 			}
 		}
 
+		IEnumerable<IPiece> IBoard.PiecesTargeting(ISquare toSquare, Hue side)
+		{
+			bool hasPiece = toSquare.Piece is not NoPiece;
+			foreach(Piece p in Me.ActivePieces.Where(p => p.Side == side) )
+			{
+				bool can = hasPiece ? p.CanCaptureTo(toSquare) : p.CanMoveTo(toSquare);
+				if (can) yield return p;
+			}
+		}
 
 		#endregion
 
@@ -606,7 +540,8 @@ namespace Chess.Lib.Hardware
 					MovedPiece.SetSquare(ToSquare);
 					ToSquare.SetPiece(MovedPiece);
 					FromSquare.SetPiece(NoPiece.Default);
-				} else
+				}
+				else
 				{
 					PromotedPawn = p;
 					Promotion = p.Promote(promotion, toSquare);

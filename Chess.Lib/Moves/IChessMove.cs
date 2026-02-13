@@ -30,7 +30,7 @@ namespace Chess.Lib.Moves
 		IMoveCounter Number { get; }
 		bool IsCheck { get; }
 		IPromotion Promotion { get; }
-		bool IsMate { get; }
+		bool IsCheckMate { get; }
 		bool IsEnPassant { get; }
 		IEnumerable<IChessSquare> AffectedSquares();
 		ICastle Castle { get; }
@@ -56,6 +56,7 @@ namespace Chess.Lib.Moves
 
 	internal interface IMove : IChessMove
 	{
+		bool IsPromotion { get; }
 		new IPromotion Promotion { get; set; }
 		PieceType PromoteTo { get; }
 		IBoard Board => (IBoard)MovedPiece.Board;
@@ -63,5 +64,7 @@ namespace Chess.Lib.Moves
 		IBoardState BoardState => GameState.BoardState;
 
 		new ICastle Castle { get; set; }
+
+		void SetPromotion(PieceType promoteTo);
 	}
 }

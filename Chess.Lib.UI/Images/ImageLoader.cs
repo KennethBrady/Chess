@@ -1,21 +1,20 @@
 ﻿using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Chess.Lib.UI.Images
 {
 	internal static class ImageLoader
 	{
-		internal static ImageSource? LoadImage(IChessPiece piece)
+		internal static BitmapFrame? LoadImage(IChessPiece piece)
 		{
 			if (piece is null) return null;
 			if (piece.Type == PieceType.None) return null;
 			return LoadImage(piece.Type, piece.Side);
 		}
 
-		internal static ImageSource LoadImage(PieceType type, Hue side)
+		internal static BitmapFrame LoadImage(PieceType type, Hue side)
 		{
 			string name = side == Hue.Light ? "White" : "Black";
 			name += type.ToString();

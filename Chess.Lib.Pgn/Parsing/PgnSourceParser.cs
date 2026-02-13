@@ -2,8 +2,6 @@
 using Chess.Lib.Pgn.DataModel;
 using Common.Lib.Extensions;
 using System.Collections.Immutable;
-using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Chess.Lib.Pgn.Parsing
@@ -12,13 +10,17 @@ namespace Chess.Lib.Pgn.Parsing
 	{
 		private static readonly string[] _endCombinations = { "1/2-1/2", "1-0", "0-1", "+/- +/-", "-/+ -/+", "*", "* *", "(+)-(-) (+)-(-)", "0-0 0-0" };
 
-		public static bool TryParseDate(string sDate, out DateTime date) => TryParseDate(ref sDate, out date);
-
 		private static readonly string[] _thirtyDayMonths = { "04", "06", "09", "11" };
+
+		/// <summary>
+		/// Attempt to deal with variations on date formats found in PGN files
+		/// </summary>
+		/// <param name="sDate"></param>
+		/// <param name="date"></param>
+		/// <returns></returns>
 		private static bool TryParseDate(ref string sDate, out DateTime date)
 		{
-			date = DateTime.MinValue;
-			if (string.IsNullOrEmpty(sDate)) return false;
+			if (PgnTags.TryParseDate(sDate, out date)) return true;
 			while (sDate.EndsWith("'")) sDate = sDate.Substring(0, sDate.Length - 1);
 			string[] parts = sDate.Split('.');
 			if (parts.Length == 3)
@@ -39,22 +41,12 @@ namespace Chess.Lib.Pgn.Parsing
 					if (parts[1] == "02" && (parts[2] == "31" || parts[2] == "30" || parts[2] == "29")) parts[2] = "28";
 				}
 				sDate = string.Join('.', parts);
-				try
-				{
-					date = DateTime.ParseExact(sDate, "yyyy.MM.dd", CultureInfo.InvariantCulture);
-					return true;
-				}
-				catch
-				{
-					return DateTime.TryParseExact(sDate, "yyyy.dd.MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
-				}
+				return PgnTags.TryParseDate(sDate, out date);
 			}
 			return false;
 		}
 
-		public static DateTime ParseDate(string sPgnDate) => DateTime.ParseExact(sPgnDate, "yyyy.MM.dd", CultureInfo.InvariantCulture);
-
-		private static readonly Regex _rxHeaders = new Regex(@"\[(\w+)\s""(.*)""]");
+		internal static readonly Regex _rxHeaders = new Regex(@"\[(\w+)\s""(.*)""]");
 
 		public static IPgnParseResult Parse(string pgn) => Parse(pgn, SourceInfo.Empty);
 
@@ -185,24 +177,6 @@ namespace Chess.Lib.Pgn.Parsing
 		{
 			IEnumerable<IPgnParseResult> parse() => ParseFromFile(filePath, feedback);
 			return Task<IEnumerable<IPgnParseResult>>.Factory.StartNew(parse);
-		}
-
-		internal static string ExportPgn(IReadOnlyDictionary<string,string> tags, string moves)
-		{
-			StringBuilder s = new StringBuilder();
-			foreach(string tag in PgnTags.Required)
-			{
-				string val = tags[tag];
-				s.Append($"[{tag} \"{val}\"]\n");
-			}
-			foreach(var nvp in tags)
-			{
-				if (PgnTags.Required.Contains(nvp.Key)) continue;
-				s.Append($"[{nvp.Key} \"{nvp.Value}\"]\n");
-			}
-			s.Append('\n');
-			s.Append(AlgebraicMoves.ToPgnFormat(moves));
-			return s.ToString();
 		}
 	}
 }

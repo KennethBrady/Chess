@@ -1,6 +1,6 @@
 ﻿using Common.Lib.IO;
 
-namespace Common.Lib.UnitTests
+namespace Common.Lib.UnitTests.IO
 {
 	[TestClass]
 	public sealed class PathExTest

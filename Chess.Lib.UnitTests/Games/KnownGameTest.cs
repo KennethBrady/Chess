@@ -5,6 +5,7 @@ using Chess.Lib.Moves.Parsing;
 
 namespace Chess.Lib.UnitTests.Games
 {
+	[DeploymentItem("games.txt")]
 	[TestClass]
 	public class KnownGameTest
 	{
@@ -85,7 +86,7 @@ namespace Chess.Lib.UnitTests.Games
 		}
 
 		[TestMethod]
-		public void Branch()
+		public async Task Branch()
 		{
 			KnownGame g = new KnownGame(LoadEngineMovesFor(23118));
 			IGame g2 = (IGame)g.Branch();
@@ -100,7 +101,7 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.IsTrue(g2.Black.HasNextMove);
 			Assert.HasCount(51, g2.MoveList);
 			Assert.AreEqual(50, g2.LastMoveMade.SerialNumber);
-			switch(g2.Black.AttemptMove(new MoveRequest("e7b4")))
+			switch(await g2.Black.AttemptMove(new MoveRequest("e7b4")))
 			{
 				case IMoveAttemptSuccess s: 
 					Assert.IsTrue(s.Succeeded);

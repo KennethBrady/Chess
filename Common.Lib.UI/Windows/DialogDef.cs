@@ -8,8 +8,11 @@ namespace Common.Lib.UI.Windows
 		internal static readonly Type IDialogModelExType = typeof(IDialogModelEx);
 
 		private bool IsEmpty => DialogType ==null || ModelType == null;
-		internal bool IsViewTypeValid => !IsEmpty && DialogType.IsAssignableTo(DialogViewType);
-		internal bool IsModelTypeValid => !IsEmpty && ModelType.IsAssignableTo(IDialogModelExType);
+		internal bool IsViewValid => !IsEmpty && DialogType.IsAssignableTo(DialogViewType);
+		internal bool IsModelValid => !IsEmpty && ModelType.IsAssignableTo(IDialogModelExType);
 		internal bool HasSettingsKey => !string.IsNullOrEmpty(SettingsKey);
+
+		internal static bool IsViewTypeValid(Type viewType) => viewType.IsAssignableTo(DialogViewType);
+		internal static bool IsModelTypeValid(Type modelType) => modelType.IsAssignableTo(IDialogModelExType);
 	}
 }

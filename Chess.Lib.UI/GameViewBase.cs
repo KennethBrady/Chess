@@ -1,4 +1,5 @@
 ﻿using Chess.Lib.Games;
+using Chess.Lib.Moves;
 using Common.Lib.UI;
 using System.Windows;
 
@@ -28,8 +29,14 @@ namespace Chess.Lib.UI
 		protected virtual void ApplyGame(IChessGame oldGame, IChessGame newGame)
 		{
 			newGame.MoveCompleted += HandleMoveCompleted;
+			newGame.GameStateApplied += HandleGameStateApplied;
+			if (newGame is IInteractiveChessGame ig) ig.MoveUndone += HandleMoveUndone;
 		}
 
+		protected virtual void HandleGameStateApplied(IChessgameState value) { }
+
 		protected virtual void HandleMoveCompleted(CompletedMove move) { }
+
+		protected virtual void HandleMoveUndone(IChessMove undoneMove) { }
 	}
 }

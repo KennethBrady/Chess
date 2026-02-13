@@ -24,8 +24,8 @@ namespace Chess.Lib.Hardware.Timing
 		public IClockPlayer White => W;
 		public IClockPlayer Black => B;
 
-		public event TypeHandler<TimerTick>? Tick;
-		public event TypeHandler<Hue>? Flagged;
+		public event Handler<TimerTick>? Tick;
+		public event Handler<Hue>? Flagged;
 
 		public bool IsStarted => StartTime.HasValue;
 		public bool IsRunning => White.IsRunning || Black.IsRunning;

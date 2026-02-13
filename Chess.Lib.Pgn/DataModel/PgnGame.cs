@@ -62,6 +62,6 @@ namespace Chess.Lib.Pgn.DataModel
 		/// </summary>
 		/// <returns>PGN string representing the game</returns>
 		/// <remarks>TODO: Include comments</remarks>
-		public string AsPgn() => PgnSourceParser.ExportPgn(Tags, Moves);
+		public string AsPgn() => PGN.ToPgn(Tags, Moves);
 	}
 }

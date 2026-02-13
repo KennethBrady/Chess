@@ -20,7 +20,7 @@ namespace Chess.Lib.Games
 		public string Name => nameof(NoPlayer);
 		public Hue Side => Hue.Default;
 		public IEnumerable<IChessSquare> AvailableSquaresFor(IChessPiece piece) => Enumerable.Empty<IChessSquare>();
-		IMoveAttempt IChessPlayer.AttemptMove(string move, MoveFormat format) => new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
+		async Task<IMoveAttempt> IChessPlayer.AttemptMove(string move, MoveFormat format) => new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
 		public IReadOnlyList<IChessMove> CompletedMoves => _moves;
 		public IChessGame Game => KnownGame.Empty;
 		public IChessBoard Board => Game.Board;
@@ -29,13 +29,13 @@ namespace Chess.Lib.Games
 		IKing IPlayer.King => NoKing.Default;
 		bool IReadOnlyChessPlayer.IsReadOnly => true;
 		bool IReadOnlyChessPlayer.HasNextMove => false;
-		IMoveAttempt IChessPlayer.AttemptMove(IParseableMove move) => new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
-		IMoveAttempt IChessPlayer.AttemptMove(MoveRequest moveRequest) => new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
+		async Task<IMoveAttempt> IChessPlayer.AttemptMove(IParseableMove move) => new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
+		async Task<IMoveAttempt> IChessPlayer.AttemptMove(MoveRequest moveRequest) => new MoveAttemptFail(false, MoveFailureReasons.WrongPlayer);
 		IEnumerable<IChessPiece> IReadOnlyChessPlayer.ActivePieces => Enumerable.Empty<IChessPiece>();
 		IEnumerable<IChessPiece> IReadOnlyChessPlayer.CapturedPieces => Enumerable.Empty<IChessPiece>();
 #pragma warning disable 00067
-		public event TypeHandler<PlayerMove>? MoveMade;
-		public event TypeHandler<bool>? CanMoveChanged;
+		public event Handler<PlayerMove>? MoveMade;
+		public event Handler<bool>? CanMoveChanged;
 #pragma warning restore 00067
 		public void RaiseCanMoveChanged() { }
 		public bool UndoLastMove() => false;
@@ -68,8 +68,8 @@ namespace Chess.Lib.Games
 		IChessBoard IReadOnlyChessPlayer.Board => Game.Board;
 		public IEnumerable<IChessPiece> ActivePieces => Me.Board.ActivePieces.Where(p => p.Side == Side);
 		public IEnumerable<IChessPiece> CapturedPieces => Me.Board.RemovedPieces.Where(p => p.Side == Side);
-		public event TypeHandler<PlayerMove>? MoveMade;
-		public event TypeHandler<bool>? CanMoveChanged;
+		public event Handler<PlayerMove>? MoveMade;
+		public event Handler<bool>? CanMoveChanged;
 		IEnumerable<IChessSquare> IReadOnlyChessPlayer.AvailableSquaresFor(IChessPiece piece)
 		{
 			if (piece.Side != Side || !HasNextMoveIgnoreReadonly) return Enumerable.Empty<IChessSquare>();
@@ -78,11 +78,11 @@ namespace Chess.Lib.Games
 
 		IReadOnlyList<IChessMove> IReadOnlyChessPlayer.CompletedMoves => _moves;
 
-		IMoveAttempt IChessPlayer.AttemptMove(IParseableMove move) => ApplyMoveAttempt(Me.AttemptMove(move.Move, move.Format));
+		async Task<IMoveAttempt> IChessPlayer.AttemptMove(IParseableMove move) => ApplyMoveAttempt(await Me.AttemptMove(move.Move, move.Format));
 
-		IMoveAttempt IChessPlayer.AttemptMove(string move, MoveFormat format) => ApplyMoveAttempt(MoveAttempt.FromMove(this, move, format));
+		async Task<IMoveAttempt> IChessPlayer.AttemptMove(string move, MoveFormat format) => ApplyMoveAttempt(await MoveAttempt.FromMove(this, move, format));
 
-		IMoveAttempt IChessPlayer.AttemptMove(MoveRequest moveRequest) => ApplyMoveAttempt(MoveAttempt.FromMove(this, moveRequest));
+		async Task<IMoveAttempt> IChessPlayer.AttemptMove(MoveRequest moveRequest) => ApplyMoveAttempt(await MoveAttempt.FromMove(this, moveRequest));
 
 		public bool HasNextMove
 		{
@@ -107,9 +107,9 @@ namespace Chess.Lib.Games
 
 		public bool UndoLastMove()
 		{
-			if (!Me.CanUndo) return false;
+			if (!Me.CanUndo || Game is not IInteractiveChessGame ig) return false;
 			IChessMove last = Me.LastMoveMade;
-			if (Game.UndoLastMove())
+			if (ig.UndoLastMove())
 			{
 				_moves = _moves.Remove(last);
 				return true;

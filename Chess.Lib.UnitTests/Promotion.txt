@@ -1,0 +1,11 @@
+﻿[Date "2/13/2026"]
+[White "Whitey"]
+[Black "Blacky"]
+
+1. d4 d5 2. e4 dxe4 3. c4 Nf6 4. Nc3 e6 5. Nge2 Nc6
+6. Ng3 Bb4 7. Bd2 Bxc3 8. bxc3 O-O 9. Be2 Re8 10. O-O e5
+11. Bg5 Qd6 12. c5 Qe6 13. Bxf6 Qxf6 14. d5 Ne7
+15. Nxe4 Qg6 16. Bf3 Bf5 17. Re1 Rad8 18. c4 c6
+19. d6 Nc8 20. Kh1 b6 21. Qa4 b5 22. cxb5 cxb5
+23. Qxb5 Bxe4 24. Bxe4 Qf6 25. f3 h6 26. Bc6 Rf8 27. d7 Ne7
+28. Be4 Ng6 29. c6 Rb8 30. Qa5 Nf4 31. c7 Ra8 32. Rad1 h5

@@ -2,7 +2,6 @@
 using Common.Lib.UI.MVVM;
 using System.Configuration;
 using System.Reflection;
-using System.Text;
 
 namespace Common.Lib.UI.Settings
 {

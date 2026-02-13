@@ -18,8 +18,8 @@ namespace Chess.Lib.Hardware.Timing
 		public IClockPlayer White => NullClockPlayer.Instance;
 
 #pragma warning disable 0067    // Disable warning about unused members                                           
-		public event TypeHandler<Hue>? Flagged;
-		public event TypeHandler<TimerTick>? Tick;
+		public event Handler<Hue>? Flagged;
+		public event Handler<TimerTick>? Tick;
 #pragma warning restore
 
 		public void MakeMove() { }

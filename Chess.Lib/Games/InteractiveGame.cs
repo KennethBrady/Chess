@@ -1,6 +1,9 @@
-﻿using Chess.Lib.Hardware.Timing;
+﻿using Chess.Lib.Hardware;
+using Chess.Lib.Hardware.Pieces;
+using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
+using Common.Lib.Contracts;
 using System.Diagnostics;
 
 namespace Chess.Lib.Games
@@ -10,7 +13,7 @@ namespace Chess.Lib.Games
 		public static readonly GameStartDefinition Empty = new GameStartDefinition(string.Empty, string.Empty, ChessClockSetup.Empty);
 	}
 
-	internal sealed class InteractiveGame : ChessGame, IInteractiveChessGame
+	internal sealed class InteractiveGame : ChessGame, IInteractiveChessGame, IPromotingGame
 	{
 		public InteractiveGame() : base(false) { }
 
@@ -30,10 +33,13 @@ namespace Chess.Lib.Games
 
 		internal InteractiveGame(string whiteName, string blackName) : base(false, whiteName, blackName) { }
 
-		internal InteractiveGame(GameStartDefinition gameDefinition): base(false, gameDefinition.WhiteName, gameDefinition.BlackName) 
+		internal InteractiveGame(GameStartDefinition gameDefinition) : base(false, gameDefinition.WhiteName, gameDefinition.BlackName)
 		{
 			Me.AttachClock(gameDefinition.ClockSetup);
 		}
+
+		public event Handler<IChessMove>? MoveUndone;
+		public event AsyncHandler<Promotion,Promotion>? PromotionRequest;
 
 		public override bool IsReadOnly => false;
 
@@ -70,5 +76,24 @@ namespace Chess.Lib.Games
 		}
 
 		private new IInteractiveChessGame Me => (IInteractiveChessGame)this;
+
+		bool IInteractiveChessGame.UndoLastMove()
+		{
+			var move = base.UndoLastMove();
+			if (move is not NoMove)
+			{
+				MoveUndone?.Invoke(move);
+				return true;
+			}
+			return false;
+		}
+
+		async Task<PieceType> IPromotingGame.RequestPromotion(Hue forPlayer, ISquare onSquare)
+		{
+			if (PromotionRequest == null) return PieceType.Queen;   // or throw?
+			Promotion p = new Promotion(PieceType.Queen, forPlayer, onSquare);
+			Promotion resp =  await PromotionRequest(p);
+			return resp.PieceType;
+		}
 	}
 }

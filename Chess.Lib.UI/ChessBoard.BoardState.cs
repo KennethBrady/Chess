@@ -1,5 +1,6 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
+using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
 
 namespace Chess.Lib.UI
@@ -15,7 +16,28 @@ namespace Chess.Lib.UI
 			{
 				ChessBoard = board;
 				Board.Game.MoveCompleted += Game_MoveCompleted;
+				Board.Game.GameStateApplied += Game_GameStateApplied;
 				foreach (var sq in ChessBoard._squares.Values) sq.ApplySquare();
+			}
+
+			private void Game_GameStateApplied(IChessgameState value)
+			{
+				ClearMoveTargets();
+				foreach (var cs in _lastAffected) cs.Adornments = SquareAdornment.None;
+				_lastAffected.Clear();
+				foreach(var cs in ChessBoard._squares.Values) cs.ApplySquare();
+				if (value.BoardState.LastMove is not INoMove)
+				{
+					ChessSquare cs = ChessBoard._squares[value.BoardState.LastMove.ToSquare.Position];
+					_lastAffected.Add(cs);
+					cs.Adornments |= SquareAdornment.LastMove;
+				}
+				if (value.BoardState.LastMove.IsCheck)
+				{
+					ChessSquare cs = ChessBoard._squares[value.BoardState.LastMove.CheckedKing.Square.Position];
+					_lastAffected.Add(cs);
+					cs.Adornments |= SquareAdornment.Check;
+				}
 			}
 
 			private void Game_MoveCompleted(CompletedMove value)
@@ -27,9 +49,15 @@ namespace Chess.Lib.UI
 				_lastAffected.ForEach(s => s.ApplySquare());
 				var sq = ChessBoard._squares[value.Move.ToSquare.Position];
 				sq.Adornments |= SquareAdornment.LastMove;
-				if (value.Move.IsCheck)
+				if (value.IsCheck)
 				{
 					ChessSquare cs = ChessBoard._squares[value.Move.CheckedKing.Square.Position];
+					if (value.IsCheckMate)
+					{
+						cs.Adornments = SquareAdornment.CheckMate;
+						ChessBoard.IsEnabled = false;	// Game Over
+						return;
+					}
 					_lastAffected.Add(cs);
 					cs.Adornments |= SquareAdornment.Check;
 				}
@@ -82,7 +110,7 @@ namespace Chess.Lib.UI
 				if (ChessBoard._squares[from.Position] == _downSquare && to.Adornments.HasFlag(SquareAdornment.MoveTarget))
 				{
 					MoveRequest req = new MoveRequest(from, to.Square);
-					switch(Game.NextPlayer.AttemptMove(req))
+					switch (Game.NextPlayer.AttemptMove(req))
 					{
 						case IMoveAttemptSuccess _: break;
 

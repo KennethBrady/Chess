@@ -1,9 +1,8 @@
-﻿namespace Common.Lib.UI.Animations
+﻿namespace Common.Lib.UI.Dialogs
 {
 	public enum AnimationType
 	{
 		None,
-		Empty,
 		Fade,
 		SlideFromTop,
 		SlideFromBottom,
@@ -13,4 +12,6 @@
 	}
 
 	public enum AnimationPhase { Opening, Opened, Closing, Closed };
+
+	public enum CloseIndicatorType { None, ReducedOpacity };
 }

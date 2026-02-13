@@ -1,11 +1,13 @@
 ﻿using Chess.Lib.Moves.Parsing;
 using Chess.Lib.Pgn;
+using Chess.Lib.UI.Pgn;
 using Common.Lib.Extensions;
 using System.Text.RegularExpressions;
 
 namespace Chess.Lib.UnitTests.Pgn
 {
 	[TestClass]
+	[DeploymentItem("Pgn/CheckMate.txt")]
 	public class PgnTest
 	{
 		[TestMethod]
@@ -31,7 +33,7 @@ namespace Chess.Lib.UnitTests.Pgn
 				case IParsedGameFail f: Assert.Fail(f.Error.Error.ToString()); break;
 			}
 			
-			PGN pgn = PGN.Empty with { Moves = moves };
+			PGN pgn = PGN.EmptyWithRequiredTags with { Moves = moves };
 			string spgn = pgn.ToString();
 			int moveStart = spgn.IndexOf("1. d4");
 			Assert.IsGreaterThan(0, moveStart);
@@ -40,7 +42,6 @@ namespace Chess.Lib.UnitTests.Pgn
 			{
 				case IParsedGameFail f: Assert.Fail(f.Error.Error.ToString()); break;
 			}
-			Console.WriteLine(smoves);
 		}
 
 		private static Regex _rxTags = new Regex(@"\[(\w+) .+]", RegexOptions.Compiled);
@@ -117,5 +118,18 @@ namespace Chess.Lib.UnitTests.Pgn
 			}
 		}
 
+
+		[TestMethod]
+		public void ExportIsImportable()
+		{
+			PGN pgn = PGN.Parse(File.ReadAllText("CheckMate.txt"));
+			Assert.IsNotNull(pgn);
+			Assert.IsFalse(pgn.IsEmpty);
+			Assert.IsTrue(pgn.IsComplete);
+			PgnEditorModel pem = new PgnEditorModel(pgn);
+			Assert.AreSame(pgn, pem.PGN);
+			PGN pgn2 = PGN.Parse(pem.ResultingPGN);
+			Assert.IsNotNull(pgn2);
+		}
 	}
 }

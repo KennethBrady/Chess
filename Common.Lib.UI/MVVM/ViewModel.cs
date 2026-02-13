@@ -1,9 +1,5 @@
 ﻿using Common.Lib.Contracts;
-using Common.Lib.Extensions;
-using Common.Lib.UI.Settings;
 using System.ComponentModel;
-using System.Drawing.Text;
-using System.Reflection;
 using System.Windows.Input;
 
 namespace Common.Lib.UI.MVVM

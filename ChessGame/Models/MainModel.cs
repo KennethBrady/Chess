@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace ChessGame.Models
 {
-	public class MainModel : AppWindowModel
+	public class MainModel : MainWindowModel
 	{
 		private IChessGame _game = GameFactory.CreateInteractive();
 
@@ -32,8 +32,11 @@ namespace ChessGame.Models
 		{
 			switch (parameter)
 			{
+				case "importPgn":
 				case "newGame": return true;
 				case "exportPgn": return Game.Moves.Count > 0;
+				case "undo": return Game is IInteractiveChessGame ig && ig.Moves.Count > 0;
+				case "branchGame": return Game.Moves.CurrentPosition > 0;
 			}
 			return false;
 		}
@@ -44,6 +47,11 @@ namespace ChessGame.Models
 			{
 				case "newGame": StartNewGame(); break;
 				case "exportPgn": ExportPgn(); break;
+				case "importPgn": ImportPgn(); break;
+				case "undo":
+					if (Game is IInteractiveChessGame ig) ig.UndoLastMove();
+					break;
+				case "branchGame": BranchGame(); break;
 			}
 		}
 
@@ -69,6 +77,21 @@ namespace ChessGame.Models
 			}
 		}
 
+		private void BranchGame()
+		{
+			Game = Game.Branch();
+		}
+
+		private async void ImportPgn()
+		{
+			var result = await ShowDialog(new ImportPgnModel());
+			if (result is IDialogResultAccepted<ImportPgnResult> acc)
+			{
+				PGN pgn = acc.Value.Pgn;
+				IPgnChessGame game = GameFactory.CreatePgn(pgn);
+				Game = acc.Value.BranchGame ? game.Branch() : game;
+			}
+		}
 		private async void ExportPgn()
 		{
 			var result = await ShowDialog<PGN>(new PgnEditorModel(_game) { AllowIncompleteTags = true });

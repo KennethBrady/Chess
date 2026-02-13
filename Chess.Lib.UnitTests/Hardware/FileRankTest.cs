@@ -32,9 +32,9 @@ namespace Chess.Lib.UnitTests.Hardware
 			const string MOVES = "D2D4C7C5D4D5E7E5D5E6";
 			foreach(var m in MOVES.Chunk(2))
 			{
-				File f = FileEx.Parse(m[0]);
+				File f = RFExtensions.ParseFile(m[0]);
 				Assert.AreNotEqual(File.Offboard, f);
-				Rank r = RankEx.Parse(m[1]);
+				Rank r = RFExtensions.ParseRank(m[1]);
 				Assert.AreNotEqual(Rank.Offboard, r);
 				string s = new string(m);
 				FileRank fr = FileRank.Parse(s);

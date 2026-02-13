@@ -18,5 +18,16 @@ namespace Common.Lib.UI
 		protected abstract void UseTemplate();
 
 		protected virtual void OnSizeChanged(Size oldSize, Size newSize) { }
+
+		protected virtual void OnDataContextChanged(object oldContext, object newContext) { }
+
+		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+		{
+			base.OnPropertyChanged(e);
+			switch(e.Property.Name)
+			{
+				case "DataContext": OnDataContextChanged(e.OldValue, e.NewValue); break;
+			}
+		}
 	}
 }

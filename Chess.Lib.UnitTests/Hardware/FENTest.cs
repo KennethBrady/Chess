@@ -8,7 +8,7 @@ namespace Chess.Lib.UnitTests.Hardware
 	public class FENTest
 	{
 		[TestMethod]
-		public void FullMoveCountIncrementsAfterBlackMoves()
+		public async Task FullMoveCountIncrementsAfterBlackMoves()
 		{
 			const string MOVES = "c2c4g7g6b1c3f8g7d2d4c7c5d4d5g7c3b2c3f7f5c1d2f5f4e2e4";
 			IChessGame g = new InteractiveGame();
@@ -16,7 +16,7 @@ namespace Chess.Lib.UnitTests.Hardware
 			foreach (var req in MoveRequest.ParseMoves(MOVES))
 			{
 				if (n++ % 2 == 0) gameMoveNumber++;
-				switch (g.NextPlayer.AttemptMove(req))
+				switch (await g.NextPlayer.AttemptMove(req))
 				{
 					case MoveAttemptSuccess s:
 						FEN f = new FEN(g);

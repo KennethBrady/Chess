@@ -17,7 +17,7 @@ namespace Chess.Lib.UI
 
 		public ChessBoard()
 		{
-			State = new BoardState(this); // temporary, as this will be replaces when Game is changed.
+			State = new BoardState(this); // temporary, as this will be replaced when Game is changed.
 			ChessBoardProperties.BrushChanged += ChessBoardProperties_BrushChanged;
 			MovingPiece = new MovingPieceAdorner(this);
 		}
@@ -27,6 +27,8 @@ namespace Chess.Lib.UI
 		internal BoardState State { get; private set; }
 		internal AdornerLayer AdornerLayer => ((AdornerDecorator)GetTemplateChild("adorner")).AdornerLayer;
 		internal AdornerLayer MainAdorner => AdornerLayer.GetAdornerLayer(this);
+
+		internal IReadOnlyDictionary<FileRank, ChessSquare> Squares => _squares.AsReadOnly();
 
 		internal MovingPieceAdorner MovingPiece { get; private init; }
 
@@ -53,7 +55,9 @@ namespace Chess.Lib.UI
 		protected override void ApplyGame(IChessGame oldGame, IChessGame newGame)
 		{
 			base.ApplyGame(oldGame, newGame);
+			foreach (var sq in _squares.Values) sq.Adornments = SquareAdornment.None;
 			State = new BoardState(this);
+			IsEnabled = newGame is IInteractiveChessGame;
 		}
 
 		/// <summary>

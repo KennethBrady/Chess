@@ -28,7 +28,7 @@ namespace Chess.Lib.Hardware.Pieces
 			if (!this.CanMoveToCore(toSquare)) return false;
 			using var d = new ActionDisposer(() => IsQueryingStatus = false);
 			IsQueryingStatus = true;
-			if (toSquare.Piece is not NoPiece && toSquare.Piece.Side == Side) return false;
+			if (toSquare.Piece is not NoPiece && toSquare.Piece.Side == Side) return false;	// Same as CanMoveToCore.  Delete?
 			if (IsCastle(toSquare, true, out _, out _) || IsCastle(toSquare, false, out _, out _)) return true;
 			int dR = Math.Abs(Square.Rank - toSquare.Rank), dF = Math.Abs(Square.File - toSquare.File);
 			if (dR > 1 || dF > 1) return false;
@@ -163,16 +163,15 @@ namespace Chess.Lib.Hardware.Pieces
 				case 0: throw new UnreachableException("King is in check with no attackers??");
 				case 1:
 					IPiece attacker = attackers[0];
-					if (Board.ActivePieces.Where(p => p.Side == me.Side).Any(p => p.CanMoveTo(attacker.Square))) return true;
+					if (Board.PiecesTargeting(attacker.Square, Side).Count() > 0) return true;
+					//if (Board.ActivePieces.Where(p => p.Side == me.Side).Any(p => p.CanMoveTo(attacker.Square))) return true;
 					// No pieces.  Can check be blocked?
 					if (attacker.Type == PieceType.Knight) return false;
 					// 'Brute Force' search for resolving moves:
+					List<ISquare> between = Board.SquaresBetween(attacker.Square, mySq).ToList();
 					foreach (IPiece p in Board.ActivePieces.Where(p => p.Side == me.Side))
 					{
-						foreach (ISquare s in Board.SquaresBetween(attacker.Square, mySq))
-						{
-							if (p.CanMoveTo(s)) return true;  // blocking move
-						}
+						if (between.Any(s => p.CanMoveTo(s))) return true;
 					}
 					break;
 				default: foreach (ISquare s in Board.KingSquares(mySq)) if (me.CanMoveTo(s)) return true; break;
@@ -180,6 +179,7 @@ namespace Chess.Lib.Hardware.Pieces
 			return false;
 		}
 
+		//TODO: Convert to property
 		public bool IsInCheck()
 		{
 			IPiece? p = Board.ActivePieces.Where(p => p.Side != Side && p.CanCaptureTo(Square)).FirstOrDefault();

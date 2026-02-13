@@ -35,5 +35,28 @@ namespace Common.Lib.IO
 		}
 
 		public static bool IsValidFileName(string fileName) => !string.IsNullOrEmpty(fileName) && !InvalidNameCharacters.Any(c => fileName.Contains(c));
+
+		public static string MakeValidFileName(string proposedFileName, char replacement = '_')
+		{
+			if (string.IsNullOrEmpty(proposedFileName)) throw new ArgumentException("Cannot create a valid file name from an empty string.");
+			StringBuilder s = new StringBuilder(proposedFileName);
+			for (int i = 0; i < proposedFileName.Length; ++i)
+			{
+				if (!IsValidFilenameCharacter(s[i])) s[i] = replacement;
+			}
+			if (s.Length > 120) s.Length = 120;
+			return s.ToString();
+		}
+
+		public static bool AreSameFolder(string pth1, string pth2)
+		{
+			if (string.IsNullOrEmpty(pth1) || string.IsNullOrEmpty(pth2)) return false;
+			if (!Directory.Exists(pth1) || !Directory.Exists(pth2)) return false;
+			// Path.GetDirectoryName is incorrect if path is not terminated:
+			if (!pth1.EndsWith('\\')) pth1 += '\\';
+			if (!pth2.EndsWith('\\')) pth2 += '\\';
+			return string.Equals(Path.GetDirectoryName(pth1), Path.GetDirectoryName(pth2), StringComparison.OrdinalIgnoreCase);
+		}
+
 	}
 }

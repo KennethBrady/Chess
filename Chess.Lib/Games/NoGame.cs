@@ -34,9 +34,10 @@ namespace Chess.Lib.Games
 		IReadOnlyChessPlayer IReadOnlyChessGame.PlayerOf(Hue hue) => NoPlayer.Default;
 		public bool UndoLastMove() => false;
 #pragma warning disable 00067   // Disable "never used" warnings                                   
-		public event TypeHandler<CompletedMove>? MoveCompleted;
-		public event TypeHandler<IChessMove>? MoveUndone;
-		public event TypeHandler<IChessgameState>? GameStateApplied;
+		public event Handler<CompletedMove>? MoveCompleted;
+		public event Handler<IChessMove>? MoveUndone;
+		public event Handler<IChessgameState>? GameStateApplied;
+		public event AsyncHandler<Promotion,Promotion>? PromotionRequest;
 #pragma warning restore 00067
 		public int ApplyMoves(IMoveParser parser) => 0;
 		public int ApplyMoves(string moves, MoveFormat format = MoveFormat.Unknown) => 0;

@@ -17,8 +17,8 @@ namespace Chess.Lib.Hardware.Timing
 		bool IsStarted { get; }
 		IClockPlayer White { get; }
 
-		event TypeHandler<Hue>? Flagged;
-		event TypeHandler<TimerTick>? Tick;
+		event Handler<Hue>? Flagged;
+		event Handler<TimerTick>? Tick;
 
 		void MakeMove();
 		void Pause();

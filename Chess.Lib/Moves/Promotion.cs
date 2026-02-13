@@ -11,8 +11,14 @@ namespace Chess.Lib.Moves
 		bool IsValid => FromPawn is not NoPawn;
 	}
 
-	internal record struct Promotion(IChessPawn FromPawn, IChessPiece ToPiece, IChessSquare OnSquare) : IPromotion
+	public record struct Promotion(PieceType PieceType, Hue Hue, IChessSquare OnSquare)
 	{
-		internal static readonly Promotion None = new Promotion(NoPawn.Default, NoPiece.Default, NoSquare.Default);
+		public static readonly Promotion None = new Promotion(PieceType.None, Hue.Default, NoSquare.Default);
+		internal bool IsValid => PieceType.IsPromotionTarget && Hue < Hue.Default;
+	}
+
+	internal record struct PromotedPawn(IChessPawn FromPawn, IChessPiece ToPiece, IChessSquare OnSquare) : IPromotion
+	{
+		internal static readonly PromotedPawn None = new PromotedPawn(NoPawn.Default, NoPiece.Default, NoSquare.Default);
 	}
 }

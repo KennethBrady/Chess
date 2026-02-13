@@ -16,7 +16,7 @@ namespace Chess.Lib.Moves
 		IReadOnlyList<IChessMove> AllMoves { get; }
 		IEnumerable<IChessMove> PriorMoves { get; }
 		IEnumerable<IChessMove> ForwardMoves { get; }
-		event TypeHandler<AppliedMove>? MoveApplied;
+		event Handler<AppliedMove>? MoveApplied;
 		bool CanAdvance { get; }
 		IChessMove Advance();
 		IChessMove MoveTo(int moveNumber);
@@ -50,7 +50,7 @@ namespace Chess.Lib.Moves
 		internal ChessMoves(IGame game, IMoves moves): this(game, moves.AllMoves) { }
 
 		public bool IsReadOnly => Game.IsReadOnly;
-		public event TypeHandler<AppliedMove>? MoveApplied;
+		public event Handler<AppliedMove>? MoveApplied;
 
 		public int CurrentPosition
 		{

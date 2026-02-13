@@ -74,17 +74,17 @@ namespace Chess.Lib.UnitTests.Pieces
 		}
 
 		[TestMethod]
-		public void BlackEnPassant()
+		public async Task BlackEnPassant()
 		{
 			var g = GameFactory.CreateInteractive();
-			g.White.AttemptMove("e2e4");
-			g.Black.AttemptMove("d7d5");
-			g.White.AttemptMove("g1f3");
-			g.Black.AttemptMove("d5d4");
-			g.White.AttemptMove("c2c4");
-			var res = g.Black.AttemptMove("d4e3");
+			await g.White.AttemptMove("e2e4");
+			await g.Black.AttemptMove("d7d5");
+			await g.White.AttemptMove("g1f3");
+			await g.Black.AttemptMove("d5d4");
+			await g.White.AttemptMove("c2c4");
+			var res = await g.Black.AttemptMove("d4e3");
 			Assert.IsFalse(res.Succeeded, "Attempted illegal en-passant");
-			res = g.Black.AttemptMove("d4c3");
+			res = await g.Black.AttemptMove("d4c3");
 			Assert.IsTrue(res.Succeeded);
 			var succ = res as IMoveAttemptSuccess;
 			Assert.IsNotNull(succ);
@@ -92,20 +92,20 @@ namespace Chess.Lib.UnitTests.Pieces
 		}
 
 		[TestMethod]
-		public void WHiteEnPassant()
+		public async Task WhiteEnPassant()
 		{
 			var g = GameFactory.CreateInteractive();
-			g.White.AttemptMove("e2e4");
-			g.Black.AttemptMove("d7d5");
-			g.White.AttemptMove("e4e5");
-			g.Black.AttemptMove("f7f5");
+			await g.White.AttemptMove("e2e4");
+			await g.Black.AttemptMove("d7d5");
+			await g.White.AttemptMove("e4e5");
+			await g.Black.AttemptMove("f7f5");
 			IChessSquare sB = g.Board[File.F, Rank.R6];
-			switch(g.White.AttemptMove("e5d6"))
+			switch(await g.White.AttemptMove("e5d6"))
 			{
 				case IMoveAttemptFail: break;
 				default: Assert.Fail("Attempted incorrect en-passant"); break;
 			}
-			switch(g.White.AttemptMove("e5f6"))
+			switch(await g.White.AttemptMove("e5f6"))
 			{
 				case IMoveAttemptFail f: Assert.Fail(f.ParseError.ToString()); break;
 				case IMoveAttemptSuccess s:
@@ -115,10 +115,10 @@ namespace Chess.Lib.UnitTests.Pieces
 		}
 
 		[TestMethod]
-		public void BlackFirstMoveNoEP()
+		public async Task BlackFirstMoveNoEP()
 		{
 			var g = GameFactory.CreateInteractive();
-			AssertMove(g.White.AttemptMove("d2d4"));
+			AssertMove(await g.White.AttemptMove("d2d4"));
 			IChessPawn bp = (IChessPawn)g.Board[File.D, Rank.R7].Piece;
 			Assert.IsNotNull(bp);
 			Assert.IsFalse(bp.CanMoveTo(g.Board[File.D, Rank.R3]));
@@ -129,11 +129,11 @@ namespace Chess.Lib.UnitTests.Pieces
 		}
 
 		[TestMethod]
-		public void White2ndMoveNoEP()
+		public async Task White2ndMoveNoEP()
 		{
 			var g = GameFactory.CreateInteractive();
-			AssertMove(g.White.AttemptMove("d2d4"));
-			AssertMove(g.Black.AttemptMove("c7c5"));
+			AssertMove(await g.White.AttemptMove("d2d4"));
+			AssertMove(await g.Black.AttemptMove("c7c5"));
 			IChessSquare c6 = g.Board[File.C, Rank.R6];
 			IPawn? p = g.Board[File.D, Rank.R4].Piece as IPawn;
 			Assert.IsNotNull(p);
@@ -141,28 +141,28 @@ namespace Chess.Lib.UnitTests.Pieces
 		}
 
 		[TestMethod]
-		public void EnpassantMoveIsCapture()
+		public async Task EnpassantMoveIsCapture()
 		{
 			var g = GameFactory.CreateInteractive();
-			AssertMove(g.White.AttemptMove("d2d4"));
-			AssertMove(g.Black.AttemptMove("c7c5"));
-			AssertMove(g.White.AttemptMove("d4d5"));
-			AssertMove(g.Black.AttemptMove("e7e5"));
+			AssertMove(await g.White.AttemptMove("d2d4"));
+			AssertMove(await g.Black.AttemptMove("c7c5"));
+			AssertMove(await g.White.AttemptMove("d4d5"));
+			AssertMove(await g.Black.AttemptMove("e7e5"));
 			Assert.IsTrue(g.Board[File.E, Rank.R5].HasPiece);
-			var m = AssertMove(g.White.AttemptMove("d5e6"));
+			var m = AssertMove(await g.White.AttemptMove("d5e6"));
 			Assert.IsTrue(m.CompletedMove.IsEnPassant);
 			Assert.IsFalse(g.Board[File.E, Rank.R5].HasPiece);
 			Assert.IsTrue(m.CompletedMove.CapturedPiece is IChessPawn);
 		}
 
 		[TestMethod]
-		public void CaptureAfterEnPassant()
+		public async Task CaptureAfterEnPassant()
 		{
 			const string MOVES = "D2D4C7C5D4D5E7E5D5E6";
 			var g = GameFactory.CreateInteractive();
 			foreach(var mov in MOVES.Chunk(4))
 			{
-				AssertMove(g.NextPlayer.AttemptMove(new string(mov)));
+				AssertMove(await g.NextPlayer.AttemptMove(new string(mov)));
 			}
 			Assert.HasCount(5, g.Moves);
 			IChessPawn? p = g.Board[File.F, Rank.R7].Piece as IChessPawn;
@@ -172,7 +172,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			Assert.IsTrue(m.IsCapture);
 			Assert.IsTrue(m.IsEnPassant);
 			Assert.IsFalse(g.Board[File.E, Rank.R5].HasPiece);
-			var res = AssertMove(g.NextPlayer.AttemptMove("f7e6"));
+			var res = AssertMove(await g.NextPlayer.AttemptMove("f7e6"));
 			Assert.IsTrue(res.CompletedMove.IsCapture);
 			Assert.IsTrue(g.Board[File.E, Rank.R6].HasPiece);
 		}

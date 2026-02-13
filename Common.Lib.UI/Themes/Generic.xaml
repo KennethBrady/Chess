@@ -45,15 +45,7 @@
 				<Setter Property="Background" Value="Black"/>
 				<Setter Property="Foreground" Value="White"/>
 				<Setter Property="FontSize" Value="16"/>
-				<Setter Property="Title">
-					<Setter.Value>
-						<Binding Path="Title">
-							<Binding.RelativeSource>
-								<RelativeSource AncestorType="{x:Type win:AppWindow}" Mode="FindAncestor"/>
-							</Binding.RelativeSource>
-						</Binding>
-					</Setter.Value>
-				</Setter>
+				<Setter Property="Title" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type win:AppWindow}},Path=Title}"/>
 				<Setter Property="ContentTemplate">
 					<Setter.Value>
 						<DataTemplate/>
@@ -71,7 +63,6 @@
 							<Image Name="PART_Icon" DockPanel.Dock="Left" Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}},Path=Icon}"
 										 Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}},Path=Icon,Converter={StaticResource null2vis}}"
 										 MaxHeight="20" MaxWidth="20" Margin="4,2,2,2"/>
-							<StackPanel Name="menu" VerticalAlignment="Center"/>
 							<Button x:Name="PART_CloseButton" DockPanel.Dock="Right" 
 											Style="{StaticResource btnStyle}"
 											ToolTip="Close this window"
@@ -106,6 +97,7 @@
 											Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type win:TitleBar}},Path=ButtonTypes,Converter={StaticResource btConv},ConverterParameter=minimize}">
 								<Image img:ImageProvider.ImageType="Minimize"/>
 							</Button>
+							<StackPanel Name="menu" VerticalAlignment="Center"/>
 							<TextBlock Name="PART_Title" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="4" 
 												 Foreground="{TemplateBinding Foreground}" Style="{TemplateBinding TitleStyle}">
 								<TextBlock.Text>
@@ -145,9 +137,9 @@
 								</Grid.RowDefinitions>
 								<win:TitleBar Grid.Row="0" Style="{TemplateBinding TitleBarStyle}" x:Name="titleBar"
 																Menu="{TemplateBinding Menu}"/>
-								<ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" Name="content"/>
+								<ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}"/>
 								<dlg:DialogLayer Grid.Row="0" Grid.RowSpan="2" x:Name="dialogLayer" Background="Transparent" IsHitTestVisible="False"
-																 ModalBackground="{TemplateBinding ModalBackground}"/>
+																 ModalBackground="{TemplateBinding ModalBackground}" Visibility="Collapsed"/>
 							</Grid>
 						</Border>
 					</AdornerDecorator>
@@ -160,12 +152,8 @@
 			<dlg:DialogButtonTypeToVisibilityConverter x:Key="dbt2vc"/>
 			<DoubleAnimation x:Key="fadeIn" From="0.0" To="1.0" Duration="0:0:0.5"/>
 			<DoubleAnimation x:Key="fadeOut" From="1.0" To="0.0" Duration="0:0:0.5"/>
+			<lconv:BrushColorConverter x:Key="bcc"/>
 		</Style.Resources>
-		<Setter Property="Effect">
-			<Setter.Value>
-				<DropShadowEffect Opacity="0.7" Color="{Binding RelativeSource={RelativeSource AncestorType={x:Type dlg:DialogView}},Path=BorderBrush}"/>
-			</Setter.Value>
-		</Setter>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type dlg:DialogView}">

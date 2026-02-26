@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Immutable;
 
 namespace Common.Lib.Extensions
 {
@@ -93,9 +92,6 @@ namespace Common.Lib.Extensions
 					for (int i = 0; i < temp.Count; ++i) if (used[i]) yield return temp[i];
 				}
 			}
-
-			public ImmutableList<T> ToImmutable() => ImmutableList<T>.Empty.AddRange(values);
-
 		}
 	}
 }

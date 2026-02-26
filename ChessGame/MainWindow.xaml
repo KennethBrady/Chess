@@ -10,6 +10,7 @@
 				xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn;assembly=Chess.Lib.UI"
 				xmlns:models="clr-namespace:ChessGame.Models"
 				xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
+				xmlns:cdlg="clr-namespace:Chess.Lib.UI.Dialogs;assembly=Chess.Lib.UI"
         mc:Ignorable="d"
 				Icon="king.ico" Height="450" Width="800" WindowState="Maximized" ModalBackground="#222222aa">
 	<win:AppWindow.Menu>
@@ -39,7 +40,7 @@
 		<KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="importPgn"/>
 	</win:AppWindow.InputBindings>
 	<win:AppWindow.Dialogs>
-		<win:DialogDef DialogType="{x:Type local:NewGameDialog}" ModelType="{x:Type models:NewGameDialogModel}" SettingsKey="NewGameDialogSettings"/>
+		<win:DialogDef DialogType="{x:Type cdlg:NewGameDialog}" ModelType="{x:Type cdlg:NewGameDialogModel}" SettingsKey="NewGameDialogSettings"/>
 		<win:DialogDef DialogType="{x:Type pgn:PgnEditorDialog}" ModelType="{x:Type pgn:PgnEditorModel}" SettingsKey="PgnDialogSettings"/>
 		<win:DialogDef DialogType="{x:Type pgn:ImportPgnDialog}" ModelType="{x:Type pgn:ImportPgnModel}"/>
 	</win:AppWindow.Dialogs>

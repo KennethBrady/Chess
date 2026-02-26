@@ -97,7 +97,7 @@ namespace Chess.Lib.UnitTests.Games
 		public async Task Undo()
 		{
 			IInteractiveChessGame g = GameFactory.CreateInteractive();
-			string fen = g.Board.AsFEN();
+			string fen = g.Board.FENPiecePlacements;
 			Assert.IsFalse(g.White.CanUndo);
 			switch (await g.White.AttemptMove(new MoveRequest("d2d4")))
 			{
@@ -109,10 +109,10 @@ namespace Chess.Lib.UnitTests.Games
 					break;
 			}
 			Assert.IsTrue(g.White.CanUndo);
-			Assert.AreNotEqual(fen, g.Board.AsFEN());
+			Assert.AreNotEqual(fen, g.Board.FENPiecePlacements);
 			Assert.IsTrue(g.White.UndoLastMove());
 			Assert.HasCount(0, g.Moves);
-			Assert.AreEqual(fen, g.Board.AsFEN());
+			Assert.AreEqual(fen, g.Board.FENPiecePlacements);
 			Assert.IsTrue(g.White.LastMoveMade is NoMove);
 		}
 

@@ -8,12 +8,7 @@ using System.Diagnostics;
 
 namespace Chess.Lib.Games
 {
-	public record struct GameStartDefinition(string WhiteName, string BlackName, ChessClockSetup ClockSetup)
-	{
-		public static readonly GameStartDefinition Empty = new GameStartDefinition(string.Empty, string.Empty, ChessClockSetup.Empty);
-	}
-
-	internal sealed class InteractiveGame : ChessGame, IInteractiveChessGame, IPromotingGame
+	internal class InteractiveGame : ChessGame, IInteractiveChessGame, IPromotingGame
 	{
 		public InteractiveGame() : base(false) { }
 
@@ -33,7 +28,7 @@ namespace Chess.Lib.Games
 
 		internal InteractiveGame(string whiteName, string blackName) : base(false, whiteName, blackName) { }
 
-		internal InteractiveGame(GameStartDefinition gameDefinition) : base(false, gameDefinition.WhiteName, gameDefinition.BlackName)
+		internal InteractiveGame(GameSetup gameDefinition) : base(gameDefinition)
 		{
 			Me.AttachClock(gameDefinition.ClockSetup);
 		}
@@ -93,7 +88,7 @@ namespace Chess.Lib.Games
 			if (PromotionRequest == null) return PieceType.Queen;   // or throw?
 			Promotion p = new Promotion(PieceType.Queen, forPlayer, onSquare);
 			Promotion resp =  await PromotionRequest(p);
-			return resp.PieceType;
+			return resp.ValidPieceType;
 		}
 	}
 }

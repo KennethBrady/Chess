@@ -48,10 +48,10 @@ namespace Common.Lib.IO
 			return s.ToString();
 		}
 
-		public static bool AreSameFolder(string pth1, string pth2)
+		public static bool AreSameFolder(string pth1, string pth2, bool mustExist = false)
 		{
 			if (string.IsNullOrEmpty(pth1) || string.IsNullOrEmpty(pth2)) return false;
-			if (!Directory.Exists(pth1) || !Directory.Exists(pth2)) return false;
+			if (mustExist && (!Directory.Exists(pth1) || !Directory.Exists(pth2))) return false;
 			// Path.GetDirectoryName is incorrect if path is not terminated:
 			if (!pth1.EndsWith('\\')) pth1 += '\\';
 			if (!pth2.EndsWith('\\')) pth2 += '\\';

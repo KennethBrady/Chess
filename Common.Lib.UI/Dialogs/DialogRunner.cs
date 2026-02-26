@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace Common.Lib.UI.Dialogs
+﻿namespace Common.Lib.UI.Dialogs
 {
 	internal interface IDialogRunner
 	{
@@ -22,6 +20,7 @@ namespace Common.Lib.UI.Dialogs
 			ResultSink = sink;
 			Layer.IsHitTestVisible = true;
 			View.DataContext = Model;
+			foreach (DialogView v in Layer.Children) v.IsHitTestVisible = false;
 			Layer.Children.Add(View);
 		}
 
@@ -38,19 +37,17 @@ namespace Common.Lib.UI.Dialogs
 		{
 			View.ApplyCloseIndicator();
 			ResultSink.SetResult(result);
-			if (View.Animation == AnimationType.None)
+			void close()
 			{
-				View.Visibility = Visibility.Collapsed;
-				Layer.IsHitTestVisible = false;
+				Layer.Children.Remove(View);
+				Layer.OpenDialogs.Pop();
+				if (Layer.Children.Count > 0) Layer.Children[Layer.Children.Count - 1].IsHitTestVisible = true;
+				if (Layer.OpenDialogCount == 0) Layer.IsHitTestVisible = false;
 			}
+			if (View.Animation == AnimationType.None) close();
 			else
 			{
-				DialogAnimator.RunCloseAnimation(View, () =>
-				{
-					Layer.Children.Remove(View);
-					Layer.OpenDialogs.Pop();
-					if (Layer.OpenDialogCount == 0) Layer.IsHitTestVisible = false;
-				});
+				DialogAnimator.RunCloseAnimation(View, () => close());
 			}
 		}
 

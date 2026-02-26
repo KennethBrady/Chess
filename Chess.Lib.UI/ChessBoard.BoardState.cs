@@ -1,6 +1,5 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
-using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
 
 namespace Chess.Lib.UI
@@ -20,7 +19,7 @@ namespace Chess.Lib.UI
 				foreach (var sq in ChessBoard._squares.Values) sq.ApplySquare();
 			}
 
-			private void Game_GameStateApplied(IChessgameState value)
+			private void Game_GameStateApplied(IChessGameState value)
 			{
 				ClearMoveTargets();
 				foreach (var cs in _lastAffected) cs.Adornments = SquareAdornment.None;

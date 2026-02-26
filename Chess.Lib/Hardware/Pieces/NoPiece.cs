@@ -39,7 +39,7 @@ namespace Chess.Lib.Hardware.Pieces
 
 	#region NoPawn
 
-	internal record struct NoPawn : IPawn, INoPiece
+	internal record struct NoPawn : IPawn, INoPawn
 	{
 		internal static readonly NoPawn Default = new NoPawn();
 
@@ -92,8 +92,7 @@ namespace Chess.Lib.Hardware.Pieces
 	#endregion
 
 	#region NoKing
-
-	internal record struct NoKing(PieceType Type, Hue Side, IBoard Board, ISquare Square) : IKing, INoPiece
+	internal record struct NoKing(PieceType Type, Hue Side, IBoard Board, ISquare Square) : IKing, INoPiece, INoKing
 	{
 		internal static NoKing Default = new NoKing(PieceType.King, Hue.Default, Hardware.Board.Default, NoSquare.Default);
 

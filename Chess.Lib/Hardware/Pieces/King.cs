@@ -14,8 +14,12 @@ namespace Chess.Lib.Hardware.Pieces
 		CastleMoveType CastleTypeOf(ISquare destination);
 	}
 
+	public interface INoKing : INoPiece, IChessKing;
+
 	internal record struct KingState(Hue Side, bool IsChecked, bool IsMated)
 	{
+		internal static readonly KingState Default = new KingState(Hue.Default, false, false);
+
 		internal static KingState DefaultFor(Hue side) => new KingState(side, false, false);
 	}
 

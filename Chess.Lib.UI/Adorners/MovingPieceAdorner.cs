@@ -6,18 +6,6 @@ using System.Windows.Media;
 
 namespace Chess.Lib.UI.Adorners
 {
-	//internal static class PtExt
-	//{
-	//	extension(Point p)
-	//	{
-	//		public string ToPrint() => $"{p.X:F2},{p.Y:F2}";
-	//	}
-	//	extension(Rect r)
-	//	{
-	//		public string ToPrint() => $"{r.TopLeft.ToPrint()},{r.Width:F1},{r.Height:F1}";
-	//	}
-	//}
-
 	internal class MovingPieceAdorner : Adorner
 	{
 		internal MovingPieceAdorner(ChessBoard board): base(board) 

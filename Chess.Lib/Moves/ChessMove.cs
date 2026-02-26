@@ -6,7 +6,8 @@ using System.Collections.Immutable;
 
 namespace Chess.Lib.Moves
 {
-	public enum CastleMoveType { None, Kingside, Queenside };
+	[Flags]
+	public enum CastleMoveType { None = 0x00, Kingside = 0x01, Queenside = 0x02 };
 
 	public record struct MoveRepetition(IChessMove Move, int RepetitionCount, IEnumerable<IChessMove> PriorMoves);
 

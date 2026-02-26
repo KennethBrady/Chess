@@ -84,26 +84,9 @@ namespace Chess.Lib.Games
 
 		async Task<IMoveAttempt> IChessPlayer.AttemptMove(MoveRequest moveRequest) => ApplyMoveAttempt(await MoveAttempt.FromMove(this, moveRequest));
 
-		public bool HasNextMove
-		{
-			get
-			{
-				if (IsReadOnly) return false;
-				return HasNextMoveIgnoreReadonly;
-			}
-		}
+		public bool HasNextMove => Game.NextPlayer.Side == Side;
 
-		private bool HasNextMoveIgnoreReadonly
-		{
-			get
-			{
-				switch (Game.MoveList.Count % 2)
-				{
-					case 0: return Side == Hue.Light;
-					default: return Side == Hue.Dark;
-				}
-			}
-		}
+		private bool HasNextMoveIgnoreReadonly => Game.NextPlayer.Side == Side;
 
 		public bool UndoLastMove()
 		{

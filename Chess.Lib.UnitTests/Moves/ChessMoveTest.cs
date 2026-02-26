@@ -159,5 +159,21 @@ namespace Chess.Lib.UnitTests.Moves
 				}
 			}
 		}
+
+		[TestMethod]
+		public async Task CompletedMove()
+		{
+			var g = GameFactory.CreateInteractive();
+			IChessMove? move = null;
+			g.MoveCompleted += m =>
+			{
+				move = m.Move;
+			};
+			var m = await g.White.AttemptMove("d2d4");
+			var msuccess = m as IMoveAttemptSuccess;
+			Assert.IsNotNull(msuccess);
+			Assert.AreSame(g.LastMoveMade, msuccess.CompletedMove);
+			Assert.AreSame(g.Board.LastMove, msuccess.CompletedMove);
+		}
 	}
 }

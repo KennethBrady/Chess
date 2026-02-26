@@ -112,5 +112,155 @@ namespace Chess.Lib.UnitTests.Hardware
 			Assert.IsTrue(b[File.A, Rank.R8].Piece is IQueen);
 			Assert.IsTrue(b[File.A, Rank.R1].Piece is IQueen);
 		}
+
+		[TestMethod]
+		public void RankSquaresBetween()
+		{
+			IBoard b = new Board(false);
+			for(int i=0;i<100;++i)
+			{
+				File f1 = (File)Random.Shared.Next(8), f2 = (File)Random.Shared.Next(8);
+				var sqrs = b.RankSquaresBetween(b[f1, Rank.R1], b[f2, Rank.R8]);
+				if (f1 == f2) Assert.HasCount(6, sqrs); else Assert.HasCount(0, sqrs);
+			}
+		}
+
+		[TestMethod]
+		public void FileSquaresBetween()
+		{
+			IBoard b = new Board(false);
+			for(int i=0;i<100;++i)
+			{
+				Rank r1 = (Rank)Random.Shared.Next(8), r2 = (Rank)Random.Shared.Next(8);
+				var sqrs = b.FileSquaresBetween(b[File.A, r1], b[File.H, r2]);
+				if (r1 == r2) Assert.HasCount(6, sqrs); else Assert.HasCount(0, sqrs);
+			}
+		}
+
+		[TestMethod]
+		public void DiagonalSquaresBetween()
+		{
+			IBoard b = new Board(false);
+			var sqrs = b.DiagonalSquaresBetween(b[File.A, Rank.R1], b[File.H, Rank.R8]);
+			Assert.HasCount(6, sqrs);
+			sqrs = b.DiagonalSquaresBetween(b[File.B, Rank.R1], b[File.H, Rank.R7]);
+			Assert.HasCount(5, sqrs);
+			sqrs = b.DiagonalSquaresBetween(b[File.C, Rank.R1], b[File.H, Rank.R6]);
+			Assert.HasCount(4, sqrs);
+			sqrs = b.DiagonalSquaresBetween(b[File.D, Rank.R1], b[File.H, Rank.R5]);
+			Assert.HasCount(3, sqrs);
+			sqrs = b.DiagonalSquaresBetween(b[File.E, Rank.R1], b[File.H, Rank.R4]);
+			Assert.HasCount(2, sqrs);
+			sqrs = b.DiagonalSquaresBetween(b[File.F, Rank.R1], b[File.H, Rank.R3]);
+			Assert.HasCount(1, sqrs);
+			sqrs = b.DiagonalSquaresBetween(b[File.G, Rank.R1], b[File.H, Rank.R3]);
+			Assert.HasCount(0, sqrs);
+
+			sqrs = b.DiagonalSquaresBetween(b[File.B, Rank.R2], b[File.E, Rank.R7]);
+			Assert.HasCount(0, sqrs);
+		}
+
+		[TestMethod]
+		public void QueenSquaresBetween()
+		{
+			IBoard b = new Board(false);
+			for(int i=0;i<1000;++i)
+			{
+				File f1 = (File)Random.Shared.Next(8), f2 = (File)Random.Shared.Next(8);
+				Rank r1 = (Rank)Random.Shared.Next(8), r2 = (Rank)Random.Shared.Next(8);
+				var sqrs = b.QueenSquaresBetween(b[f1, r1], b[f2, r2]);
+				int fdiff = Math.Abs((int)f1 - (int)f2), rdiff = Math.Abs((int)r1 - (int)r2);
+				string msg = $"{f1},{r1}  {f2},{r2}";
+				void assert(int n) => Assert.HasCount(n, sqrs, msg);
+				switch (fdiff)
+				{
+					case 0: 
+						switch(rdiff)
+						{
+							case 0:
+							case 1: assert(0); break;  // Same or adjacent squares
+							default: assert(rdiff - 1); break;
+						}
+						break;
+					case 1: assert(0); break;  // Adjacent squares
+					case 2: 
+						switch(rdiff)
+						{
+							case 0:
+							case 2: assert(1); break;
+							default: assert(0); break;
+						}
+						break;
+					case 3:
+						switch(rdiff)
+						{
+							case 0:
+							case 3: assert(2); break;
+							default: assert(0); break;
+						}
+						break;
+					case 4:
+						switch(rdiff)
+						{
+							case 0:
+							case 4: assert(3); break;
+							default: assert(0); break;
+						}
+						break;
+					case 5:
+						switch(rdiff)
+						{
+							case 0:
+							case 5: assert(4); break;
+							default: assert(0); break;
+						}
+						break;
+					case 6:
+						switch(rdiff)
+						{
+							case 0:
+							case 6: assert(5); break;
+							default: assert(0); break;
+						}
+						break;
+					case 7:
+						switch(rdiff)
+						{
+							case 0:
+							case 7: assert(6); break;
+							default: assert(0); break;
+						}
+						break;
+				}
+			}
+		}
+
+		[TestMethod]
+		public void KnightSquaresFrom()
+		{
+			IBoard b = new Board(false);
+			for(int i=0;i<100;++i)
+			{
+				File f = (File)Random.Shared.Next(8);
+				Rank r = (Rank)Random.Shared.Next(8);
+				var sqrs = b.AllowedKnightMovesFrom(b[f, r]);
+				void assert(int c) => Assert.HasCount(c, sqrs, $"{f},{r}");
+				switch(f)
+				{
+					case File.A:
+					case File.H:
+						switch(r)
+						{
+							case Rank.R1:
+							case Rank.R8: assert(2); break;  // corners
+							case Rank.R2:
+							case Rank.R7: assert(3); break;
+							default: assert(4); break;
+						}
+						break;
+				}
+			}
+		}
 	}
+
 }

@@ -3,7 +3,6 @@
 	public static class Actions
 	{
 		public static Action Empty => () => { };
-
 	}
 
 	public static class Actions<T>

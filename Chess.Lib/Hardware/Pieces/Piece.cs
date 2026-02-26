@@ -29,6 +29,8 @@ namespace Chess.Lib.Hardware.Pieces
 		IChessBoard IChessPiece.Board => Board;
 		IChessSquare IChessPiece.Square => _square;
 
+		public PieceDef Definition => new PieceDef(Type, Side);
+
 		void IPiece.SetSquare(ISquare square)
 		{
 			Square = square;

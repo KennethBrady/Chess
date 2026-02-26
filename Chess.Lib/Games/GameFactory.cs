@@ -12,14 +12,18 @@ namespace Chess.Lib.Games
 
 		public static IInteractiveChessGame CreateInteractive(string whiteName = "", string blackName = "") => new InteractiveGame(whiteName, blackName);
 
-		public static IInteractiveChessGame CreateInteractive(GameStartDefinition gameDefinition) => new InteractiveGame(gameDefinition);
+		public static IInteractiveChessGame CreateInteractive(GameSetup gameDefinition) => new InteractiveGame(gameDefinition);
 		
 		public static IPgnChessGame CreatePgn(IPgnGame game) => new KnownPgnGame(game);
 
 		public static IChessBoard CreateBoard(bool populatePieces = true) => new Board(populatePieces);
 
+		public static INoBoard NoBoard => Hardware.NoBoard.Instance;
 		public static INoSquare NoSquare => Hardware.NoSquare.Default;
 		public static IChessPiece NoPiece => Hardware.Pieces.NoPiece.Default;
+
+		public static IChessPawn NoPawn => Hardware.Pieces.NoPawn.Default;
+		public static IChessKing NoKing => Hardware.Pieces.NoKing.Default;
 		public static IChessBoard EmptyBoard => Board.Default;
 		public static IChessGame NoGame => Games.NoGame.Default;
 		public static IChessMove NoMove => Moves.NoMove.Default;

@@ -39,7 +39,20 @@ namespace Chess.Lib.UI
 		protected override void HandleMoveCompleted(CompletedMove move)
 		{
 			base.HandleMoveCompleted(move);
-			if (move.Move.Side == Hardware.Hue.Light) _moves.Add(new MovePair(move.Move)); else _moves.Last().ApplyBlack(move.Move);
+			if (move.Move.Side == Hardware.Hue.Light) _moves.Add(new MovePair(move.Move));
+			else
+			{
+				switch(_moves.Count)
+				{
+					case 0:
+						MovePair mp = new MovePair(GameFactory.NoMove);
+						mp.ApplyBlack(move.Move);
+						_moves.Add(mp);
+						break;
+					default: _moves.Last().ApplyBlack(move.Move); break;
+				}
+				
+			}
 		}
 
 		protected override void ApplyGame(IChessGame oldGame, IChessGame newGame)
@@ -49,7 +62,7 @@ namespace Chess.Lib.UI
 			if (IsTemplateApplied) MovesGrid.ItemsSource = _moves;
 		}
 
-		protected override void HandleGameStateApplied(IChessgameState value)
+		protected override void HandleGameStateApplied(IChessGameState value)
 		{
 			for (int i = 0; i < _moves.Count; i++)
 			{

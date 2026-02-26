@@ -2,34 +2,51 @@
 using Chess.Lib.Games;
 using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
+using System.Net;
 using System.Text;
 
 namespace Chess.Lib.Hardware
 {
+	public record struct PiecePlacement(PieceDef Piece, FileRank Location);
+
 	public struct FEN
 	{
+		/// <summary>
+		/// FEN corresponding to a classical board.
+		/// </summary>
 		public const string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		public static readonly FEN Empty = new FEN();
 
-		//private static Regex _rxFEN = new Regex(@"\s*^(((?:[rnbqkpRNBQKP1-8]+\/){7})[rnbqkpRNBQKP1-8]+)\s([b|w])\s([K|Q|k|q]{1,4})\s(-|[a-h][1-8])\s(\d+\s\d+)$", RegexOptions.Compiled);
-		public static bool TryParse(string fen, out FEN result)
+		private static readonly char[] _fenChars = { 'r','n', 'b', 'q', 'k', 'p', '/' };
+		public static bool IsValidPiecePlacements(string s)
 		{
-			result = Empty;
-			if (string.IsNullOrEmpty(fen)) return false;
-			//if (!_rxFEN.IsMatch(fen)) return false;
-			try
-			{
-				result = new FEN(fen);
-				return true;
-			}
-			catch { }
-			return false;
+			int n = s.Where(c => c == '/').Count();
+			if (n != 7) return false;
+			return s.All(c => char.IsDigit(c) || _fenChars.Contains(char.ToLower(c)));
 		}
 
-		public FEN(string fen)
+		public static FEN Parse(string fen)
 		{
 			string[] parts = fen.Split(' ');
-			if (parts.Length != 6) throw new ArgumentException("Invalid FEN string: " + fen);
+			switch(parts.Length)
+			{
+				case 1:
+					if (IsValidPiecePlacements(parts[0])) return new FEN
+					{
+						PiecePlacement = parts[0]
+					};
+					break;
+				case 6:
+					if (IsValidPiecePlacements(parts[0])) return new FEN(parts);					
+					break;
+			}
+			return Empty;
+		}
+
+		public IChessBoard ToBoard() => new Board(this);
+
+		private FEN(string[] parts)
+		{
 			PiecePlacement = parts[0];
 			switch (parts[1])
 			{
@@ -41,30 +58,32 @@ namespace Chess.Lib.Hardware
 				switch (c)
 				{
 					case '-': break;
-					case 'K': CanWhiteCastleKingside = true; break;
-					case 'Q': CanWhiteCastleQueenside = true; break;
-					case 'k': CanBlackCastleKingside = true; break;
-					case 'q': CanBlackCastleQueenside = true; break;
+					case 'K': WhiteCastling |= CastleMoveType.Kingside; break;
+					case 'Q': WhiteCastling |= CastleMoveType.Queenside; break;
+					case 'k': BlackCastling |= CastleMoveType.Kingside; break;
+					case 'q': BlackCastling |= CastleMoveType.Queenside; break;
 				}
 			}
 			EnPassantTarget = FileRank.Parse(parts[3]);
 			HalfMovesSinceLastCapture = int.Parse(parts[4]);
 			FullMoveCount = int.Parse(parts[5]);
-			// last two fields?
-
 		}
 
-		public FEN(IReadOnlyChessGame game)
+		public FEN(IChessGame game)
 		{
-			PiecePlacement = game.Board.AsFEN();
+			PiecePlacement = game.Board.FENPiecePlacements;
 			switch (game.LastMoveMade.MovedPiece.Side)
 			{
 				case Hue.Light: NextMoveColor = Hue.Dark; break;
 				default: NextMoveColor = Hue.Light; break;
 			}
 			IChessKing wk = game.White.King, bk = game.Black.King;
-			(CanWhiteCastleKingside, CanWhiteCastleQueenside) = wk.IsFutureCastlePossible;
-			(CanBlackCastleKingside, CanBlackCastleQueenside) = bk.IsFutureCastlePossible;
+			var c = wk.IsFutureCastlePossible;
+			if (c.ksPossible) WhiteCastling |= CastleMoveType.Kingside;
+			if (c.qsPossible) WhiteCastling |= CastleMoveType.Queenside;
+			c = bk.IsFutureCastlePossible;
+			if (c.ksPossible) BlackCastling |= CastleMoveType.Kingside;
+			if (c.qsPossible) BlackCastling |= CastleMoveType.Queenside;
 			if (Pawn.InvitesEnpassant((IMove)game.LastMoveMade, out FileRank target)) EnPassantTarget = target;
 			int nMoves = 0;
 			foreach (IMove move in game.Moves.Reverse())
@@ -78,29 +97,55 @@ namespace Chess.Lib.Hardware
 		}
 
 		public bool IsEmpty => string.IsNullOrEmpty(PiecePlacement);
-		public string PiecePlacement { get; set; } = string.Empty;
-		public Hue? NextMoveColor { get; set; }
-		public bool CanWhiteCastleKingside { get; set; }
-		public bool CanWhiteCastleQueenside { get; set; }
-		public bool CanBlackCastleKingside { get; set; }
-		public bool CanBlackCastleQueenside { get; set; }
-		public FileRank EnPassantTarget { get; set; } = FileRank.OffBoard;
-		public int HalfMovesSinceLastCapture { get; set; }
-		public int FullMoveCount { get; set; }
+		public string PiecePlacement { get; private init; } = string.Empty;
+		public Hue NextMoveColor { get; private init; } = Hue.Default;
+
+		public CastleMoveType WhiteCastling { get; private init; } = CastleMoveType.None;
+		public CastleMoveType BlackCastling { get; private init; } = CastleMoveType.None;
+
+		public bool CanWhiteCastleKingside => WhiteCastling.HasFlag(CastleMoveType.Kingside);
+		public bool CanWhiteCastleQueenside => WhiteCastling.HasFlag(CastleMoveType.Queenside);
+		public bool CanBlackCastleKingside => BlackCastling.HasFlag(CastleMoveType.Kingside);
+		public bool CanBlackCastleQueenside => BlackCastling.HasFlag(CastleMoveType.Queenside);
+		public FileRank EnPassantTarget { get; private init; } = FileRank.OffBoard;
+		public int HalfMovesSinceLastCapture { get; private init; }
+		public int FullMoveCount { get; private init; }
+
+		public IEnumerable<PiecePlacement> Pieces
+		{
+			get
+			{
+				string[] ranks = PiecePlacement.Split('/');
+				if (ranks.Length != 8) yield break;
+				Rank r = Rank.R8;
+				foreach(string rank in ranks)
+				{
+					File f = File.A;
+					foreach(char c in rank)
+					{
+						if (char.IsDigit(c)) f += int.Parse(c.ToString()); else
+						{
+							Hue h = char.IsUpper(c) ? Hue.Light : Hue.Dark;
+							PieceType type = PieceTypeExtensions.Promotion(c);
+							yield return new PiecePlacement(new PieceDef(type, h), new FileRank(f, r));
+							f++;
+						}
+					}
+					r--;
+				}
+			}
+		}
 
 		public override string ToString()
 		{
 			StringBuilder s = new StringBuilder(PiecePlacement);
 			void add(string rec) => s.Append(" ").Append(rec);
-			if (NextMoveColor.HasValue)
+			switch (NextMoveColor)
 			{
-				switch (NextMoveColor.Value)
-				{
-					case Hue.Light: add("w"); break;
-					case Hue.Dark: add("b"); break;
-				}
-			}
-			else add("-");
+				case Hue.Light: add("w"); break;
+				case Hue.Dark: add("b"); break;
+				default: add("-"); break;
+			};
 			s.Append(" ");
 			if (CanWhiteCastleKingside) s.Append("K");
 			if (CanWhiteCastleQueenside) s.Append("Q");

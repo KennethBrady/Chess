@@ -19,6 +19,8 @@ namespace Chess.Lib.Hardware.Pieces
 		IChessMove PreviousMove { get; }
 		FileRank StartPosition { get; }
 
+		public PieceDef Definition => new PieceDef(Type, Side);
+
 		IEnumerable<IChessSquare> AllowedMoves() => Board.AllowedMovesFrom(Square);
 	}
 

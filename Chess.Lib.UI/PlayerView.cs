@@ -76,10 +76,6 @@ namespace Chess.Lib.UI
 			Grid.DataContext = Model;
 		}
 
-		protected override void HandleMoveCompleted(CompletedMove move)
-		{
-		}
-
 		public class PlayerModel : ViewModel
 		{
 			private ObservableCollection<IChessPiece> _pieces = new();
@@ -88,7 +84,7 @@ namespace Chess.Lib.UI
 				Player = player;
 				RemovedPieces = removedPieces;
 				Player.Game.MoveCompleted += Game_MoveCompleted;
-				FontWeight = Player.Side == Hue.Light ? FontWeights.Bold : FontWeights.Normal;
+				FontWeight = Player.HasNextMove ? FontWeights.Bold : FontWeights.Normal;
 				RemovedPieces.Visibility = Visibility.Collapsed;
 				(NameRow, PiecesRow) = Player.Side == Hue.Light ? (1, 0) : (0, 1);
 			}

@@ -16,6 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\eraser.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Chess.Lib.Pgn\Chess.Lib.Pgn.csproj" />
     <ProjectReference Include="..\Chess.Lib\Chess.Lib.csproj" />
     <ProjectReference Include="..\Common.Lib.UI.Controls\Common.Lib.UI.Controls.csproj" />
@@ -37,6 +41,9 @@
     <Resource Include="Images\BlackRook.png" />
     <Resource Include="Images\BlackRook.svg" />
     <Resource Include="Images\close-dark.png" />
+    <Resource Include="Images\eraser.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Images\king.ico" />
     <Resource Include="Images\WhiteBishop.png" />
     <Resource Include="Images\WhiteBishop.svg" />

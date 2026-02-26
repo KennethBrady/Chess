@@ -1,4 +1,5 @@
 ﻿using Common.Lib.UI.MVVM;
+using Common.Lib.UI.Windows;
 
 namespace Common.Lib.UI.Dialogs
 {
@@ -20,6 +21,7 @@ namespace Common.Lib.UI.Dialogs
 	internal interface IDialogModelEx<T> : IDialogModel<T>, IDialogModelEx
 	{
 		event DialogResultHandler<T>? Closing;
+		IAppWindow? Window { get; set; }
 	}
 
 	/// <summary>

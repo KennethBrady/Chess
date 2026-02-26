@@ -5,6 +5,7 @@ using Common.Lib.Contracts;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace Chess.Lib.Hardware
 {
@@ -21,44 +22,31 @@ namespace Chess.Lib.Hardware
 		private ImmutableList<IPiece> _removedPieces = ImmutableList<IPiece>.Empty;
 		private ImmutableList<IPiece> _promotions = ImmutableList<IPiece>.Empty;
 		private IGame _game = NoGame.Default;
+
 		public Board() : this(true) { }
 
-		public Board(string fen) : this(new FEN(fen)) { }
+		internal Board(string fen) : this(FEN.Parse(fen)) { }
 
-		public Board(FEN fen) : this(false)
+		internal Board(FEN fen) : this(false)
 		{
-			string[] parts = fen.PiecePlacement.Split('/');
-			Rank r = Rank.R8;
+			if (fen.IsEmpty) return;
 			List<IPiece> pieces = new();
-			foreach (string p in parts)
+			foreach(var pp in fen.Pieces)
 			{
-				int nFile = 0;
-				foreach (char c in p)
+				ISquare s = (ISquare)this[pp.Location];
+				IPiece piece = NoPiece.Default;
+				switch(pp.Piece.Type)
 				{
-					if (char.IsDigit(c)) nFile += int.Parse(c.ToString());
-					else
-					{
-						Hue h = char.IsUpper(c) ? Hue.Light : Hue.Dark;
-						PieceType type = PieceTypeExtensions.Promotion(c);
-						File f = (File)nFile;
-						ISquare s = (ISquare)this[f, r];
-						IPiece piece = NoPiece.Default;
-						switch (type)
-						{
-							case PieceType.Pawn: piece = new Pawn(new FileRank(f, r), h, this); break;
-							case PieceType.Rook: piece = new Rook(new FileRank(f, r), h, this); break;
-							case PieceType.Knight: piece = new Knight(new FileRank(f, r), h, this); break;
-							case PieceType.Bishop: piece = new Bishop(new FileRank(f, r), h, this); break;
-							case PieceType.Queen: piece = new Queen(new FileRank(f, r), h, this); break;
-							case PieceType.King: piece = new King(new FileRank(f, r), h, this); break;
-						}
-						piece.SetSquare(s);
-						s.SetPiece(piece);
-						pieces.Add(piece);
-						nFile++;
-					}
+					case PieceType.Pawn: piece = new Pawn(pp.Location, pp.Piece.Hue, this); break;
+					case PieceType.Rook: piece = new Rook(pp.Location, pp.Piece.Hue, this); break;
+					case PieceType.Knight: piece = new Knight(pp.Location, pp.Piece.Hue, this); break;
+					case PieceType.Bishop: piece = new Bishop(pp.Location, pp.Piece.Hue, this); break;
+					case PieceType.Queen: piece = new Queen(pp.Location, pp.Piece.Hue, this); break;
+					case PieceType.King: piece = new King(pp.Location, pp.Piece.Hue, this); break;
 				}
-				r--;
+				piece.SetSquare(s);
+				s.SetPiece(piece);
+				pieces.Add(piece);
 			}
 			_pieces = ImmutableList<IPiece>.Empty.AddRange(pieces);
 			IsVariantBoard = true;
@@ -74,10 +62,7 @@ namespace Chess.Lib.Hardware
 				{
 					Rank rnk = (Rank)r;
 					File file = (File)f;
-					Hue h = Hue.Default;
-					bool reven = r % 2 == 0, feven = f % 2 == 0;
-					if (reven) h = feven ? Hue.Dark : Hue.Light; else h = feven ? Hue.Light : Hue.Dark;
-					ISquare s = new Square(this, file, rnk, h, IndexOf(file, rnk));
+					ISquare s = Square.Create(this, file, rnk);
 					_squares[s.Index] = s;
 					if (populatePieces)
 					{
@@ -90,6 +75,33 @@ namespace Chess.Lib.Hardware
 			}
 			_pieces = ImmutableList.Create(pcs.ToArray());
 			_startPieces = ImmutableDictionary<int, IPiece>.Empty.AddRange(_pieces.ToDictionary(p => p.StartPosition.ToSquareIndex));
+		}
+
+		internal Board(IEnumerable<PlacedPiece> pieces): this(false)
+		{
+			List<IPiece> pcs = new();
+			foreach (var p in pieces)
+			{
+				IPiece piece;
+				FileRank loc = PositionOf(p.Index);
+				switch (p.PieceType)
+				{
+					case PieceType.Pawn: piece = new Pawn(loc, p.Hue, this); break;
+					case PieceType.Rook: piece = new Rook(loc, p.Hue, this); break;
+					case PieceType.Knight: piece = new Knight(loc, p.Hue, this); break;
+					case PieceType.Bishop: piece = new Bishop(loc, p.Hue, this); break;
+					case PieceType.Queen: piece = new Queen(loc, p.Hue, this); break;
+					case PieceType.King: piece = new King(loc, p.Hue, this); break;
+					default: continue;
+				}
+				ISquare s = _squares[p.Index];
+				s.SetPiece(piece);
+				piece.SetSquare(s);
+				pcs.Add(piece);
+			}
+			_pieces = ImmutableList.Create(pcs.ToArray());
+			_startPieces = ImmutableDictionary<int, IPiece>.Empty.AddRange(_pieces.ToDictionary(p => p.StartPosition.ToSquareIndex));
+			IsVariantBoard = true;
 		}
 
 		public IChessSquare this[File file, Rank rank] => SquareAt(file, rank);
@@ -147,34 +159,37 @@ namespace Chess.Lib.Hardware
 
 		}
 
-		public string AsFEN()
+		string IChessBoard.FENPiecePlacements
 		{
-			StringBuilder s = new StringBuilder();
-			for (Rank r = Rank.R8; r >= Rank.R1; --r)
+			get
 			{
-				if (s.Length > 0) s.Append('/');
-				int nEmpty = 0;
-				for (File f = File.A; f <= File.H; f++)
+				StringBuilder s = new StringBuilder();
+				for (Rank r = Rank.R8; r >= Rank.R1; --r)
 				{
-					IChessSquare sq = SquareAt(f, r);
-					if (sq.HasPiece)
+					if (s.Length > 0) s.Append('/');
+					int nEmpty = 0;
+					for (File f = File.A; f <= File.H; f++)
 					{
-						if (nEmpty > 0) s.Append(nEmpty.ToString());
-						char c = ' ';
-						switch (sq.Piece.Type)
+						IChessSquare sq = SquareAt(f, r);
+						if (sq.HasPiece)
 						{
-							case PieceType.Knight: c = 'N'; break;
-							default: c = sq.Piece.Type.ToString()[0]; break;
+							if (nEmpty > 0) s.Append(nEmpty.ToString());
+							char c = ' ';
+							switch (sq.Piece.Type)
+							{
+								case PieceType.Knight: c = 'N'; break;
+								default: c = sq.Piece.Type.ToString()[0]; break;
+							}
+							if (sq.Piece.Side == Hue.Dark) c = char.ToLower(c);
+							s.Append(c);
+							nEmpty = 0;
 						}
-						if (sq.Piece.Side == Hue.Dark) c = char.ToLower(c);
-						s.Append(c);
-						nEmpty = 0;
+						else nEmpty++;
 					}
-					else nEmpty++;
+					if (nEmpty > 0) s.Append(nEmpty);
 				}
-				if (nEmpty > 0) s.Append(nEmpty);
+				return s.ToString();
 			}
-			return s.ToString();
 		}
 
 		IChessMove IChessBoard.LastMove => LastMove;
@@ -324,16 +339,6 @@ namespace Chess.Lib.Hardware
 			_removedPieces = ImmutableList<IPiece>.Empty;
 		}
 
-		private void ClearBoard()
-		{
-			foreach (ISquare s in _squares)
-			{
-				s.Piece.SetSquare(NoSquare.Default);
-				s.SetPiece(NoPiece.Default);
-			}
-			_pieces = ImmutableList<IPiece>.Empty;
-		}
-
 		internal PlacedPiece DefaultsFor(File file, Rank rank)
 		{
 			int ndx = IndexOf(file, rank);
@@ -387,31 +392,6 @@ namespace Chess.Lib.Hardware
 			}
 		}
 
-		internal void Build(IEnumerable<PlacedPiece> pieces)
-		{
-			List<IPiece> pcs = new();
-			foreach (var p in pieces)
-			{
-				IPiece piece;
-				FileRank loc = PositionOf(p.Index);
-				switch (p.PieceType)
-				{
-					case PieceType.Pawn: piece = new Pawn(loc, p.Hue, this); break;
-					case PieceType.Rook: piece = new Rook(loc, p.Hue, this); break;
-					case PieceType.Knight: piece = new Knight(loc, p.Hue, this); break;
-					case PieceType.Bishop: piece = new Bishop(loc, p.Hue, this); break;
-					case PieceType.Queen: piece = new Queen(loc, p.Hue, this); break;
-					case PieceType.King: piece = new King(loc, p.Hue, this); break;
-					default: continue;
-				}
-				ISquare s = _squares[p.Index];
-				s.SetPiece(piece);
-				piece.SetSquare(s);
-				pcs.Add(piece);
-			}
-			_pieces = ImmutableList.Create(pcs.ToArray());
-		}
-
 		#region Square access by pieces
 
 		IEnumerable<ISquare> IBoard.RankSquaresBetween(ISquare start, ISquare end)
@@ -445,8 +425,11 @@ namespace Chess.Lib.Hardware
 		IEnumerable<ISquare> IBoard.DiagonalSquaresBetween(ISquare start, ISquare end)
 		{
 			int f0 = (int)start.File, f1 = (int)end.File, r0 = (int)start.Rank, r1 = (int)end.Rank;
-			if (Math.Abs(f1 - f0) < 2 || Math.Abs(r1 - r0) < 2) yield break;
-			int df = f1 > f0 ? 1 : -1, dr = r1 > r0 ? 1 : -1;
+			int df = Math.Abs(f1 - f0), dr = Math.Abs(r1 - r0);
+			if (df != dr) yield break;
+			if (df < 2) yield break;
+			df = f1 > f0 ? 1 : -1;
+			dr = r1 > r0 ? 1 : -1;
 			int r = r0 + dr, f = f0 + df;
 			while (r != r1 && f != f1)
 			{
@@ -456,7 +439,7 @@ namespace Chess.Lib.Hardware
 			}
 		}
 
-		IEnumerable<ISquare> IBoard.QueenMovesBetween(ISquare start, ISquare end)
+		IEnumerable<ISquare> IBoard.QueenSquaresBetween(ISquare start, ISquare end)
 		{
 			IBoard b = this;
 			return b.RankSquaresBetween(start, end).Concat(b.FileSquaresBetween(start, end)).Concat(b.DiagonalSquaresBetween(start, end)).Distinct();
@@ -494,7 +477,13 @@ namespace Chess.Lib.Hardware
 			foreach (var c in _knightCombos)
 			{
 				int f = iF + c.dF, r = iR + c.dR;
-				if (f >= 0 && f <= 8 && r >= 0 && r <= 8) yield return (ISquare)this[(File)f, (Rank)r];
+				if (f >= 0 && f < 8 && r >= 0 && r < 8)
+				{
+					File file = (File)f;
+					Rank rank = (Rank)r;
+					if (file == File.Offboard || rank == Rank.Offboard) continue;
+					yield return (ISquare)this[(File)f, (Rank)r];
+				}
 			}
 		}
 
@@ -524,6 +513,7 @@ namespace Chess.Lib.Hardware
 			return _squares.Cast<IChessSquare>().GetEnumerator();
 		}
 
+		// TODO: can I get rid of this?		
 		private class PieceReplacer : IDisposable
 		{
 			internal PieceReplacer(Board board, IPiece toMove, ISquare toSquare, PieceType promotion)

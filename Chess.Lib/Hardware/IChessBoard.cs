@@ -29,13 +29,16 @@ namespace Chess.Lib.Hardware
 			Display(w);
 			return w.ToString();
 		}
-		string AsFEN();
 		IChessGame Game { get; }
 		bool IsGameBoard => Game is not INoGame;
 		event Handler<IChessboardState>? StateApplied;
 		bool IsVariantBoard { get; }
 		IChessMove LastMove { get; }
+		string FENPiecePlacements { get; }
+
 	}
+
+	public interface INoBoard : IChessBoard;
 
 	internal interface IBoard : IChessBoard
 	{
@@ -47,7 +50,7 @@ namespace Chess.Lib.Hardware
 		IEnumerable<ISquare> RankSquaresBetween(ISquare start, ISquare end);
 		IEnumerable<ISquare> FileSquaresBetween(ISquare start, ISquare end);
 		IEnumerable<ISquare> DiagonalSquaresBetween(ISquare start, ISquare end);
-		IEnumerable<ISquare> QueenMovesBetween(ISquare start, ISquare end);
+		IEnumerable<ISquare> QueenSquaresBetween(ISquare start, ISquare end);
 		IEnumerable<ISquare> KingSquares(ISquare fromSquare);
 		IEnumerable<ISquare> SquaresBetween(ISquare start, ISquare end);
 		IEnumerable<ISquare> AllowedKnightMovesFrom(ISquare fromSquare);
@@ -98,6 +101,4 @@ namespace Chess.Lib.Hardware
 	}
 
 	#endregion
-
-
 }

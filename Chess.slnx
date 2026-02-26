@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Examples/">
+    <Project Path="ChessGame/ChessGame.csproj" />
+    <Project Path="ImportPGN/ImportPGN.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/UnitTests/">
+    <Project Path="Chess.Lib.UnitTests/Chess.Lib.UnitTests.csproj" />
+    <Project Path="Common.Lib.UI.UnitTests/Common.Lib.UI.UnitTests.csproj" />
+    <Project Path="Common.Lib.UnitTests/Common.Lib.UnitTests.csproj" />
+    <Project Path="Sql.Lib.UnitTests/Sql.Lib.UnitTests.csproj" />
+  </Folder>
+  <Project Path="Chess.Lib.Pgn/Chess.Lib.Pgn.csproj" />
+  <Project Path="Chess.Lib.UI/Chess.Lib.UI.csproj" />
+  <Project Path="Chess.Lib/Chess.Lib.csproj" />
+  <Project Path="Common.Lib.UI.Controls/Common.Lib.UI.Controls.csproj" />
+  <Project Path="Common.Lib.UI/Common.Lib.UI.csproj" />
+  <Project Path="Common.Lib/Common.Lib.csproj" />
+  <Project Path="Sql.Lib/Sql.Lib.csproj" />
+</Solution>

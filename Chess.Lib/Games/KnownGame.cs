@@ -17,7 +17,8 @@ namespace Chess.Lib.Games
 
 		internal static KnownGame EmptyGameWithSetup(string fenSetup)
 		{
-			IBoard b = FEN.TryParse(fenSetup, out FEN f) ? new Board(f) : new Board();
+			FEN fen = FEN.Parse(fenSetup);			
+			IBoard b = fen.IsEmpty ? new Board() : new Board(fen);
 			return new KnownGame(b);
 		}
 

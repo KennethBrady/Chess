@@ -33,7 +33,7 @@ namespace Chess.Lib.UI
 			if (newGame is IInteractiveChessGame ig) ig.MoveUndone += HandleMoveUndone;
 		}
 
-		protected virtual void HandleGameStateApplied(IChessgameState value) { }
+		protected virtual void HandleGameStateApplied(IChessGameState value) { }
 
 		protected virtual void HandleMoveCompleted(CompletedMove move) { }
 

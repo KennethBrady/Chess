@@ -25,12 +25,14 @@ namespace Chess.Lib.Games
 		/// Create an interactive game based on the current game
 		/// </summary>
 		IInteractiveChessGame Branch();
-		IChessgameState CurrentState { get; }
+		IChessGameState CurrentState { get; }
 
 		/// <summary>
 		/// This event is raised upon setting Moves.CurrentMove.
 		/// </summary>
-		event Handler<IChessgameState>? GameStateApplied;
+		event Handler<IChessGameState>? GameStateApplied;
+
+		FEN AsFen();
 	}
 
 	public interface IKnownChessGame : IChessGame
@@ -76,10 +78,13 @@ namespace Chess.Lib.Games
 		new IBoard Board { get; }
 		new IPlayer White { get; }
 		new IPlayer Black { get; }
+
 		bool CanMakeMoves { get; }
 		bool IsReadOnly { get; }
 		new IMoves Moves { get; }
 		IReadOnlyList<IMove> MoveList { get; }
+
+		Hue FirstMove { get; }
 	}
 
 	internal interface IPromotingGame

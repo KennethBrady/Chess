@@ -13,8 +13,16 @@ namespace Chess.Lib.Hardware.Pieces
 		King = 25
 	};
 
-	internal static class PieceTypeExtensions
+	public static class PieceTypeExtensions
 	{
+		extension(PieceType pieceType)
+		{
+			public bool IsValid => pieceType > PieceType.None;
+		}
+
+		public static readonly PieceType[] All = (PieceType[])Enum.GetValues(typeof(PieceType));
+		public static IEnumerable<PieceType> AllValid => All.Where(p => p > 0);
+
 		private static readonly char[] _promos = { 'r', 'n', 'b', 'q' };
 		internal static bool IsPromotion(char c) => _promos.Contains(c);
 		internal static char? PromotionChar(PieceType piece)
@@ -29,7 +37,7 @@ namespace Chess.Lib.Hardware.Pieces
 			return null;
 		}
 
-		public static PieceType Promotion(char c, bool allowPawnAndKing = true)
+		internal static PieceType Promotion(char c, bool allowPawnAndKing = true)
 		{
 			switch (char.ToLower(c))
 			{
@@ -43,7 +51,7 @@ namespace Chess.Lib.Hardware.Pieces
 			}
 		}
 
-		public static PieceType? GetPromotion(string moves, int moveStartPosition)
+		internal static PieceType? GetPromotion(string moves, int moveStartPosition)
 		{
 			if (string.IsNullOrEmpty(moves) || (moves.Length < moveStartPosition + 5)) return null;
 			switch (moves[moveStartPosition + 4])
@@ -61,7 +69,7 @@ namespace Chess.Lib.Hardware.Pieces
 			return PieceType.Bishop;
 		}
 
-		public static char PieceCharacter(PieceType type, Hue hue)
+		internal static char PieceCharacter(PieceType type, Hue hue)
 		{
 			char r = ' ';
 			switch (type)

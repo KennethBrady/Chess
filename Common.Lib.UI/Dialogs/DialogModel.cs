@@ -1,4 +1,6 @@
-﻿namespace Common.Lib.UI.Dialogs
+﻿using Common.Lib.UI.Windows;
+
+namespace Common.Lib.UI.Dialogs
 {
 	public delegate void DialogResultHandler<T>(IDialogResult<T> result);
 
@@ -28,6 +30,13 @@
 			foreach (var handler in _resultHandlers) handler(result);
 		}
 
+		protected async Task<IDialogResult<R>> ShowDialog<R>(DialogModel<R> model)
+		{
+			IAppWindow? w = Me.Window;
+			if (w == null) return new DialogResultFailure<R>("Internal Error");
+			return await w.ShowDialog(model);	// Not sure why 
+		}
+
 		void IDialogModel.Close(string reason) => Cancel(string.IsNullOrEmpty(reason) ? OperationCancelled : reason);
 
 		event DialogResultHandler<T>? IDialogModelEx<T>.Closing
@@ -49,6 +58,10 @@
 		}
 
 		void IDialogModelEx.ProcessEscapeKey() => HandleEscapeKey();
+
+		IAppWindow? IDialogModelEx<T>.Window { get; set; }
+
+		private IDialogModelEx<T> Me => this;
 		
 	}
 }

@@ -5,6 +5,7 @@ using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.Moves.Parsing;
 using Chess.Lib.Pgn;
+using Chess.Lib.Variants;
 using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.UnitTests.Games
@@ -196,5 +197,64 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.IsTrue(k.IsMated);
 			Assert.AreSame(mas.CompletedMove.CheckedKing, k);
 		}
+
+		[TestMethod]
+		public async Task PromotionDefaultsToQueen()
+		{
+			PGN pgn = PGN.Parse(System.IO.File.ReadAllText("Promotion.txt"));
+			IInteractiveChessGame g = GameFactory.CreateInteractive();
+			g.ApplyMoves(pgn.Moves);
+			g.PromotionRequest += async p =>
+			{
+				Assert.AreEqual(PieceType.Queen, p.PieceType);
+				return p with { PieceType = PieceType.King };
+			};
+			var mres = await g.White.AttemptMove("d7d8");
+			Assert.IsTrue(mres.Succeeded);
+			IChessMove m = ((IMoveAttemptSuccess)mres).CompletedMove;
+			Assert.AreEqual(PieceType.Queen, m.Promotion.ToPiece.Type);
+		}
+
+		[TestMethod]
+		public void FromChess960()
+		{
+			for(int i=0;i<Chess960.UniqueGameCount;++i)
+			{
+				IInteractiveChessGame g = Chess960.GameFor(GameSetup.Named("W", "B"), 10);
+				Assert.AreEqual("W", g.White.Name);
+				Assert.AreEqual("B", g.Black.Name);
+				Assert.IsTrue(g.Board.IsVariantBoard);
+				Assert.HasCount(32, g.Board.ActivePieces);
+			}
+		}
+
+		[TestMethod]
+		public async Task FirstMove()
+		{
+			const string FEN1 = "4k3/p1p1p1p1/8/8/8/8/1P1P1P1P/3K4";
+			FEN fen = FEN.Parse(FEN1);
+			Assert.IsFalse(fen.IsEmpty);
+			IBoard b = new Board(fen);
+			Assert.HasCount(10, b.ActivePieces);
+			GameBoard gb = new GameBoard(GameBoardType.Custom, b, Hue.Dark);
+			GameSetup gs = new GameSetup("White", "Black", ChessClockSetup.Empty, gb);
+			IInteractiveChessGame game = GameFactory.CreateInteractive(gs);
+			Assert.AreSame(game.Black, game.NextPlayer);
+			MoveRequest mr = new MoveRequest("e7e5");
+			// Verify that black can make a move:
+			switch (await game.NextPlayer.AttemptMove(mr))
+			{
+				case IMoveAttemptSuccess s: break;
+				case IMoveAttemptFail f: Assert.Fail(f.Reason.ToString()); break;
+			}
+		}
+
+		[TestMethod]
+		public void DefaultGameSetup()
+		{
+			IInteractiveChessGame g = GameFactory.CreateInteractive(GameSetup.Default);
+			Assert.HasCount(32, g.Board.ActivePieces);
+		}
+
 	}
 }

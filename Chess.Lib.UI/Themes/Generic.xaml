@@ -9,12 +9,14 @@
 		xmlns:clock="clr-namespace:Chess.Lib.UI.Clock"
 		xmlns:img="clr-namespace:Common.Lib.UI.Images;assembly=Common.Lib.UI"
 		xmlns:ext="clr-namespace:Common.Lib.UI.Extensions;assembly=Common.Lib.UI"
+		xmlns:dlg="clr-namespace:Chess.Lib.UI.Dialogs"
 	>
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="/Common.Lib.UI;component/CommonStyles.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
 	<BooleanToVisibilityConverter x:Key="b2vc"/>
 	<lconv:PieceToImageConverter x:Key="p2ic"/>
+	<lconv:HueToBrushConverter x:Key="hue2bc"/>
 	<Style TargetType="{x:Type local:ChessBoard}">
 		<Setter Property="Template">
 			<Setter.Value>
@@ -249,6 +251,61 @@
 								</StackPanel>
 							</DockPanel>
 						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type local:MiniBoard}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:MiniBoard}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+														Name="border" DataContext="{x:Null}">
+						<ItemsControl ItemsSource="{Binding Squares}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Grid>
+										<Rectangle Fill="{Binding Hue,Converter={StaticResource hue2bc}}"/>
+										<Image Source="{Binding Piece}" VerticalAlignment="Center" HorizontalAlignment="Center" 
+													 Width="{Binding Width}" Height="{Binding Height}"/>
+									</Grid>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<UniformGrid Rows="8" Columns="8"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+						</ItemsControl>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type dlg:DraggedPiece}">
+		<Style.Resources>
+			<Style TargetType="Image">
+				<Setter Property="Width" Value="40"/>
+				<Setter Property="Height" Value="40"/>
+				<Setter Property="VerticalAlignment" Value="Center"/>
+				<Setter Property="HorizontalAlignment" Value="Center"/>
+			</Style>
+			<dlg:HueToForegroundConverter x:Key="h2fc"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type dlg:DraggedPiece}">
+					<Border BorderBrush="Black" BorderThickness="1" Margin="2">
+						<Border BorderBrush="{Binding LockedBorder}" BorderThickness="2">
+							<Grid>
+								<Image Source="{Binding Piece}" Name="image"/>
+								<TextBlock Text="{Binding UseCount}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+													 Foreground="Black" FontSize="12" Margin="3"/>
+							</Grid>
+						</Border>
 					</Border>
 				</ControlTemplate>
 			</Setter.Value>

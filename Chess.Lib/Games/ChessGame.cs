@@ -1,30 +1,10 @@
 ﻿using Chess.Lib.Hardware;
-using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
 using Common.Lib.Contracts;
 using System.Collections.Immutable;
 
 namespace Chess.Lib.Games
 {
-	public record struct CompletedMove(IChessMove Move, int RepetitionCount)
-	{
-		public int SerialNumber => Move.SerialNumber;
-		public bool IsCheck => Move.IsCheck;
-
-		public bool IsCheckMate => Move.IsCheckMate;
-		public bool IsPromotion => Move.Promotion.IsValid;
-		public IChessKing CheckedKing
-		{
-			get
-			{
-				CompletedMove m = this;
-				if (IsCheck) return (IChessKing)M.Board.ActivePieces.Where(p => p.Type == PieceType.King && p.Side != m.Move.Side);
-				return NoKing.Default;
-			}
-		}
-		private IMove M => (IMove)Move;
-
-	}
 
 	/// <summary>
 	/// Core ChessGame functionality
@@ -58,7 +38,8 @@ namespace Chess.Lib.Games
 			_moves.MoveApplied += OnMoveApplied;
 		}
 
-		protected ChessGame(bool isReadOnly, string whiteName = "", string blackName = ""): this(isReadOnly, whiteName, blackName, string.Empty) { }
+		protected ChessGame(bool isReadOnly, string whiteName = "", string blackName = ""): 
+			this(isReadOnly, whiteName, blackName, string.Empty) { }
 
 		protected ChessGame(bool isReadOnly, string whiteName, string blackName, string fenSetup)
 		{
@@ -84,6 +65,19 @@ namespace Chess.Lib.Games
 			_gameStates.Add(-1, new GameState(this));
 		}
 
+		protected ChessGame(GameSetup setup)
+		{
+			_board = (setup.Board.Board is INoBoard) ? new Board() : setup.Board.IBoard;
+			_board.Game = this;
+			_board.MoveMade += OnMoveMade;
+			_white = new ChessPlayer(setup.WhiteName, Hue.Light, this, false);
+			_black = new ChessPlayer(setup.BlackName, Hue.Dark, this, false);
+			_moves = new ChessMoves(this, ImmutableList<IMove>.Empty);
+			_moves.MoveApplied += OnMoveApplied;
+			_gameStates.Add(-1, new GameState(this));
+			FirstMove = setup.Board.NextMove;
+		}
+
 		public abstract bool IsReadOnly { get; }
 
 		public IChessMoves Moves => _moves;
@@ -95,9 +89,24 @@ namespace Chess.Lib.Games
 		IChessPlayer IChessGame.PlayerOf(Hue hue) => hue == Hue.Light ? _white : hue == Hue.Dark ? _black : NoPlayer.Default;
 		IPlayer IGame.White => _white;
 		IPlayer IGame.Black => _black;
-		IChessPlayer IChessGame.NextPlayer => White.HasNextMove ? White : Black.HasNextMove ? Black : NoPlayer.Default;
 
-		public IChessgameState CurrentState => _gameStates.ContainsKey(Moves.CurrentPosition) ? _gameStates[Moves.CurrentPosition] : GameState.Empty;
+		public IChessPlayer NextPlayer
+		{
+			get
+			{
+				if (IsReadOnly) return NoPlayer.Default;
+				bool swap = FirstMove == Hue.Dark;
+				switch(Moves.Count % 2)
+				{
+					case 0: return swap ? _black : _white;
+					default: return swap ? _white : _black;
+				}
+			}
+		}
+
+		public IChessGameState CurrentState => _gameStates.ContainsKey(Moves.CurrentPosition) ? _gameStates[Moves.CurrentPosition] : GameState.Empty;
+
+		public FEN AsFen() => new FEN(this);
 
 		public IChessBoard Board => _board;
 		IBoard IGame.Board => _board;
@@ -114,7 +123,9 @@ namespace Chess.Lib.Games
 		}
 		public IChessMove LastMoveMade => _lastMoveMade;
 		public event Handler<CompletedMove>? MoveCompleted;
-		public event Handler<IChessgameState>? GameStateApplied;
+		public event Handler<IChessGameState>? GameStateApplied;
+
+		public Hue FirstMove { get; protected init; } = Hue.Light;
 
 		protected Dictionary<int, IGameState> GameStates => _gameStates;
 

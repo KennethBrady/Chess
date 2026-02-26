@@ -41,7 +41,7 @@ namespace Chess.Lib.Hardware
 			return ImmutableList<PieceAndState>.Empty.AddRange(board.ActivePieces.Select(p => new PieceAndState(p)).ToArray());
 		}
 
-		internal BoardState(IBoard board) : this(board.LastMove.SerialNumber, board.LastMove, board.AsFEN(), CreateStates(board),
+		internal BoardState(IBoard board) : this(board.LastMove.SerialNumber, board.LastMove, board.FENPiecePlacements, CreateStates(board),
 			board.Promotions, board.RemovedPieces) { }
 
 		internal static int CountRepetitions(IEnumerable<IBoardState> states)

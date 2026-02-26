@@ -26,9 +26,10 @@ namespace Chess.Lib.Games
 		IChessPlayer IChessGame.Black => NoPlayer.Default;
 		IReadOnlyChessPlayer IReadOnlyChessGame.Black => NoPlayer.Default;
 		IChessBoard IReadOnlyChessGame.Board => Hardware.Board.Default;
+		public Hue FirstMove => Hue.Default;
 		IChessMove IReadOnlyChessGame.LastMoveMade => NoMove.Default;
 		IChessMoves IReadOnlyChessGame.Moves => NoMoves.Default;
-		public IChessgameState CurrentState => GameState.Empty;
+		public IChessGameState CurrentState => GameState.Empty;
 		public IInteractiveChessGame Branch() => NoGame.Default;
 		public IChessPlayer PlayerOf(Hue hue) => NoPlayer.Default;
 		IReadOnlyChessPlayer IReadOnlyChessGame.PlayerOf(Hue hue) => NoPlayer.Default;
@@ -36,7 +37,7 @@ namespace Chess.Lib.Games
 #pragma warning disable 00067   // Disable "never used" warnings                                   
 		public event Handler<CompletedMove>? MoveCompleted;
 		public event Handler<IChessMove>? MoveUndone;
-		public event Handler<IChessgameState>? GameStateApplied;
+		public event Handler<IChessGameState>? GameStateApplied;
 		public event AsyncHandler<Promotion,Promotion>? PromotionRequest;
 #pragma warning restore 00067
 		public int ApplyMoves(IMoveParser parser) => 0;
@@ -44,5 +45,7 @@ namespace Chess.Lib.Games
 
 		bool IInteractiveChessGame.AttachClock(ChessClockSetup clockSetup) => false;
 		IChessClock IInteractiveChessGame.Clock => NullClock.Instance;
+
+		FEN IReadOnlyChessGame.AsFen() => FEN.Empty;
 	}
 }

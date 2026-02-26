@@ -8,7 +8,7 @@ namespace Common.Lib.UI.Images
 {
 	public enum ImageType
 	{
-		Delete, DeleteFaded, Maximize, Minimize, Restore, Close
+		Delete, DeleteFaded, Maximize, Minimize, Restore, Close, Help_Open, Help_Closed,
 	}
 
 	internal static class ImageTypeEx
@@ -27,6 +27,8 @@ namespace Common.Lib.UI.Images
 						case ImageType.Minimize: return "minimize-dark";
 						case ImageType.Restore: return "restore-dark";
 						case ImageType.Close: return "close-dark";
+						case ImageType.Help_Open: return "help_open";
+						case ImageType.Help_Closed: return "help_closed";
 						default: throw new UnreachableException();
 					}
 				}

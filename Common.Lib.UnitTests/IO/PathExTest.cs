@@ -31,5 +31,34 @@ namespace Common.Lib.UnitTests.IO
 			}
 			Assert.IsEmpty(fails, $"{new string(fails.ToArray())}");
 		}
+
+		[TestMethod]
+		public void RandomFileName()
+		{
+			for(int i=1;i<50;++i)
+			{
+				string fn = PathEx.RandomFileName(i);
+				Assert.AreEqual(i, fn.Length);
+				Assert.IsTrue(fn.All(c => PathEx.IsValidFilenameCharacter(c)));
+			}
+		}
+
+		[TestMethod]
+		public void MakeValidFileName()
+		{
+			string s = PathEx.InvalidNameCharacters;
+			Assert.IsFalse(PathEx.IsValidFileName(s));
+			string sv = PathEx.MakeValidFileName(s);
+			Assert.AreEqual(s.Length, sv.Length);
+			Assert.IsTrue(PathEx.IsValidFileName(sv));
+		}
+
+		[TestMethod]
+		public void AreSameFolder()
+		{
+			const string DIR = @"C:\Temp\";
+			string dir = DIR.Substring(0, DIR.Length - 1);
+			Assert.IsTrue(PathEx.AreSameFolder(DIR, dir));
+		}
 	}
 }

@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace Chess.Lib.Games
 {
-	public interface IChessgameState
+	public interface IChessGameState
 	{
 		IReadOnlyList<IChessMove> Moves { get; }
 		IChessboardState BoardState { get; }
@@ -12,7 +12,7 @@ namespace Chess.Lib.Games
 		int SerialNumber => Moves.Count == 0 ? -1 : Moves.Last().SerialNumber;
 	}
 
-	internal interface IGameState : IChessgameState
+	internal interface IGameState : IChessGameState
 	{
 		new ImmutableList<IMove> Moves { get; }
 		new IBoardState BoardState { get; }
@@ -24,7 +24,7 @@ namespace Chess.Lib.Games
 
 		internal GameState(IGame game) : this(ImmutableList.Create<IMove>(game.Moves.PriorMoves.Cast<IMove>().ToArray()), game.Board.GetCurrentState()) { }
 
-		IReadOnlyList<IChessMove> IChessgameState.Moves => Moves;
-		IChessboardState IChessgameState.BoardState => BoardState;
+		IReadOnlyList<IChessMove> IChessGameState.Moves => Moves;
+		IChessboardState IChessGameState.BoardState => BoardState;
 	}
 }

@@ -51,6 +51,15 @@ namespace Chess.Lib.Hardware
 	// TODO: replace File and Rank with FileRank
 	internal sealed record Square(IBoard Board, File File, Rank Rank, Hue Hue, int Index) : ISquare
 	{
+		internal static Square  Create(IBoard board, File file, Rank rank)
+		{
+			FileRank fr = new FileRank(file, rank);
+			bool reven = ((int)rank) % 2 == 0, feven = ((int)file) % 2 == 0;
+			Hue h = Hue.Default;
+			if (reven) h = feven ? Hue.Dark : Hue.Light; else h = feven ? Hue.Light : Hue.Dark;
+			return new Square(board, file, rank, h, fr.ToSquareIndex);
+		}
+
 		private IPiece _piece = NoPiece.Default;
 		IPiece ISquare.Piece
 		{

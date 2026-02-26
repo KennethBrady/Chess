@@ -7,7 +7,7 @@ namespace Common.Lib.UI.DragDrop.DDM
 	/// <summary>
 	/// A (relatively) simple and Xaml-friendly drag/drop interface
 	/// </summary>
-	public class DragDropManager
+	public static class DragDropManager
 	{
 		#region Dependency Property and RoutedEvent declarations
 
@@ -356,6 +356,7 @@ namespace Common.Lib.UI.DragDrop.DDM
 			{
 				uie.PreviewMouseMove += _mouseDragMoveHandler;
 				_downPoint = NativeMethods.GetCursorPos();
+				e.Handled = true;
 			}
 		}
 

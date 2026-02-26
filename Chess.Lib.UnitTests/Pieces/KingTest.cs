@@ -93,7 +93,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		[TestMethod]
 		public void CannotMoveIntoCheck()
 		{
-			BoardBuilder bb = new BoardBuilder(false);
+			BoardBuilder bb = new BoardBuilder();
 			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.Light);
 			bb.SetPiece(File.H, Rank.R2, PieceType.Rook, Hue.Dark);
 			IChessBoard board = bb.CreateBoard();
@@ -101,7 +101,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			IChessSquare e2 = board[File.E, Rank.R2];
 			Assert.IsFalse(king.CanMoveTo(e2));
 
-			bb = new BoardBuilder(false);
+			bb = new BoardBuilder();
 			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.Light);
 			bb.SetPiece(File.E, Rank.R2, PieceType.Pawn, Hue.Dark);
 			bb.SetPiece(File.H, Rank.R2, PieceType.Rook, Hue.Dark);
@@ -111,9 +111,9 @@ namespace Chess.Lib.UnitTests.Pieces
 			Assert.IsTrue(e2.HasPiece);
 			Assert.IsFalse(rook.CanMoveTo(e2));
 			king = (IChessKing)board.ActivePieces.First(p => p.Type == PieceType.King);
-			string fen = board.AsFEN();
+			string fen = board.FENPiecePlacements	;
 			Assert.IsFalse(king.CanMoveTo(e2));
-			Assert.AreEqual(fen, board.AsFEN(), "Board unchanged");
+			Assert.AreEqual(fen, board.FENPiecePlacements, "Board unchanged");
 		}
 
 		[TestMethod]

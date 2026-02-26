@@ -6,6 +6,7 @@
 	  xmlns:lext="clr-namespace:Common.Lib.UI.Controls.Extensions"
 		xmlns:conv="clr-namespace:Common.Lib.UI.Converters;assembly=Common.Lib.UI"
 		xmlns:images="clr-namespace:Common.Lib.UI.Images;assembly=Common.Lib.UI"
+		xmlns:txt="clr-namespace:Common.Lib.UI.Controls.Text"
 	>
 	<BooleanToVisibilityConverter x:Key="b2vc"/>
 	<Style TargetType="{x:Type local:Link}">
@@ -175,6 +176,48 @@
 							<Setter TargetName="hlink" Property="TextBlock.TextDecorations" Value="{x:Null}"/>
 						</Trigger>
 					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type local:InfoPopout}">
+		<Style.Resources>
+			<local:HelpImageConverter x:Key="hic"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type local:InfoPopout}">
+					<Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+						<Grid>
+							<ToggleButton Name="toggle" Style="{x:Null}"
+														IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:InfoPopout}},Path=IsPopoutOpen,Mode=TwoWay}">
+								<Image Source="{TemplateBinding HelpImage,Converter={StaticResource hic}}" MinWidth="24" MinHeight="24"/>
+							</ToggleButton>
+							<Popup Name="popup" IsOpen="{TemplateBinding IsPopoutOpen}"  PopupAnimation="Fade" Placement="{TemplateBinding PopoutPlacement}"
+										 PlacementTarget="{Binding ElementName=toggle}">
+								<ContentPresenter />
+							</Popup>
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type txt:BulletText}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type txt:BulletText}">
+					<Border Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+						<DockPanel>
+							<TextBlock Text="{TemplateBinding Bullet}" Width="{Binding ElementName=text,Path=ActualHeight}"/>
+							<TextBlock Name="text" Text="{TemplateBinding Text}" TextWrapping="{TemplateBinding TextWrapping}"
+												 Foreground="{TemplateBinding Foreground}" Style="{TemplateBinding TextStyle}"/>
+						</DockPanel>
+					</Border>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>

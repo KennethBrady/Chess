@@ -1,8 +1,10 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Pgn;
+using Chess.Lib.UI.Dialogs;
 using Chess.Lib.UI.Pgn;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.MVVM;
+using System.Diagnostics;
 using System.Windows;
 
 namespace ChessGame.Models
@@ -69,10 +71,11 @@ namespace ChessGame.Models
 
 		private async void StartNewGame()
 		{
-			var result = await ShowDialog(new NewGameDialogModel(GameStartDefinition.Empty));
+			var result = await ShowDialog(new NewGameDialogModel(GameSetup.Default));
 			if (result.Accepted)
 			{
-				var s = (IDialogResultAccepted<GameStartDefinition>)result;
+				var s = (IDialogResultAccepted<GameSetup>)result;
+				//Debugger.Launch();	// Debugger spontaneously stops when using dialog's drag/drop
 				Game = GameFactory.CreateInteractive(s.Value);
 			}
 		}

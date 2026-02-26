@@ -71,6 +71,8 @@ namespace Chess.Lib.Hardware
 
 	public static class RFExtensions
 	{
+		public static readonly Rank[] AllRanks = (Rank[])Enum.GetValues(typeof(Rank));
+		public static readonly File[] AllFiles = (File[])Enum.GetValues(typeof(File));
 		extension(Hue h)
 		{
 			public Hue Other

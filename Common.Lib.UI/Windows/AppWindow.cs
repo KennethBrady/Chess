@@ -188,6 +188,7 @@ namespace Common.Lib.UI.Windows
 			if (dialog == null) return new DialogResultFailure<T>("Constructor returned null.");
 			if (dialog.Style == null && DialogStyle != null) dialog.Style = DialogStyle;
 			SettingsManager.ApplySettings(dialogContext, AppSettings, settingsKey);
+			ex.Window = this;
 			ex.Closing += (result) =>
 			{
 				if (result.Accepted) SettingsManager.ExtractAndSaveSettings(dialogContext, AppSettings, settingsKey);

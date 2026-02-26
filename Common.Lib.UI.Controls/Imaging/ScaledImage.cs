@@ -1,5 +1,4 @@
-﻿using Common.Lib.UI.Extensions;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -52,7 +51,16 @@ namespace Common.Lib.UI.Controls.Imaging
 			tgrp.Children.Add(tx);
 
 			RenderTransform = tgrp;
-			_inputParent = ((Visual)this).FindParent((o) => o is IInputElement) as IInputElement;
+			Visual? v = this;
+			while(v != null)
+			{
+				v = VisualTreeHelper.GetParent(v) as Visual;
+				if (v is IInputElement iie)
+				{
+					_inputParent = iie;
+					break;
+				}
+			}
 		}
 
 		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)

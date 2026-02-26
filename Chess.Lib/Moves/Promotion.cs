@@ -14,7 +14,8 @@ namespace Chess.Lib.Moves
 	public record struct Promotion(PieceType PieceType, Hue Hue, IChessSquare OnSquare)
 	{
 		public static readonly Promotion None = new Promotion(PieceType.None, Hue.Default, NoSquare.Default);
-		internal bool IsValid => PieceType.IsPromotionTarget && Hue < Hue.Default;
+		internal bool IsValid => PieceType.IsPromotionTarget;
+		internal PieceType ValidPieceType => IsValid ? PieceType : PieceType.Queen;
 	}
 
 	internal record struct PromotedPawn(IChessPawn FromPawn, IChessPiece ToPiece, IChessSquare OnSquare) : IPromotion

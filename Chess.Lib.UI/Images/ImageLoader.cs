@@ -14,10 +14,17 @@ namespace Chess.Lib.UI.Images
 			return LoadImage(piece.Type, piece.Side);
 		}
 
+		internal static BitmapFrame? LoadImage(PieceDef piece) => LoadImage(piece.Type, piece.Hue);
+
 		internal static BitmapFrame LoadImage(PieceType type, Hue side)
 		{
 			string name = side == Hue.Light ? "White" : "Black";
 			name += type.ToString();
+			return LoadImage(name);
+		}
+
+		internal static BitmapFrame LoadImage(string name)
+		{
 			Uri uri = new Uri($"Chess.Lib.UI;component/Images/{name}.png", UriKind.Relative);
 			var info = Application.GetResourceStream(uri);
 			PngBitmapDecoder dec = new PngBitmapDecoder(info.Stream, BitmapCreateOptions.None, BitmapCacheOption.None);

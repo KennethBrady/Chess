@@ -12,6 +12,8 @@ namespace Chess.Lib.Hardware.Pieces
 		IEnumerable<ISquare> PromotionSquares();
 	}
 
+	public interface INoPawn : INoPiece, IChessPiece;
+
 	internal sealed record Pawn(FileRank StartPosition, Hue Side, IBoard Board) : Piece(StartPosition, PieceType.Pawn, Side, Board), IPawn
 	{
 		public override bool CanCaptureTo(ISquare square)

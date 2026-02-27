@@ -8,6 +8,7 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="/Common.Lib.UI;component/CommonStyles.xaml"/>
+				<ResourceDictionary Source="/Common.Lib.UI;component/DarkMenu.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>

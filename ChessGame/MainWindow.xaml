@@ -14,14 +14,7 @@
         mc:Ignorable="d"
 				Icon="king.ico" Height="450" Width="800" WindowState="Maximized" ModalBackground="#222222aa">
 	<win:AppWindow.Menu>
-		<Menu Background="Black" Foreground="White" FontSize="14" VerticalAlignment="Center" VerticalContentAlignment="Center">
-			<Menu.Resources>
-				<Style TargetType="MenuItem">
-					<Setter Property="Background" Value="Black"/>
-					<Setter Property="Foreground" Value="White"/>
-					<Setter Property="BorderThickness" Value="0"/>
-				</Style>
-			</Menu.Resources>
+		<Menu FontSize="14" VerticalAlignment="Center" VerticalContentAlignment="Center">
 			<MenuItem Header="Game">
 				<MenuItem Header="New ..." Command="{Binding Command}" CommandParameter="newGame" InputGestureText="Ctrl-N"/>
 				<MenuItem Header="Branch Game" Command="{Binding Command}" CommandParameter="branchGame"/>

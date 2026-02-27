@@ -92,7 +92,7 @@ namespace Chess.Lib.Moves
 			get
 			{
 				if (MovedPiece is not IPawn p) return false;
-				Rank tgtRank = p.Side == Hue.Light ? Rank.R8 : Rank.R1;
+				Rank tgtRank = p.Side == Hue.White ? Rank.R8 : Rank.R1;
 				return ToSquare.Rank == tgtRank;
 			}
 		}

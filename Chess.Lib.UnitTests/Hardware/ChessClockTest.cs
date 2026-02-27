@@ -21,11 +21,11 @@ namespace Chess.Lib.UnitTests.Hardware
 			Assert.IsNotNull(cc.White);
 			Assert.AreEqual(ts5, cc.White.Remaining);
 			Assert.AreEqual(TimeSpan.Zero, cc.White.Elapsed);
-			Assert.AreEqual(Hue.Light, cc.White.Side);
+			Assert.AreEqual(Hue.White, cc.White.Side);
 			Assert.IsNotNull(cc.Black);
 			Assert.AreEqual(ts5, cc.Black.Remaining);
 			Assert.AreEqual(TimeSpan.Zero, cc.Black.Elapsed);
-			Assert.AreEqual(Hue.Dark, cc.Black.Side);
+			Assert.AreEqual(Hue.Black, cc.Black.Side);
 		}
 
 		[TestMethod]
@@ -142,7 +142,7 @@ namespace Chess.Lib.UnitTests.Hardware
 			cc.MakeMove();
 			await Task.Delay(2000);
 			Assert.IsTrue(cc.IsFlagged);
-			Assert.AreEqual(Hue.Light, flaggedHue);
+			Assert.AreEqual(Hue.White, flaggedHue);
 			Assert.AreEqual(flaggedHue, cc.FlaggedSide);
 			Assert.IsTrue(cc.IsFlagged);
 			Assert.IsFalse(cc.IsRunning);

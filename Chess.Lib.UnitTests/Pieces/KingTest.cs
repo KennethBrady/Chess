@@ -17,7 +17,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBoard board = new Board();
 			List<IKing> kings = board.ActivePieces.OfType<IKing>().ToList();
 			Assert.HasCount(2, kings);
-			Assert.AreEqual(1, kings.Where(k => k.Side == Hue.Light).Count());
+			Assert.AreEqual(1, kings.Where(k => k.Side == Hue.White).Count());
 			Assert.IsTrue(kings.All(k => k.Side != k.Square.Hue));
 		}
 
@@ -39,7 +39,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void SoloKing()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.D, Rank.R4, PieceType.King, Hue.Light);
+			bb.SetPiece(File.D, Rank.R4, PieceType.King, Hue.White);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IKing k = (IKing)b.ActivePieces.First();
 			List<ISquare> canMove = new();
@@ -49,7 +49,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			}
 			Assert.HasCount(8, canMove);
 			bb.Clear();
-			bb.SetPiece(File.A, Rank.R1, PieceType.King, Hue.Light);
+			bb.SetPiece(File.A, Rank.R1, PieceType.King, Hue.White);
 			b = (IBoard)bb.CreateBoard();
 			k = (IKing)b.ActivePieces.First();
 			canMove.Clear();
@@ -60,7 +60,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			Assert.HasCount(3, canMove);
 
 			bb.Clear();
-			bb.SetPiece(File.D, Rank.R1, PieceType.King, Hue.Light);
+			bb.SetPiece(File.D, Rank.R1, PieceType.King, Hue.White);
 			b = (IBoard)bb.CreateBoard();
 			k = (IKing)b.ActivePieces.First();
 			canMove.Clear();
@@ -75,15 +75,15 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void SimpleCastle()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.Light);
-			bb.SetPiece(File.H, Rank.R1, PieceType.Rook, Hue.Light);
-			bb.SetPiece(File.A, Rank.R1, PieceType.Rook, Hue.Light);
+			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.White);
+			bb.SetPiece(File.H, Rank.R1, PieceType.Rook, Hue.White);
+			bb.SetPiece(File.A, Rank.R1, PieceType.Rook, Hue.White);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IKing k = (IKing)b.ActivePieces.First(p => p.Type == PieceType.King);
 			Assert.IsTrue(k.CanMoveTo(b[File.G, Rank.R1]), "White Kingside");
 			Assert.IsTrue(k.CanMoveTo(b[File.C, Rank.R1]), "White Queenside");
-			bb.SetPiece(File.F, Rank.R8, PieceType.Rook, Hue.Dark);
-			bb.SetPiece(File.D, Rank.R8, PieceType.Rook, Hue.Dark);
+			bb.SetPiece(File.F, Rank.R8, PieceType.Rook, Hue.Black);
+			bb.SetPiece(File.D, Rank.R8, PieceType.Rook, Hue.Black);
 			b = (IBoard)bb.CreateBoard();
 			k = (IKing)b.ActivePieces.First(p => p.Type == PieceType.King);
 			Assert.IsFalse(k.CanMoveTo(b[File.G, Rank.R1]), "White Kingside with Black Rook");
@@ -94,17 +94,17 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void CannotMoveIntoCheck()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.Light);
-			bb.SetPiece(File.H, Rank.R2, PieceType.Rook, Hue.Dark);
+			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.White);
+			bb.SetPiece(File.H, Rank.R2, PieceType.Rook, Hue.Black);
 			IChessBoard board = bb.CreateBoard();
 			IChessKing king = (IChessKing)board.ActivePieces.First(p => p.Type == PieceType.King);
 			IChessSquare e2 = board[File.E, Rank.R2];
 			Assert.IsFalse(king.CanMoveTo(e2));
 
 			bb = new BoardBuilder();
-			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.Light);
-			bb.SetPiece(File.E, Rank.R2, PieceType.Pawn, Hue.Dark);
-			bb.SetPiece(File.H, Rank.R2, PieceType.Rook, Hue.Dark);
+			bb.SetPiece(File.E, Rank.R1, PieceType.King, Hue.White);
+			bb.SetPiece(File.E, Rank.R2, PieceType.Pawn, Hue.Black);
+			bb.SetPiece(File.H, Rank.R2, PieceType.Rook, Hue.Black);
 			board = bb.CreateBoard();
 			IChessRook rook = (IChessRook)board.ActivePieces.First(p => p.Type == PieceType.Rook);
 			e2 = board[File.E, Rank.R2];

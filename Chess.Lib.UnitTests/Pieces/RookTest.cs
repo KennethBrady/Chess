@@ -13,17 +13,17 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBoard board = new Board();
 			List<IRook> rooks = board.ActivePieces.OfType<IRook>().ToList();
 			Assert.HasCount(4, rooks);
-			Assert.AreEqual(2, rooks.Where(r => r.Side == Hue.Light).Count());
-			Assert.AreEqual(2, rooks.Where(r => r.Side == Hue.Dark).Count());
+			Assert.AreEqual(2, rooks.Where(r => r.Side == Hue.White).Count());
+			Assert.AreEqual(2, rooks.Where(r => r.Side == Hue.Black).Count());
 			foreach(IRook r in rooks)
 			{
 				switch(r.Side)
 				{
-					case Hue.Light:
+					case Hue.White:
 						Assert.AreEqual(Rank.R1, r.Square.Rank);
 						Assert.IsTrue(r.Square.File == File.A || r.Square.File == File.H);
 						break;
-					case Hue.Dark:
+					case Hue.Black:
 						Assert.AreEqual(Rank.R8, r.Square.Rank);
 						Assert.IsTrue(r.Square.File == File.A || r.Square.File == File.H);
 						break;
@@ -46,7 +46,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void CanMoveSolo()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.A, Rank.R1, PieceType.Rook, Hue.Light);
+			bb.SetPiece(File.A, Rank.R1, PieceType.Rook, Hue.White);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IRook rook = (IRook)b.ActivePieces.First();
 			foreach(ISquare square in b)
@@ -60,8 +60,8 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void Capture()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.A, Rank.R1, PieceType.Rook, Hue.Light);
-			bb.SetPiece(File.A, Rank.R8, PieceType.Queen, Hue.Dark);
+			bb.SetPiece(File.A, Rank.R1, PieceType.Rook, Hue.White);
+			bb.SetPiece(File.A, Rank.R8, PieceType.Queen, Hue.Black);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IRook rook = b.ActivePieces.OfType<IRook>().First();
 			IQueen queen = b.ActivePieces.OfType<IQueen>().First();

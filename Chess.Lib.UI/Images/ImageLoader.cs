@@ -18,7 +18,7 @@ namespace Chess.Lib.UI.Images
 
 		internal static BitmapFrame LoadImage(PieceType type, Hue side)
 		{
-			string name = side == Hue.Light ? "White" : "Black";
+			string name = side == Hue.White ? "White" : "Black";
 			name += type.ToString();
 			return LoadImage(name);
 		}

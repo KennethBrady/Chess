@@ -28,8 +28,8 @@ namespace Chess.Lib.UI.Clock
 		public ClockSettingsModel(ChessClockSetup clockSetup)
 		{
 			StartingClockSetup = clockSetup;
-			SingleSettings = new SettingsModel(this, StartingClockSetup, Hue.Light);
-			DualSettings = new SettingsModel(this, StartingClockSetup, Hue.Dark);
+			SingleSettings = new SettingsModel(this, StartingClockSetup, Hue.White);
+			DualSettings = new SettingsModel(this, StartingClockSetup, Hue.Black);
 		}
 
 		[SavedSetting]
@@ -114,8 +114,8 @@ namespace Chess.Lib.UI.Clock
 				Owner = owner;
 				ClockSetup = clockSetup;
 				Hue = hue;
-				_timeLimit = Math.Max(1, (int)(hue == Hue.Light ? ClockSetup.WhiteMaxTime.TotalMinutes : ClockSetup.BlackMaxTime.TotalMinutes));
-				_increment = (int)(hue == Hue.Light ? ClockSetup.WhiteIncrement.TotalSeconds : ClockSetup.BlackIncrement.TotalSeconds);
+				_timeLimit = Math.Max(1, (int)(hue == Hue.White ? ClockSetup.WhiteMaxTime.TotalMinutes : ClockSetup.BlackMaxTime.TotalMinutes));
+				_increment = (int)(hue == Hue.White ? ClockSetup.WhiteIncrement.TotalSeconds : ClockSetup.BlackIncrement.TotalSeconds);
 			}
 			public ChessClockSetup ClockSetup { get; private init; }
 
@@ -148,7 +148,7 @@ namespace Chess.Lib.UI.Clock
 			{
 				switch (Hue)
 				{
-					case Hue.Light:
+					case Hue.White:
 						setup = setup with
 						{
 							WhiteMaxTime = TimeSpan.FromMinutes(_timeLimit),
@@ -157,7 +157,7 @@ namespace Chess.Lib.UI.Clock
 							BlackIncrement = TimeSpan.FromSeconds(_increment)
 						};
 						break;
-					case Hue.Dark:
+					case Hue.Black:
 						setup = setup with { BlackMaxTime = TimeSpan.FromMinutes(_timeLimit), BlackIncrement = TimeSpan.FromSeconds(_increment) };
 						break;
 				}
@@ -165,7 +165,7 @@ namespace Chess.Lib.UI.Clock
 
 			internal bool IsValid => _timeLimit > 0;
 
-			internal SettingsModel? Other => Hue == Hue.Light ? Owner.DualSettings : null;
+			internal SettingsModel? Other => Hue == Hue.White ? Owner.DualSettings : null;
 
 			private ClockSettingsModel Owner { get; init; }
 		}

@@ -2,7 +2,7 @@
 
 namespace Chess.Lib.Hardware
 {
-	public enum Hue { Dark, Light, Default };
+	public enum Hue { Black, White, Default };
 
 	public enum Rank { R1, R2, R3, R4, R5, R6, R7, R8, Offboard };
 
@@ -46,9 +46,9 @@ namespace Chess.Lib.Hardware
 				int squareIndex = ToSquareIndex;
 				if ((squareIndex / 8) % 2 == 0)
 				{
-					return squareIndex % 2 == 0 ? Hue.Dark : Hue.Light;
+					return squareIndex % 2 == 0 ? Hue.Black : Hue.White;
 				}
-				return squareIndex % 2 == 0 ? Hue.Light : Hue.Dark;
+				return squareIndex % 2 == 0 ? Hue.White : Hue.Black;
 			}
 		}
 
@@ -81,8 +81,8 @@ namespace Chess.Lib.Hardware
 				{
 					switch(h)
 					{
-						case Hue.Light: return Hue.Dark;
-						case Hue.Dark: return Hue.Light;
+						case Hue.White: return Hue.Black;
+						case Hue.Black: return Hue.White;
 						default: return Hue.Default;
 					}
 				}

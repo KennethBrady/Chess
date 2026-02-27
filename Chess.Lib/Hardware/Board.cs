@@ -180,7 +180,7 @@ namespace Chess.Lib.Hardware
 								case PieceType.Knight: c = 'N'; break;
 								default: c = sq.Piece.Type.ToString()[0]; break;
 							}
-							if (sq.Piece.Side == Hue.Dark) c = char.ToLower(c);
+							if (sq.Piece.Side == Hue.Black) c = char.ToLower(c);
 							s.Append(c);
 							nEmpty = 0;
 						}
@@ -348,28 +348,28 @@ namespace Chess.Lib.Hardware
 					switch (file)
 					{
 						case File.A:
-						case File.H: return new(ndx, PieceType.Rook, Hue.Light);
+						case File.H: return new(ndx, PieceType.Rook, Hue.White);
 						case File.B:
-						case File.G: return new(ndx, PieceType.Knight, Hue.Light);
+						case File.G: return new(ndx, PieceType.Knight, Hue.White);
 						case File.C:
-						case File.F: return new(ndx, PieceType.Bishop, Hue.Light);
-						case File.D: return new(ndx, PieceType.Queen, Hue.Light);
-						case File.E: return new(ndx, PieceType.King, Hue.Light);
+						case File.F: return new(ndx, PieceType.Bishop, Hue.White);
+						case File.D: return new(ndx, PieceType.Queen, Hue.White);
+						case File.E: return new(ndx, PieceType.King, Hue.White);
 					}
 					break;
-				case Rank.R2: return new(ndx, PieceType.Pawn, Hue.Light);
-				case Rank.R7: return new(ndx, PieceType.Pawn, Hue.Dark);
+				case Rank.R2: return new(ndx, PieceType.Pawn, Hue.White);
+				case Rank.R7: return new(ndx, PieceType.Pawn, Hue.Black);
 				case Rank.R8:
 					switch (file)
 					{
 						case File.A:
-						case File.H: return new(ndx, PieceType.Rook, Hue.Dark);
+						case File.H: return new(ndx, PieceType.Rook, Hue.Black);
 						case File.B:
-						case File.G: return new(ndx, PieceType.Knight, Hue.Dark);
+						case File.G: return new(ndx, PieceType.Knight, Hue.Black);
 						case File.C:
-						case File.F: return new(ndx, PieceType.Bishop, Hue.Dark);
-						case File.D: return new(ndx, PieceType.Queen, Hue.Dark);
-						case File.E: return new(ndx, PieceType.King, Hue.Dark);
+						case File.F: return new(ndx, PieceType.Bishop, Hue.Black);
+						case File.D: return new(ndx, PieceType.Queen, Hue.Black);
+						case File.E: return new(ndx, PieceType.King, Hue.Black);
 					}
 					break;
 			}

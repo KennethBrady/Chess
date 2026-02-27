@@ -253,7 +253,7 @@ namespace Chess.Lib.Moves.Parsing
 				AlgebraicMove am = (AlgebraicMove)move;
 				IParseableMove pm = (IParseableMove)am;
 				if (s.Length > 0) s.Append(" ");
-				if (pm.Hue == Hue.Light && !am.IsEndGame) s.Append($"{pm.GameMoveNumber}. ");
+				if (pm.Hue == Hue.White && !am.IsEndGame) s.Append($"{pm.GameMoveNumber}. ");
 				s.Append(move.Move);
 			}
 			return s.ToString();

@@ -22,7 +22,7 @@ public static class ChessBoardProperties
 		set
 		{
 			_lightBrush = value;
-			BrushChanged?.Invoke(new BrushChange(Hue.Light, _lightBrush));
+			BrushChanged?.Invoke(new BrushChange(Hue.White, _lightBrush));
 		}
 	}
 
@@ -32,7 +32,7 @@ public static class ChessBoardProperties
 		set
 		{
 			_darkBrush = value;
-			BrushChanged?.Invoke(new BrushChange(Hue.Dark, _darkBrush));
+			BrushChanged?.Invoke(new BrushChange(Hue.Black, _darkBrush));
 		}
 	}
 

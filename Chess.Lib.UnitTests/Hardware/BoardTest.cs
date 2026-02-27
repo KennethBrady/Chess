@@ -31,8 +31,8 @@ namespace Chess.Lib.UnitTests.Hardware
 			Assert.AreEqual(4, board.ActivePieces.Where(p => p.Type == PieceType.Bishop).Count());
 			Assert.AreEqual(4, board.ActivePieces.Where(p => p.Type == PieceType.Knight).Count());
 			Assert.AreEqual(16, board.ActivePieces.Where(p => p.Type == PieceType.Pawn).Count());
-			Assert.AreEqual(16, board.ActivePieces.Where(p => p.Side == Hue.Light).Count());
-			Assert.AreEqual(16, board.ActivePieces.Where(p => p.Side == Hue.Dark).Count());
+			Assert.AreEqual(16, board.ActivePieces.Where(p => p.Side == Hue.White).Count());
+			Assert.AreEqual(16, board.ActivePieces.Where(p => p.Side == Hue.Black).Count());
 			Assert.IsNotNull(board.Game);
 			Assert.IsTrue(board.Game is INoGame);
 			Assert.IsFalse(board.IsGameBoard);

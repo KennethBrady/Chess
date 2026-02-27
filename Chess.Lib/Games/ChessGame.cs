@@ -30,8 +30,8 @@ namespace Chess.Lib.Games
 			_board.MoveMade += OnMoveMade;
 			if (string.IsNullOrEmpty(whiteName)) whiteName = game.White.Name;
 			if (string.IsNullOrEmpty(blackName)) blackName = game.Black.Name;
-			_white = ChessPlayer.Create(whiteName, Hue.Light, this, true);
-			_black = ChessPlayer.Create(blackName, Hue.Dark, this, true);
+			_white = ChessPlayer.Create(whiteName, Hue.White, this, true);
+			_black = ChessPlayer.Create(blackName, Hue.Black, this, true);
 			_gameStates = game._gameStates;
 			_lastMoveMade = game._lastMoveMade;
 			_moves = new ChessMoves(this, game._moves);
@@ -46,8 +46,8 @@ namespace Chess.Lib.Games
 			_board = string.IsNullOrEmpty(fenSetup) ? new Board() : new Board(fenSetup);
 			_board.Game = this;
 			_board.MoveMade += OnMoveMade;
-			_white = ChessPlayer.Create(whiteName, Hue.Light, this, isReadOnly);
-			_black = ChessPlayer.Create(blackName, Hue.Dark, this, isReadOnly);
+			_white = ChessPlayer.Create(whiteName, Hue.White, this, isReadOnly);
+			_black = ChessPlayer.Create(blackName, Hue.Black, this, isReadOnly);
 			_moves = new ChessMoves(this, ImmutableList<IMove>.Empty);
 			_moves.MoveApplied += OnMoveApplied;
 			_gameStates.Add(-1, new GameState(this));
@@ -58,8 +58,8 @@ namespace Chess.Lib.Games
 			_board = board;
 			_board.Game = this;
 			_board.MoveMade += OnMoveMade;
-			_white = new ChessPlayer(Hue.Light, this, isReadonly);
-			_black = new ChessPlayer(Hue.Dark, this, isReadonly);
+			_white = new ChessPlayer(Hue.White, this, isReadonly);
+			_black = new ChessPlayer(Hue.Black, this, isReadonly);
 			_moves = new ChessMoves(this, ImmutableList<IMove>.Empty);
 			_moves.MoveApplied += OnMoveApplied;
 			_gameStates.Add(-1, new GameState(this));
@@ -70,8 +70,8 @@ namespace Chess.Lib.Games
 			_board = (setup.Board.Board is INoBoard) ? new Board() : setup.Board.IBoard;
 			_board.Game = this;
 			_board.MoveMade += OnMoveMade;
-			_white = new ChessPlayer(setup.WhiteName, Hue.Light, this, false);
-			_black = new ChessPlayer(setup.BlackName, Hue.Dark, this, false);
+			_white = new ChessPlayer(setup.WhiteName, Hue.White, this, false);
+			_black = new ChessPlayer(setup.BlackName, Hue.Black, this, false);
 			_moves = new ChessMoves(this, ImmutableList<IMove>.Empty);
 			_moves.MoveApplied += OnMoveApplied;
 			_gameStates.Add(-1, new GameState(this));
@@ -85,8 +85,8 @@ namespace Chess.Lib.Games
 		public IChessPlayer Black => _black;
 		IReadOnlyChessPlayer IReadOnlyChessGame.White => _white;
 		IReadOnlyChessPlayer IReadOnlyChessGame.Black => _black;
-		IReadOnlyChessPlayer IReadOnlyChessGame.PlayerOf(Hue hue) => hue == Hue.Light ? _white : hue == Hue.Default ? _black : NoPlayer.Default;
-		IChessPlayer IChessGame.PlayerOf(Hue hue) => hue == Hue.Light ? _white : hue == Hue.Dark ? _black : NoPlayer.Default;
+		IReadOnlyChessPlayer IReadOnlyChessGame.PlayerOf(Hue hue) => hue == Hue.White ? _white : hue == Hue.Default ? _black : NoPlayer.Default;
+		IChessPlayer IChessGame.PlayerOf(Hue hue) => hue == Hue.White ? _white : hue == Hue.Black ? _black : NoPlayer.Default;
 		IPlayer IGame.White => _white;
 		IPlayer IGame.Black => _black;
 
@@ -95,7 +95,7 @@ namespace Chess.Lib.Games
 			get
 			{
 				if (IsReadOnly) return NoPlayer.Default;
-				bool swap = FirstMove == Hue.Dark;
+				bool swap = FirstMove == Hue.Black;
 				switch(Moves.Count % 2)
 				{
 					case 0: return swap ? _black : _white;
@@ -125,7 +125,7 @@ namespace Chess.Lib.Games
 		public event Handler<CompletedMove>? MoveCompleted;
 		public event Handler<IChessGameState>? GameStateApplied;
 
-		public Hue FirstMove { get; protected init; } = Hue.Light;
+		public Hue FirstMove { get; protected init; } = Hue.White;
 
 		protected Dictionary<int, IGameState> GameStates => _gameStates;
 

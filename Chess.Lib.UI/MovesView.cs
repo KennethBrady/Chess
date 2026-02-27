@@ -39,7 +39,7 @@ namespace Chess.Lib.UI
 		protected override void HandleMoveCompleted(CompletedMove move)
 		{
 			base.HandleMoveCompleted(move);
-			if (move.Move.Side == Hardware.Hue.Light) _moves.Add(new MovePair(move.Move));
+			if (move.Move.Side == Hardware.Hue.White) _moves.Add(new MovePair(move.Move));
 			else
 			{
 				switch(_moves.Count)

@@ -13,8 +13,8 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBoard board = new Board();
 			List<Knight> ks = board.ActivePieces.OfType<Knight>().ToList();
 			Assert.HasCount(4, ks);
-			Assert.AreEqual(2, ks.Where(k => k.Side == Hue.Light).Count());
-			Assert.AreEqual(2, ks.Where(k => k.Square.Hue == Hue.Light).Count());
+			Assert.AreEqual(2, ks.Where(k => k.Side == Hue.White).Count());
+			Assert.AreEqual(2, ks.Where(k => k.Square.Hue == Hue.White).Count());
 		}
 
 		[TestMethod]
@@ -37,7 +37,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void MoveFromCenter()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.D, Rank.R4, PieceType.Knight, Hue.Light);
+			bb.SetPiece(File.D, Rank.R4, PieceType.Knight, Hue.White);
 			IBoard board = (IBoard)bb.CreateBoard();
 			IKnight k = (IKnight)board.ActivePieces.First();
 			int nMoves = 0;

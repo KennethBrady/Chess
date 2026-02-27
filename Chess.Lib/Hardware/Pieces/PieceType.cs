@@ -81,7 +81,7 @@ namespace Chess.Lib.Hardware.Pieces
 				case PieceType.King: r = 'k'; break;
 				case PieceType.Pawn: r = 'p'; break;
 			}
-			return (hue == Hue.Dark) ? r : Char.ToUpper(r);
+			return (hue == Hue.Black) ? r : Char.ToUpper(r);
 		}
 
 		extension(IPiece p)

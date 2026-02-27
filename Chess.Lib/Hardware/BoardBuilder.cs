@@ -5,18 +5,18 @@ namespace Chess.Lib.Hardware
 	public record struct PieceDef(PieceType Type, Hue Hue)
 	{
 		public static readonly PieceDef Default = new PieceDef(PieceType.None, Hue.Default);
-		public static readonly PieceDef WhiteKing = new PieceDef(PieceType.King, Hue.Light);
-		public static readonly PieceDef BlackKing = new PieceDef(PieceType.King, Hue.Dark);
-		public static readonly PieceDef WhiteQueen = new PieceDef(PieceType.Queen, Hue.Light);
-		public static readonly PieceDef BlackQueen = new PieceDef(PieceType.Queen, Hue.Dark);
-		public static readonly PieceDef WhiteRook = new PieceDef(PieceType.Rook, Hue.Light);
-		public static readonly PieceDef BlackRook = new PieceDef(PieceType.Rook, Hue.Dark);
-		public static readonly PieceDef WhiteBishop = new PieceDef(PieceType.Bishop, Hue.Light);
-		public static readonly PieceDef BlackBishop = new PieceDef(PieceType.Bishop, Hue.Dark);
-		public static readonly PieceDef WhiteKnight = new PieceDef(PieceType.Knight, Hue.Light);
-		public static readonly PieceDef BlackKnight = new PieceDef(PieceType.Knight, Hue.Dark);
-		public static readonly PieceDef WhitePawn = new PieceDef(PieceType.Pawn, Hue.Light);
-		public static readonly PieceDef BlackPawn = new PieceDef(PieceType.Pawn, Hue.Dark);
+		public static readonly PieceDef WhiteKing = new PieceDef(PieceType.King, Hue.White);
+		public static readonly PieceDef BlackKing = new PieceDef(PieceType.King, Hue.Black);
+		public static readonly PieceDef WhiteQueen = new PieceDef(PieceType.Queen, Hue.White);
+		public static readonly PieceDef BlackQueen = new PieceDef(PieceType.Queen, Hue.Black);
+		public static readonly PieceDef WhiteRook = new PieceDef(PieceType.Rook, Hue.White);
+		public static readonly PieceDef BlackRook = new PieceDef(PieceType.Rook, Hue.Black);
+		public static readonly PieceDef WhiteBishop = new PieceDef(PieceType.Bishop, Hue.White);
+		public static readonly PieceDef BlackBishop = new PieceDef(PieceType.Bishop, Hue.Black);
+		public static readonly PieceDef WhiteKnight = new PieceDef(PieceType.Knight, Hue.White);
+		public static readonly PieceDef BlackKnight = new PieceDef(PieceType.Knight, Hue.Black);
+		public static readonly PieceDef WhitePawn = new PieceDef(PieceType.Pawn, Hue.White);
+		public static readonly PieceDef BlackPawn = new PieceDef(PieceType.Pawn, Hue.Black);
 		public bool IsDefault => Type == PieceType.None || Hue == Hue.Default;
 
 		public static IEnumerable<PieceDef> All
@@ -25,8 +25,8 @@ namespace Chess.Lib.Hardware
 			{
 				foreach(PieceType pt in PieceTypeExtensions.AllValid)
 				{
-					yield return new PieceDef(pt, Hue.Light);
-					yield return new PieceDef(pt, Hue.Dark);
+					yield return new PieceDef(pt, Hue.White);
+					yield return new PieceDef(pt, Hue.Black);
 				}
 			}
 		}

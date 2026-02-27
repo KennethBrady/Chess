@@ -136,7 +136,7 @@ namespace Chess.Lib.UI.Dialogs
 
 		private void Accept()
 		{
-			Hue nxt = BoardType == GameBoardType.Custom ? _nextMove : Hue.Light;
+			Hue nxt = BoardType == GameBoardType.Custom ? _nextMove : Hue.White;
 			GameSetup gs = new GameSetup(_white, _black, ClockSettings.ResultingClockSetup, new GameBoard(BoardType, _board, nxt));
 			Accept(gs);
 		}

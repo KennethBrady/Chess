@@ -15,10 +15,10 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBoard board = new Board();
 			List<IPawn> pawns = board.ActivePieces.OfType<IPawn>().ToList();
 			Assert.HasCount(16, pawns);
-			Assert.AreEqual(8, pawns.Where(p => p.Side == Hue.Light).Count());
-			Assert.AreEqual(8, pawns.Where(p => p.Side == Hue.Dark).Count());
-			Assert.IsTrue(pawns.Where(p => p.Side == Hue.Light).All(p => p.Square.Rank == Rank.R2));
-			Assert.IsTrue(pawns.Where(p => p.Side == Hue.Dark).All(p => p.Square.Rank == Rank.R7));
+			Assert.AreEqual(8, pawns.Where(p => p.Side == Hue.White).Count());
+			Assert.AreEqual(8, pawns.Where(p => p.Side == Hue.Black).Count());
+			Assert.IsTrue(pawns.Where(p => p.Side == Hue.White).All(p => p.Square.Rank == Rank.R2));
+			Assert.IsTrue(pawns.Where(p => p.Side == Hue.Black).All(p => p.Square.Rank == Rank.R7));
 		}
 
 		[TestMethod]
@@ -60,7 +60,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void CannotMoveBackwards()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.D, Rank.R4, PieceType.Pawn, Hue.Light);
+			bb.SetPiece(File.D, Rank.R4, PieceType.Pawn, Hue.White);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IPawn p = b.ActivePieces.OfType<IPawn>().First();
 			Assert.IsFalse(p.CanMoveTo(b[File.D, Rank.R3]));

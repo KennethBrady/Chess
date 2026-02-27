@@ -41,7 +41,7 @@ namespace Chess.Lib.Variants
 				2 => File.F,
 				_ => File.H
 			};
-			pieces[(int)f] = new PieceDef(PieceType.Bishop, Hue.Light);
+			pieces[(int)f] = new PieceDef(PieceType.Bishop, Hue.White);
 			int n3 = n2 / 4, b2 = n2 % 4;
 			f = b2 switch
 			{
@@ -50,10 +50,10 @@ namespace Chess.Lib.Variants
 				2 => File.E,
 				_ => File.G
 			};
-			pieces[(int)f] = new PieceDef(PieceType.Bishop, Hue.Light);
+			pieces[(int)f] = new PieceDef(PieceType.Bishop, Hue.White);
 			int n4 = n3 / 6, q = n3 % 6;
 			int qPos = nthFree(q);
-			pieces[qPos] = new PieceDef(PieceType.Queen, Hue.Light);
+			pieces[qPos] = new PieceDef(PieceType.Queen, Hue.White);
 			int kp1 = 0, kp2 = 0;
 			switch (n4)
 			{
@@ -68,8 +68,8 @@ namespace Chess.Lib.Variants
 				case 8: kp1 = 2; kp2 = 4; break;
 				case 9: kp1 = 3; kp2 = 4; break;
 			}
-			pieces[nthFree(kp1)] = new PieceDef(PieceType.Knight, Hue.Light);
-			pieces[nthFree(--kp2)] = new PieceDef(PieceType.Knight, Hue.Light); // decrement because by setting kp1, # free slots is reduced by 1.
+			pieces[nthFree(kp1)] = new PieceDef(PieceType.Knight, Hue.White);
+			pieces[nthFree(--kp2)] = new PieceDef(PieceType.Knight, Hue.White); // decrement because by setting kp1, # free slots is reduced by 1.
 			int nFound = 0;
 			for (int p = 0; p < pieces.Length; ++p)
 			{
@@ -77,26 +77,26 @@ namespace Chess.Lib.Variants
 				{
 					switch (nFound++)
 					{
-						case 0: pieces[p] = new PieceDef(PieceType.Rook, Hue.Light); break;
-						case 1: pieces[p] = new PieceDef(PieceType.King, Hue.Light); break;
-						case 2: pieces[p] = new PieceDef(PieceType.Rook, Hue.Light); break;
+						case 0: pieces[p] = new PieceDef(PieceType.Rook, Hue.White); break;
+						case 1: pieces[p] = new PieceDef(PieceType.King, Hue.White); break;
+						case 2: pieces[p] = new PieceDef(PieceType.Rook, Hue.White); break;
 					}
 				}
 			}
 			BoardBuilder bb = new BoardBuilder();
 			bb.SetPieces(Rank.R1, pieces);
-			for (int p = 0; p < pieces.Length; ++p) pieces[p] = pieces[p] with { Hue = Hue.Dark };
+			for (int p = 0; p < pieces.Length; ++p) pieces[p] = pieces[p] with { Hue = Hue.Black };
 			bb.SetPieces(Rank.R8, pieces);
-			Array.Fill(pieces, new PieceDef(PieceType.Pawn, Hue.Light));
+			Array.Fill(pieces, new PieceDef(PieceType.Pawn, Hue.White));
 			bb.SetPieces(Rank.R2, pieces);
-			Array.Fill(pieces, new PieceDef(PieceType.Pawn, Hue.Dark));
+			Array.Fill(pieces, new PieceDef(PieceType.Pawn, Hue.Black));
 			bb.SetPieces(Rank.R7, pieces);
 			return bb.CreateBoard();
 		}
 
 		public static IInteractiveChessGame GameFor(GameSetup gameDefinition, int number)
 		{
-			gameDefinition = gameDefinition with { Board = new GameBoard(GameBoardType.Custom, BoardFor(number), Hue.Light) };
+			gameDefinition = gameDefinition with { Board = new GameBoard(GameBoardType.Custom, BoardFor(number), Hue.White) };
 			return new InteractiveGame(gameDefinition);
 		}		
 	}

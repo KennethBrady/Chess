@@ -28,8 +28,8 @@ namespace Chess.Lib.Hardware.Pieces
 		{
 			switch (Side) // Don't move backward.
 			{
-				case Hue.Light: if (square.Rank <= Square.Rank) return false; break;
-				case Hue.Dark: if (square.Rank >= Square.Rank) return false; break;
+				case Hue.White: if (square.Rank <= Square.Rank) return false; break;
+				case Hue.Black: if (square.Rank >= Square.Rank) return false; break;
 			}
 			int rankDif = Math.Abs(square.Rank - Square.Rank), fileDif = Math.Abs(square.File - Square.File);
 			if (rankDif <= 0 || rankDif > 2 || fileDif > 1) return false;
@@ -38,7 +38,7 @@ namespace Chess.Lib.Hardware.Pieces
 				if (fileDif > 0) return false;      // double-push straight ahead
 				if (MoveCount > 0) return false;    // no double-push after first move
 				if (square.HasPiece) return false;  // no capture
-				Rank rOver = Side == Hue.Light ? Square.Rank + 1 : Square.Rank - 1;
+				Rank rOver = Side == Hue.White ? Square.Rank + 1 : Square.Rank - 1;
 				ISquare over = Board[Square.File, rOver];
 				if (over.HasPiece) return false;    // Cannot jump
 			}
@@ -83,12 +83,12 @@ namespace Chess.Lib.Hardware.Pieces
 			Rank capRank = Rank.R1;
 			switch (Side)
 			{
-				case Hue.Light:
+				case Hue.White:
 					if (Square.Rank != Rank.R5) return false;
 					if (square.Rank != Rank.R6) return false;
 					capRank = Rank.R5;
 					break;
-				case Hue.Dark:
+				case Hue.Black:
 					if (Square.Rank != Rank.R4) return false;
 					if (square.Rank != Rank.R3) return false;
 					capRank = Rank.R4;
@@ -179,7 +179,7 @@ namespace Chess.Lib.Hardware.Pieces
 			if (Math.Abs(df) != 1) return false;
 			File f = lastMovedPiece.Square.File;
 			Rank r = lastMovedPiece.Square.Rank;
-			if (lastMovedPiece.Side == Hue.Light) r++; else r--;
+			if (lastMovedPiece.Side == Hue.White) r++; else r--;
 			ISquare s = Board[f, r];
 			if (!s.HasPiece) toSquare = s;
 			return !s.HasPiece;

@@ -65,8 +65,8 @@ namespace Chess.Lib.UnitTests.Hardware
 			IChessMove m2a = g2.Moves.MoveTo(m2.SerialNumber);
 			Assert.AreSame(m1, m1a);
 			Assert.AreSame(m2, m2a);
-			Assert.AreEqual(16, g.Board.ActivePieces.Where(p => p.Side == Hue.Light).Count());
-			Assert.AreEqual(16, g2.Board.ActivePieces.Where(p => p.Side == Hue.Light).Count());
+			Assert.AreEqual(16, g.Board.ActivePieces.Where(p => p.Side == Hue.White).Count());
+			Assert.AreEqual(16, g2.Board.ActivePieces.Where(p => p.Side == Hue.White).Count());
 			Assert.AreEqual(g.Board.FENPiecePlacements, g2.Board.FENPiecePlacements);
 			for(int i = 0; i < g2.Moves.Count; i++)
 			{
@@ -85,7 +85,7 @@ namespace Chess.Lib.UnitTests.Hardware
 		{
 			FEN fen = FEN.Parse("8/8/8/4p1K1/2k1P3/8/8/8 b - - 0 1");
 			Assert.IsFalse(fen.IsEmpty);
-			Assert.AreEqual(Hue.Dark, fen.NextMoveColor);
+			Assert.AreEqual(Hue.Black, fen.NextMoveColor);
 			var pieces = fen.Pieces.ToList();
 			Assert.HasCount(4, pieces);
 			Assert.HasCount(2, pieces.Where(p => p.Piece.Type == PieceType.Pawn));
@@ -93,7 +93,7 @@ namespace Chess.Lib.UnitTests.Hardware
 
 			fen = FEN.Parse("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1");
 			Assert.IsFalse(fen.IsEmpty);
-			Assert.AreEqual(Hue.Light, fen.NextMoveColor);
+			Assert.AreEqual(Hue.White, fen.NextMoveColor);
 			pieces = fen.Pieces.ToList();
 			Assert.HasCount(6, pieces);
 			Assert.HasCount(4, pieces.Where(p => p.Piece.Type == PieceType.Rook));
@@ -103,20 +103,20 @@ namespace Chess.Lib.UnitTests.Hardware
 
 			fen = FEN.Parse("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
 			Assert.IsFalse(fen.IsEmpty);
-			Assert.AreEqual(Hue.Dark, fen.NextMoveColor);
+			Assert.AreEqual(Hue.Black, fen.NextMoveColor);
 			pieces = fen.Pieces.ToList();
 			Assert.HasCount(32, pieces);
 			Assert.IsFalse(fen.EnPassantTarget.IsOffBoard);
 			Assert.AreEqual(new FileRank(Lib.Hardware.File.E, Rank.R3), fen.EnPassantTarget);
-			Assert.AreEqual(Hue.Dark, fen.NextMoveColor);
+			Assert.AreEqual(Hue.Black, fen.NextMoveColor);
 
 			fen = FEN.Parse("8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b - - 99 50");
 			Assert.IsFalse(fen.IsEmpty);
-			Assert.AreEqual(Hue.Dark, fen.NextMoveColor);
+			Assert.AreEqual(Hue.Black, fen.NextMoveColor);
 			pieces = fen.Pieces.ToList();
 			Assert.HasCount(14, pieces);
 			Assert.AreEqual(99, fen.HalfMovesSinceLastCapture);
-			Assert.AreEqual(Hue.Dark, fen.NextMoveColor);
+			Assert.AreEqual(Hue.Black, fen.NextMoveColor);
 		}
 	}
 }

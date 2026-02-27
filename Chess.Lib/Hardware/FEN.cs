@@ -50,8 +50,8 @@ namespace Chess.Lib.Hardware
 			PiecePlacement = parts[0];
 			switch (parts[1])
 			{
-				case "w": NextMoveColor = Hue.Light; break;
-				case "b": NextMoveColor = Hue.Dark; break;
+				case "w": NextMoveColor = Hue.White; break;
+				case "b": NextMoveColor = Hue.Black; break;
 			}
 			foreach (char c in parts[2])
 			{
@@ -74,8 +74,8 @@ namespace Chess.Lib.Hardware
 			PiecePlacement = game.Board.FENPiecePlacements;
 			switch (game.LastMoveMade.MovedPiece.Side)
 			{
-				case Hue.Light: NextMoveColor = Hue.Dark; break;
-				default: NextMoveColor = Hue.Light; break;
+				case Hue.White: NextMoveColor = Hue.Black; break;
+				default: NextMoveColor = Hue.White; break;
 			}
 			IChessKing wk = game.White.King, bk = game.Black.King;
 			var c = wk.IsFutureCastlePossible;
@@ -93,7 +93,7 @@ namespace Chess.Lib.Hardware
 				nMoves++;
 			}
 			HalfMovesSinceLastCapture = nMoves;
-			FullMoveCount = 1 + game.Moves.PriorMoves.Where(m => m.MovedPiece.Side == Hue.Dark).Count();
+			FullMoveCount = 1 + game.Moves.PriorMoves.Where(m => m.MovedPiece.Side == Hue.Black).Count();
 		}
 
 		public bool IsEmpty => string.IsNullOrEmpty(PiecePlacement);
@@ -125,7 +125,7 @@ namespace Chess.Lib.Hardware
 					{
 						if (char.IsDigit(c)) f += int.Parse(c.ToString()); else
 						{
-							Hue h = char.IsUpper(c) ? Hue.Light : Hue.Dark;
+							Hue h = char.IsUpper(c) ? Hue.White : Hue.Black;
 							PieceType type = PieceTypeExtensions.Promotion(c);
 							yield return new PiecePlacement(new PieceDef(type, h), new FileRank(f, r));
 							f++;
@@ -142,8 +142,8 @@ namespace Chess.Lib.Hardware
 			void add(string rec) => s.Append(" ").Append(rec);
 			switch (NextMoveColor)
 			{
-				case Hue.Light: add("w"); break;
-				case Hue.Dark: add("b"); break;
+				case Hue.White: add("w"); break;
+				case Hue.Black: add("b"); break;
 				default: add("-"); break;
 			};
 			s.Append(" ");

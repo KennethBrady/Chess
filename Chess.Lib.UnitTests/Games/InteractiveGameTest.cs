@@ -85,7 +85,7 @@ namespace Chess.Lib.UnitTests.Games
 			EngineMoves ems = EngineMoves.Create(MOVES);
 			foreach(var m in ems)
 			{
-				IChessPlayer player = m.Hue == Hue.Light ? g.White : g.Black;
+				IChessPlayer player = m.Hue == Hue.White ? g.White : g.Black;
 				switch(player.AttemptMove(m))
 				{
 					case IMoveAttemptSuccess: break;
@@ -193,7 +193,7 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.IsFalse(mas.CompletedMove.IsCheck);
 			mas = (IMoveAttemptSuccess)(await g.White.AttemptMove("a5d8"));
 			Assert.IsTrue(mas.CompletedMove.IsCheckMate);
-			IChessKing k = (IChessKing)g.Board.ActivePieces.First(p => p.Type == PieceType.King && p.Side == Hue.Dark);
+			IChessKing k = (IChessKing)g.Board.ActivePieces.First(p => p.Type == PieceType.King && p.Side == Hue.Black);
 			Assert.IsTrue(k.IsMated);
 			Assert.AreSame(mas.CompletedMove.CheckedKing, k);
 		}
@@ -236,7 +236,7 @@ namespace Chess.Lib.UnitTests.Games
 			Assert.IsFalse(fen.IsEmpty);
 			IBoard b = new Board(fen);
 			Assert.HasCount(10, b.ActivePieces);
-			GameBoard gb = new GameBoard(GameBoardType.Custom, b, Hue.Dark);
+			GameBoard gb = new GameBoard(GameBoardType.Custom, b, Hue.Black);
 			GameSetup gs = new GameSetup("White", "Black", ChessClockSetup.Empty, gb);
 			IInteractiveChessGame game = GameFactory.CreateInteractive(gs);
 			Assert.AreSame(game.Black, game.NextPlayer);

@@ -14,8 +14,8 @@ namespace Chess.Lib.Hardware.Timing
 
 		public ChessClock(TimeSpan whiteMaxTime, TimeSpan whiteIncrement, TimeSpan blackMaxTime, TimeSpan blackIncrement)
 		{
-			W = new ClockPlayer(this, Hue.Light, whiteMaxTime, whiteIncrement);
-			B = new ClockPlayer(this, Hue.Dark, blackMaxTime, blackIncrement);
+			W = new ClockPlayer(this, Hue.White, whiteMaxTime, whiteIncrement);
+			B = new ClockPlayer(this, Hue.Black, blackMaxTime, blackIncrement);
 		}
 
 		public ChessClock(ChessClockSetup setup): this(setup.WhiteMaxTime, setup.WhiteIncrement, setup.BlackMaxTime, setup.BlackIncrement) { }
@@ -33,7 +33,7 @@ namespace Chess.Lib.Hardware.Timing
 		public bool IsPaused => IsStarted && !IsFlagged && !IsRunning;
 		public bool IsFlagged => White.IsFlagged || Black.IsFlagged;
 
-		public Hue FlaggedSide => White.IsFlagged ? Hue.Light : Black.IsFlagged ? Hue.Dark : Hue.Default;
+		public Hue FlaggedSide => White.IsFlagged ? Hue.White : Black.IsFlagged ? Hue.Black : Hue.Default;
 
 		public void Attach(IInteractiveChessGame game)
 		{

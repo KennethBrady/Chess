@@ -116,7 +116,7 @@ namespace Chess.Lib.UnitTests.Moves
 						default: Assert.Fail("Expected pawn on f4"); break;
 					}
 					IChessPawn pawn = (IChessPawn)f4.Piece;
-					Assert.AreEqual(Hue.Dark, pawn.Side);
+					Assert.AreEqual(Hue.Black, pawn.Side);
 					Assert.IsFalse(e3.HasPiece);
 					Assert.IsTrue(pawn.CanMoveTo(e3));
 					break;

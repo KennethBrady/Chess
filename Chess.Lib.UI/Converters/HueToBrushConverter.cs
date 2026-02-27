@@ -12,8 +12,8 @@ namespace Chess.Lib.UI.Converters
 			{
 				switch(h)
 				{
-					case Hue.Light: return ChessBoardProperties.LightSquareBrush;
-					case Hue.Dark: return ChessBoardProperties.DarkSquareBrush;
+					case Hue.White: return ChessBoardProperties.LightSquareBrush;
+					case Hue.Black: return ChessBoardProperties.DarkSquareBrush;
 				}
 			}
 			return value;

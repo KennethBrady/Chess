@@ -56,7 +56,7 @@ namespace Chess.Lib.Hardware
 			FileRank fr = new FileRank(file, rank);
 			bool reven = ((int)rank) % 2 == 0, feven = ((int)file) % 2 == 0;
 			Hue h = Hue.Default;
-			if (reven) h = feven ? Hue.Dark : Hue.Light; else h = feven ? Hue.Light : Hue.Dark;
+			if (reven) h = feven ? Hue.Black : Hue.White; else h = feven ? Hue.White : Hue.Black;
 			return new Square(board, file, rank, h, fr.ToSquareIndex);
 		}
 

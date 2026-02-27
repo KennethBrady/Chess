@@ -78,7 +78,7 @@ namespace Chess.Lib.UI
 		internal void ApplyColors()
 		{
 			if (!IsTemplateApplied) return;
-			Background = FileRank.SquareHue == Hue.Light ? ChessBoardProperties.LightSquareBrush : ChessBoardProperties.DarkSquareBrush;
+			Background = FileRank.SquareHue == Hue.White ? ChessBoardProperties.LightSquareBrush : ChessBoardProperties.DarkSquareBrush;
 			TextBlock txt = (TextBlock)GetTemplateChild("txt");
 			txt.Text = FileRank.ToSquareIndex.ToString();
 		}

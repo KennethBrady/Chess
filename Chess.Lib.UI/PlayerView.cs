@@ -61,8 +61,8 @@ namespace Chess.Lib.UI
 			base.ApplyGame(oldGame, newGame);
 			switch (Hue)
 			{
-				case Hue.Light: Player = newGame.White; break;
-				case Hue.Dark: Player = newGame.Black; break;
+				case Hue.White: Player = newGame.White; break;
+				case Hue.Black: Player = newGame.Black; break;
 				default: Player = GameFactory.NoPlayer; break;
 			}
 			ApplyPlayer();
@@ -86,7 +86,7 @@ namespace Chess.Lib.UI
 				Player.Game.MoveCompleted += Game_MoveCompleted;
 				FontWeight = Player.HasNextMove ? FontWeights.Bold : FontWeights.Normal;
 				RemovedPieces.Visibility = Visibility.Collapsed;
-				(NameRow, PiecesRow) = Player.Side == Hue.Light ? (1, 0) : (0, 1);
+				(NameRow, PiecesRow) = Player.Side == Hue.White ? (1, 0) : (0, 1);
 			}
 
 			public int NameRow { get; init; }

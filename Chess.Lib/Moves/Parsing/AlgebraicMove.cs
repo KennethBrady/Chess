@@ -51,7 +51,7 @@ namespace Chess.Lib.Moves.Parsing
 			ISquare toSquare = NoSquare.Default;
 			string move = Move;
 			List<IPiece> movable = new();
-			var hue = SerialNumber % 2 == 0 ? Hue.Light : Hue.Dark;
+			var hue = SerialNumber % 2 == 0 ? Hue.White : Hue.Black;
 			void addMovable(Predicate<IPiece> canMoveTo)
 			{
 				movable.Clear();
@@ -72,7 +72,7 @@ namespace Chess.Lib.Moves.Parsing
 					case Resignation:
 						switch (hue)
 						{
-							case Hue.Light: result = GameResult.BlackWin; break;
+							case Hue.White: result = GameResult.BlackWin; break;
 							default: result = GameResult.WhiteWin; break;
 						}
 						break;

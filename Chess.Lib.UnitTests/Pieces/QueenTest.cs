@@ -13,7 +13,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBoard b = new Board();
 			List<IQueen> queens = b.ActivePieces.OfType<IQueen>().ToList();
 			Assert.HasCount(2, queens);
-			Assert.AreEqual(1, queens.Where(q => q.Side == Hue.Light).Count());
+			Assert.AreEqual(1, queens.Where(q => q.Side == Hue.White).Count());
 			Assert.IsTrue(queens.All(q => q.Side == q.Square.Hue), "Queen on her color");
 		}
 
@@ -32,7 +32,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void SoloQueenInCorner()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.A, Rank.R1, PieceType.Queen, Hue.Light);
+			bb.SetPiece(File.A, Rank.R1, PieceType.Queen, Hue.White);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IQueen q = (IQueen)b.ActivePieces.First();
 			int nMove = 0;
@@ -44,10 +44,10 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void ObstructedQueenInCorner()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.A, Rank.R1, PieceType.Queen, Hue.Light);
-			bb.SetPiece(File.A, Rank.R2, PieceType.Pawn, Hue.Light);
-			bb.SetPiece(File.B, Rank.R1, PieceType.Knight, Hue.Light);
-			bb.SetPiece(File.B, Rank.R2, PieceType.Pawn, Hue.Light);
+			bb.SetPiece(File.A, Rank.R1, PieceType.Queen, Hue.White);
+			bb.SetPiece(File.A, Rank.R2, PieceType.Pawn, Hue.White);
+			bb.SetPiece(File.B, Rank.R1, PieceType.Knight, Hue.White);
+			bb.SetPiece(File.B, Rank.R2, PieceType.Pawn, Hue.White);
 			IBoard b = (IBoard)bb.CreateBoard();
 			IQueen q = (IQueen)b.ActivePieces.First();
 			foreach (ISquare s in b)

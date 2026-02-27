@@ -126,8 +126,8 @@ namespace Chess.Lib.UI.Dialogs
 			{
 				switch (s)
 				{
-					case "l": return b ? Hue.Light : Hue.Dark;
-					case "d": return b ? Hue.Dark : Hue.Light;
+					case "l": return b ? Hue.White : Hue.Black;
+					case "d": return b ? Hue.Black : Hue.White;
 				}
 			}
 			return value;

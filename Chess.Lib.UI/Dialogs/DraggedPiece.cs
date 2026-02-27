@@ -54,8 +54,8 @@ namespace Chess.Lib.UI.Dialogs
 			{
 				switch (h)
 				{
-					case Hue.Light: return ChessBoardProperties.DarkSquareBrush;
-					case Hue.Dark: return ChessBoardProperties.LightSquareBrush;
+					case Hue.White: return ChessBoardProperties.DarkSquareBrush;
+					case Hue.Black: return ChessBoardProperties.LightSquareBrush;
 					default: return Brushes.Transparent;
 				}
 			}

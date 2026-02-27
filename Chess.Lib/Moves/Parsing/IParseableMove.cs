@@ -16,7 +16,7 @@ namespace Chess.Lib.Moves.Parsing
 		int SourceIndex { get; }
 		int SerialNumber { get; }
 		MoveFormat Format { get; }
-		Hue Hue => SerialNumber % 2 == 0 ? Hue.Light : Hue.Dark;
+		Hue Hue => SerialNumber % 2 == 0 ? Hue.White : Hue.Black;
 		int GameMoveNumber => MoveCounter.SerialToGameNumber(SerialNumber);
 		bool IsPromotion { get; }
 		PieceType Promotion { get; }

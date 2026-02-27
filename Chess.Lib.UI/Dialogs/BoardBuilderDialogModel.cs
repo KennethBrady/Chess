@@ -16,12 +16,12 @@ namespace Chess.Lib.UI.Dialogs
 		private List<PieceModel> _whitePieces, _blackPieces;
 		private readonly List<SquareModel> _squares;
 		private bool _isEraserActive, _verifyBoardValidity;
-		private Hue _nextMove = Hue.Light;
+		private Hue _nextMove = Hue.White;
 		private string _fen = string.Empty;
 		public BoardBuilderDialogModel(IChessBoard startBoard)
 		{
-			_whitePieces = PieceTypeExtensions.AllValid.Select(t => new PieceModel(this, t, Hue.Light)).ToList();
-			_blackPieces = PieceTypeExtensions.AllValid.Select(t => new PieceModel(this, t, Hue.Dark)).ToList();
+			_whitePieces = PieceTypeExtensions.AllValid.Select(t => new PieceModel(this, t, Hue.White)).ToList();
+			_blackPieces = PieceTypeExtensions.AllValid.Select(t => new PieceModel(this, t, Hue.Black)).ToList();
 			_squares = startBoard.Select(s => new SquareModel(this, s)).Chunk(8).Reverse().SelectMany(s => s).ToList();
 		}
 		public BoardBuilderDialogModel() : this(GameFactory.CreateBoard(false)) { }
@@ -160,15 +160,15 @@ namespace Chess.Lib.UI.Dialogs
 			Dictionary<PieceDef, int> counts = new();
 			foreach (PieceType p in PieceTypeExtensions.AllValid)
 			{
-				counts.Add(new PieceDef(p, Hue.Light), 0);
-				counts.Add(new PieceDef(p, Hue.Dark), 0);
+				counts.Add(new PieceDef(p, Hue.White), 0);
+				counts.Add(new PieceDef(p, Hue.Black), 0);
 			}
 			foreach (SquareModel sm in _squares)
 			{
 				if (!sm.AppliedPiece.IsDefault) counts[sm.AppliedPiece]++;
 			}
-			foreach (PieceModel pm in _blackPieces) pm.UseCount = counts[new PieceDef(pm.Type, Hue.Dark)];
-			foreach (PieceModel pm in _whitePieces) pm.UseCount = counts[new PieceDef(pm.Type, Hue.Light)];
+			foreach (PieceModel pm in _blackPieces) pm.UseCount = counts[new PieceDef(pm.Type, Hue.Black)];
+			foreach (PieceModel pm in _whitePieces) pm.UseCount = counts[new PieceDef(pm.Type, Hue.White)];
 			RaiseCanExecuteChanged();
 			Notify(nameof(HasPieces));
 			if (HasPieces == false && IsEraserActive) IsEraserActive = false;
@@ -317,7 +317,7 @@ namespace Chess.Lib.UI.Dialogs
 
 			public Hue Hue => Square.Hue;
 
-			public Brush Fill => Hue == Hue.Light ? ChessBoardProperties.LightSquareBrush : ChessBoardProperties.DarkSquareBrush;
+			public Brush Fill => Hue == Hue.White ? ChessBoardProperties.LightSquareBrush : ChessBoardProperties.DarkSquareBrush;
 
 			public ImageSource? Piece { get; private set; }
 

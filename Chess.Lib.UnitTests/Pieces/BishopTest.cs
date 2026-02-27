@@ -15,8 +15,8 @@ namespace Chess.Lib.UnitTests.Pieces
 			IBoard board = new Board();
 			List<IBishop> bishops = board.ActivePieces.OfType<IBishop>().ToList();
 			Assert.HasCount(4, bishops);
-			Assert.AreEqual(2, bishops.Where(b => b.Side == Hue.Dark).Count());
-			Assert.AreEqual(2, bishops.Where(b => b.Side == Hue.Dark).Count());
+			Assert.AreEqual(2, bishops.Where(b => b.Side == Hue.Black).Count());
+			Assert.AreEqual(2, bishops.Where(b => b.Side == Hue.Black).Count());
 		}
 
 		[TestMethod]
@@ -35,7 +35,7 @@ namespace Chess.Lib.UnitTests.Pieces
 		public void CanMoveSolo()
 		{
 			BoardBuilder bb = new BoardBuilder();
-			bb.SetPiece(File.C, Rank.R1, PieceType.Bishop, Hue.Light);
+			bb.SetPiece(File.C, Rank.R1, PieceType.Bishop, Hue.White);
 			IChessBoard b = bb.CreateBoard();
 			IBishop? bp = b.ActivePieces.First() as IBishop;
 			Assert.IsNotNull(bp);
@@ -45,7 +45,7 @@ namespace Chess.Lib.UnitTests.Pieces
 			Assert.AreEqual("b2, d2, a3, e3, f4, g5, h6", string.Join(", ", allowed));
 
 			bb.Clear();
-			bb.SetPiece(File.A, Rank.R1, PieceType.Bishop, Hue.Light);
+			bb.SetPiece(File.A, Rank.R1, PieceType.Bishop, Hue.White);
 			b = bb.CreateBoard();
 			bp = (IBishop)b.ActivePieces.First();
 			allowed = b.Where(s => bp.CanMoveTo((ISquare)s)).ToList();

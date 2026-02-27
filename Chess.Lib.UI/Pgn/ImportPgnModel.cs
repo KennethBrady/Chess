@@ -14,8 +14,7 @@ namespace Chess.Lib.UI.Pgn
 		public ImportPgnModel()
 		{
 			TryExtractPGNFromClipboard();
-			if (Tags == null) Tags = new TagEditorModel();
-			
+			if (Tags == null) Tags = new TagEditorModel();			
 		}
 
 		public TagEditorModel Tags { get; private set; }

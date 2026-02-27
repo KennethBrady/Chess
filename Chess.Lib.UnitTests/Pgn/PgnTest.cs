@@ -131,5 +131,12 @@ namespace Chess.Lib.UnitTests.Pgn
 			PGN pgn2 = PGN.Parse(pem.ResultingPGN);
 			Assert.IsNotNull(pgn2);
 		}
+
+		[TestMethod]
+		public void ParseNonsense()
+		{
+			PGN pgn = PGN.Parse("TargetType=\"{x:Type Menu}\"");
+			Assert.IsTrue(pgn.IsEmpty);
+		}
 	}
 }

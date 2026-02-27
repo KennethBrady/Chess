@@ -20,6 +20,8 @@ namespace Chess.Lib.Moves.Parsing
 	public record struct AlgebraicMoves(string Moves, string FenSetup, ImmutableList<MoveComment> Comments, ImmutableList<AlgebraicMove> MoveList):
 		IMoveParserEx
 	{
+		public static readonly AlgebraicMoves Empty = new AlgebraicMoves(string.Empty, string.Empty, [], []);
+		public bool IsEmpty => string.IsNullOrEmpty(Moves) && MoveList.Count == 0;
 		/// <summary>
 		/// When set to true, calls to Parse with generate diagnostic output of the chess board for each move.
 		/// </summary>
@@ -76,6 +78,7 @@ namespace Chess.Lib.Moves.Parsing
 		public static AlgebraicMoves Create(string moves, string fenSetup = "")
 		{
 			var gen = Generate(moves);
+			if (gen.moves.Count == 0) return Empty;
 			return new AlgebraicMoves(moves, fenSetup, gen.comments, gen.moves);
 		}
 
@@ -104,9 +107,8 @@ namespace Chess.Lib.Moves.Parsing
 			MatchCollection matches = _rxMoveNumbers.Matches(moves);
 			if (matches.Count == 0)
 			{
-				AlgebraicMove m = new AlgebraicMove(moves, 0, 0);
-				AlgebraicMove[] mm = { m };
-				return (ImmutableList.Create(mm), comments);
+				if (AlgebraicMove.IsEndGameMove(moves.Trim())) return ([AlgebraicMove.Empty with { Move = moves }], comments);
+				return (ImmutableList<AlgebraicMove>.Empty, ImmutableList<MoveComment>.Empty);
 			}
 			string[] movesArray = _rxMoveNumbers.Split(moves);
 			IEnumerable<AlgebraicMove> generate()
@@ -153,9 +155,6 @@ namespace Chess.Lib.Moves.Parsing
 		public AlgebraicMove this[int index] => index >= 0 && index < MoveCount ? MoveList[index] : AlgebraicMove.Empty;
 
 		public int MoveCount => MoveList.Count;
-		public bool HasMoves => MoveList.Count > 0;
-		public bool IsEmpty => !HasMoves;
-
 		MoveFormat IMoveParser.Format => MoveFormat.Algebraic;
 
 		public static IParsedGame Parse(string moves) => Create(moves).Parse();

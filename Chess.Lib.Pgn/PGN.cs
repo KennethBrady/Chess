@@ -111,6 +111,7 @@ namespace Chess.Lib.Pgn
 			{
 				case 0:
 					AlgebraicMoves ams = AlgebraicMoves.Create(pgn);
+					if (ams.IsEmpty) return Empty;
 					return new PGN(hdrs, AlgebraicMoves.ToPgnMoves(ams.MoveList));
 				default:
 					Match m = matches.Last();

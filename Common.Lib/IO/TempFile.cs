@@ -5,7 +5,7 @@ namespace Common.Lib.IO
 	/// <summary>
 	/// A disposable file for holding temporary data
 	/// </summary>
-	public class TempFile : Disposable
+	public sealed class TempFile : Disposable
 	{
 		/// <summary>
 		/// Creates a TempFile with the specified text content.
@@ -43,6 +43,7 @@ namespace Common.Lib.IO
 			return r;
 		}
 
+		public static TempFile FromPath(string filePath) => new TempFile { Name = Path.GetFileName(filePath), FilePath = filePath };
 
 		public static TempFile FromSourceContent(string sourcePath, string? destName = null)
 		{

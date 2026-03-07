@@ -1,4 +1,6 @@
-﻿namespace Common.Lib.UI.Dialogs
+﻿using Common.Lib.UI.Animations;
+
+namespace Common.Lib.UI.Dialogs
 {
 	internal interface IDialogRunner
 	{
@@ -35,7 +37,6 @@
 
 		private void Model_Closing(IDialogResult<T> result)
 		{
-			View.ApplyCloseIndicator();
 			ResultSink.SetResult(result);
 			void close()
 			{
@@ -47,7 +48,7 @@
 			if (View.Animation == AnimationType.None) close();
 			else
 			{
-				DialogAnimator.RunCloseAnimation(View, () => close());
+				DialogAnimator.RunCloseAnimation(View, close);
 			}
 		}
 

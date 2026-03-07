@@ -1,9 +1,11 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
+using Chess.Lib.Hardware.Timing;
 using Common.Lib.UI;
 using Common.Lib.UI.MVVM;
 using System.Collections.ObjectModel;
+using System.Drawing.Imaging;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -86,11 +88,13 @@ namespace Chess.Lib.UI
 				Player.Game.MoveCompleted += Game_MoveCompleted;
 				FontWeight = Player.HasNextMove ? FontWeights.Bold : FontWeights.Normal;
 				RemovedPieces.Visibility = Visibility.Collapsed;
-				(NameRow, PiecesRow) = Player.Side == Hue.White ? (1, 0) : (0, 1);
+				(NameRow, PiecesRow) = Player.Side == Hue.White ? (2, 0) : (0, 2);
 			}
 
 			public int NameRow { get; init; }
 			public int PiecesRow { get; init; }
+
+			public bool HasClock => Player.Game is IInteractiveChessGame ig && ig.Clock is not INoClock;
 
 			public IChessPlayer Player { get; private init; }
 			public string Name => Player.Name;

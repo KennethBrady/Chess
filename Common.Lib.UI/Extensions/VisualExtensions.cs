@@ -33,6 +33,17 @@ namespace Common.Lib.UI.Extensions
 				return default;
 			}
 
+			public T? FindParent()
+			{
+				var parent = VisualTreeHelper.GetParent(visual);
+				while (parent != null)
+				{
+					if (parent is T t) return t;
+					parent = VisualTreeHelper.GetParent(parent);
+				}
+				return default;
+			}
+
 
 			public IEnumerable<T> FindVisualChildren() => VisualChildrenOf<T>(visual);
 			

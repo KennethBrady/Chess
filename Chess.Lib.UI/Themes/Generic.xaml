@@ -50,6 +50,7 @@
 		</Setter>
 	</Style>
 	<Style TargetType="{x:Type local:PlayerView}">
+		<Setter Property="FontSize" Value="14"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type local:PlayerView}">
@@ -57,10 +58,13 @@
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto"/>
 							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 						<Border BorderBrush="Black" BorderThickness="1" Grid.Row="{Binding NameRow}">
 							<TextBlock Text="{Binding Name}" FontWeight="{Binding FontWeight}" Margin="2" TextWrapping="Wrap"/>
 						</Border>
+						<clock:ClockView Grid.Row="1" Player="{Binding Player}" Visibility="{Binding HasClock,Converter={StaticResource b2vc}}"
+							BorderBrush="Black" BorderThickness="1"/>
 						<GroupBox Name="removed" Grid.Row="{Binding PiecesRow}" Header="Removed Pieces" Visibility="Collapsed">
 							<ItemsControl ItemsSource="{Binding Pieces}">
 								<ItemsControl.ItemTemplate>
@@ -81,6 +85,7 @@
 		</Setter>
 	</Style>
 	<Style TargetType="{x:Type local:MovesView}">
+		<Setter Property="FontSize" Value="14"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type local:MovesView}">
@@ -116,9 +121,18 @@
 								<local:PlayerView DockPanel.Dock="Bottom" Hue="White" Game="{TemplateBinding Game}"/>
 								<local:MovesView Game="{TemplateBinding Game}"/>
 							</DockPanel>
-							<local:ChessBoard Grid.Column="1" Game="{TemplateBinding Game}"
+							<local:ChessBoard Grid.Column="1" Game="{TemplateBinding Game}" x:Name="board"
 																Width="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" 
 																Height="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" />
+							<Border Name="pauseBorder" Visibility="Collapsed" Grid.Column="0" Grid.ColumnSpan="2"
+											Style="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ChessGame}},Path=PauseGameBorderStyle}">
+								<Border Margin="8" Padding="8" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+									<StackPanel>
+										<TextBlock HorizontalAlignment="Center" Text="Game is Paused." FontSize="18" Foreground="White"/>
+										<Button Content="Resume Game" Name="resumeBtn"/>
+									</StackPanel>
+								</Border>
+							</Border>
 						</Grid>
 					</Border>
 				</ControlTemplate>
@@ -305,6 +319,25 @@
 								<TextBlock Text="{Binding UseCount}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
 													 Foreground="Black" FontSize="12" Margin="3"/>
 							</Grid>
+						</Border>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	<Style TargetType="{x:Type clock:ClockView}">
+		<Style.Resources>
+			<clock:FontWeightConverter x:Key="fwc"/>
+		</Style.Resources>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type clock:ClockView}">
+					<Border Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+						<Border Name="border" DataContext="{x:Null}" Background="{Binding Background}" Padding="3,1">
+							<TextBlock Text="{Binding RemainingTime}" FontWeight="{Binding IsActive,Converter={StaticResource fwc}}"
+											 Foreground="{Binding Foreground}"/>
 						</Border>
 					</Border>
 				</ControlTemplate>

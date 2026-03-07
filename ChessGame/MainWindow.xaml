@@ -18,6 +18,7 @@
 			<MenuItem Header="Game">
 				<MenuItem Header="New ..." Command="{Binding Command}" CommandParameter="newGame" InputGestureText="Ctrl-N"/>
 				<MenuItem Header="Branch Game" Command="{Binding Command}" CommandParameter="branchGame"/>
+				<MenuItem Header="{Binding PauseLabel}" Command="{Binding Command}" CommandParameter="pauseGame" InputGestureText="Ctrl-P"/>
 				<Separator/>
 				<MenuItem Header="Export as PGN ..." Command="{Binding Command}" CommandParameter="exportPgn" InputGestureText="Ctrl-X"/>
 				<MenuItem Header="Import PGN ..." Command="{Binding Command}" CommandParameter="importPgn" InputGestureText="Ctrl-I"/>
@@ -25,12 +26,16 @@
 			<MenuItem Header="Moves">
 				<MenuItem Header="Undo" Command="{Binding Command}" CommandParameter="undo"/>
 			</MenuItem>
+			<MenuItem Header="Engine">
+				<MenuItem Header="Evaluate..." Command="{Binding Command}" CommandParameter="evalutate"/>
+			</MenuItem>
 		</Menu>
 	</win:AppWindow.Menu>
 	<win:AppWindow.InputBindings>
 		<KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="newGame"/>
 		<KeyBinding Key="X" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="exportPgn"/>
 		<KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="importPgn"/>
+		<KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="pauseGame"/>
 	</win:AppWindow.InputBindings>
 	<win:AppWindow.Dialogs>
 		<win:DialogDef DialogType="{x:Type cdlg:NewGameDialog}" ModelType="{x:Type cdlg:NewGameDialogModel}" SettingsKey="NewGameDialogSettings"/>
@@ -51,6 +56,14 @@
 	</win:AppWindow.DialogStyle>
 	<Grid>
 		<cui:ChessGame HorizontalAlignment="Center" VerticalAlignment="Center" BoardDimension="800"
-											BorderBrush="Black" BorderThickness="1" Game="{Binding Game}"/>
+											BorderBrush="Black" BorderThickness="1" Game="{Binding Game}">
+			<cui:ChessGame.PauseGameBorderStyle>
+				<Style TargetType="Border">
+					<Setter Property="Background" Value="Red"/>
+					<Setter Property="BorderBrush" Value="Navy"/>
+					<Setter Property="BorderThickness" Value="4"/>
+				</Style>
+			</cui:ChessGame.PauseGameBorderStyle>
+		</cui:ChessGame>
 	</Grid>
 </win:AppWindow>

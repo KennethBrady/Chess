@@ -60,7 +60,6 @@ namespace Chess.Lib.UI
 					_lastAffected.Add(cs);
 					cs.Adornments |= SquareAdornment.Check;
 				}
-
 			}
 
 			internal ChessBoard ChessBoard { get; private init; }

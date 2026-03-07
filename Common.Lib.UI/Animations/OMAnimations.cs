@@ -1,49 +1,40 @@
-﻿using Common.Lib.UI.Dialogs;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace Common.Lib.UI.Animations
 {
 	/// <summary>
-	/// Opacity-mask based animations
+	/// Animations using OpacityMask
 	/// </summary>
-	public class OMAnimation : Animation
+	public static class OMAnimations
 	{
-		public OMAnimation(AnimationType type)
+		public static async void Run(FrameworkElement view, AnimationInfo info, Action? after = null)
 		{
-			Type = type;
-		}
-
-		public AnimationType Type { get; init; }
-
-		protected override AnimInfo CreateOpenAnimation(FrameworkElement forElement)
-		{
-			switch(Type)
+			bool isOpen = info.Direction == AnimationDirection.Open;
+			AnimInfo? anim = null;
+			switch(info.Type)
 			{
-				case AnimationType.None: return AnimInfo.Empty;
-				case AnimationType.Fade: return CreateFadeIn(forElement);
-				case AnimationType.SlideFromLeft: return CreateSlideInLeft(forElement);
-				case AnimationType.SlideFromTop: return CreateSlideInFromTop(forElement);
-				case AnimationType.SlideFromBottom: return CreateSlideInFromBottom(forElement);
-				case AnimationType.SlideFromRight: return CreateSlideInRight(forElement);
-				case AnimationType.ExpandFromCenter: return CreateExpandFromCenter(forElement);
-				default: return AnimInfo.Empty;
+				case AnimationType.Fade: anim = isOpen ? CreateFadeIn(view) : CreateFadeOut(view); break;
+				case AnimationType.SlideHorizontal: anim = isOpen ? CreateSlideInLeft(view) : CreateSlideOutLeft(view); break;
+				case AnimationType.SlideVertical: anim =isOpen ? CreateSlideInFromTop(view): CreateSlideOutFromTop(view); break;
+				case AnimationType.ExpandFromCenter: anim = isOpen ? CreateExpandFromCenter(view) : CreateExpandOutFromCenter(view); break;
+			}
+			if (anim.HasValue)
+			{
+				double rel = 0;
+				DateTime start = DateTime.Now;
+				while(rel < 1.0)
+				{
+					await Task.Delay(10);
+					rel = Math.Min(1.0, (DateTime.Now - start).TotalSeconds / info.Duration);
+					anim.Value.Update(rel);
+				}
+				anim.Value.Cleanup();
+				after?.Invoke();
 			}
 		}
 
-		protected override AnimInfo CreateCloseAnimation(FrameworkElement forElement)
-		{
-			switch(Type)
-			{
-				case AnimationType.Fade: return CreateFadeOut(forElement);
-				case AnimationType.SlideFromLeft: return CreateSlideOutLeft(forElement);
-				case AnimationType.SlideFromTop: return CreateSlideOutFromTop(forElement);
-				case AnimationType.SlideFromBottom: return CreateSlideOutFromBottom(forElement);
-				case AnimationType.SlideFromRight: return CreateSlideOutRight(forElement);
-				case AnimationType.ExpandFromCenter: return CreateExpandOutFromCenter(forElement);
-				default: return AnimInfo.Empty;
-			}
-		}
+		private record struct AnimInfo(Action<double> Update, Action Cleanup);
 
 		private static AnimInfo CreateFadeIn(FrameworkElement fe)
 		{

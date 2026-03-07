@@ -16,6 +16,7 @@ namespace Chess.Lib.UI.Dialogs
 		private IChessBoard? _lastCustomBoard = null;
 		private int _chess960Number = -1;
 		private Hue _nextMove = Hue.Default;
+		private bool _saveAsDefault;
 		public NewGameDialogModel(GameSetup gameDefinition)
 		{
 			_white = gameDefinition.WhiteName;
@@ -71,6 +72,17 @@ namespace Chess.Lib.UI.Dialogs
 
 		[SavedSetting]
 		public ClockSettingsModel ClockSettings { get; private init; }
+
+		[SavedSetting]
+		public bool SaveAsDefault
+		{
+			get => _saveAsDefault;
+			set
+			{
+				_saveAsDefault = value;
+				Notify(nameof(SaveAsDefault));
+			}
+		}
 
 		public IEnumerable<int> FischerNumbers => Enumerable.Range(1, 960);
 

@@ -144,8 +144,8 @@ namespace Chess.Lib.UnitTests.Games
 				case IMoveAttemptSuccess mas:
 					Assert.IsTrue(g.Clock.IsRunning);
 					Assert.IsTrue(g.Clock.IsStarted);
-					Assert.IsTrue(g.Clock.White.IsRunning);
-					Assert.IsFalse(g.Clock.Black.IsRunning);
+					Assert.IsFalse(g.Clock.White.IsRunning);
+					Assert.IsTrue(g.Clock.Black.IsRunning);
 					break;
 				case IMoveAttemptFail f:
 					Assert.Fail(f.Reason.ToString());

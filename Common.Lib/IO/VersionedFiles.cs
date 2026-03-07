@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Common.Lib.IO
@@ -11,29 +12,41 @@ namespace Common.Lib.IO
 	/// <param name="Name">The root file name (with no final digits)</param>
 	/// <param name="Extension">The file extension, with no leading '.'</param>
 	/// <param name="Version">The file version number</param>
+	[DebuggerDisplay("{Name}{Version}.{Extension}")]
 	public record struct VersionedFile(string Folder, string Name, string Extension, int Version)
 	{
 		public static readonly VersionedFile Empty = new VersionedFile(string.Empty, string.Empty, string.Empty, 0);
 		public string FilePath => Path.Combine(Folder, $"{Name}{Version}.{Extension}");
 		public bool Exists => File.Exists(FilePath);
 
+		public static VersionedFile FromPath(string filePath)
+		{
+			string? folder = Path.GetDirectoryName(filePath);
+			if (folder == null) folder = string.Empty;
+			string name = Path.GetFileNameWithoutExtension(filePath),
+				extension = Path.GetExtension(filePath);
+			if (extension.StartsWith('.')) extension = extension.Substring(1);
+			name = StripDigits(name, out int version);
+			return new VersionedFile(folder, name, extension, version < 0 ? 0 : version);
+		}
+
 		public static IEnumerable<VersionedFile> InFolder(string folder, string name, string extension)
 		{
 			if (!Directory.Exists(folder)) yield break;
 			if (extension.StartsWith('.')) extension = extension.Substring(1);
 			string search = $"{name}*.{extension}";
-			Regex rxVersion = new Regex(@$"(.+){name}(\d+).{extension}");
+			Regex rxVersion = new Regex(@$"(.+)({name})(\d+).{extension}");
 			foreach (string fpath in Directory.EnumerateFiles(folder, search))
 			{
 				Match m = rxVersion.Match(fpath);
-				if (m.Success && int.TryParse(m.Groups[2].Value, out int version))
+				if (m.Success && int.TryParse(m.Groups[3].Value, out int version))
 				{
-					yield return new VersionedFile(folder, Path.GetFileNameWithoutExtension(fpath), Path.GetExtension(fpath).Substring(1), version);
+					yield return new VersionedFile(folder, name, extension, version);
 				}
 			}
 		}
 
-		public static IEnumerable<VersionedFile> FromPath(string filePath)
+		public static IEnumerable<VersionedFile> FilesFromPath(string filePath)
 		{
 			string? dir = Path.GetDirectoryName(filePath), name = Path.GetFileNameWithoutExtension(filePath),
 				ext = Path.GetExtension(filePath);
@@ -44,20 +57,26 @@ namespace Common.Lib.IO
 			return InFolder(dir, name, ext);
 		}
 
-		internal static string StripDigits(string name)
+		internal static string StripDigits(string name) => StripDigits(name, out _);		
+
+		internal static string StripDigits(string name, out int version)
 		{
-			while (name.Length > 0 && char.IsDigit(name.Last())) name = name.Substring(0, name.Length - 1);
+			var digits = name.Reverse().TakeWhile(c => char.IsDigit(c)).Reverse();
+			string s = new string(digits.ToArray());
+			if (int.TryParse(s, out version)) return name.Substring(0, name.Length - s.Length);
+			version = -1;
 			return name;
 		}
 	}
 
+	[DebuggerDisplay("{Folder}:{Name}.{Extension}")]
 	public record VersionedFiles(string Folder, string Name, string Extension, ImmutableList<VersionedFile> Files) : IEnumerable<VersionedFile>
 	{
 		public static readonly VersionedFiles Empty = new VersionedFiles(string.Empty, string.Empty, string.Empty, ImmutableList<VersionedFile>.Empty);
 		public VersionedFiles(string folder, string name, string extension) :
 			this(folder, name, extension, ImmutableList<VersionedFile>.Empty.AddRange(VersionedFile.InFolder(folder, name, extension)))
 		{ }
-		public static VersionedFiles FromFile(string exampleFilePath)
+		public static VersionedFiles FromFilePath(string exampleFilePath)
 		{
 			string? folder = Path.GetDirectoryName(exampleFilePath), name = Path.GetFileNameWithoutExtension(exampleFilePath), ext = Path.GetExtension(exampleFilePath);
 			if (string.IsNullOrEmpty(name)) return Empty;
@@ -76,7 +95,32 @@ namespace Common.Lib.IO
 			}
 		}
 
-		public static string NextVersionedPath(string fpath) => FromFile(fpath).Next;
+		public VersionedFiles EnforceMaxAge(TimeSpan maxAge)
+		{
+			List<VersionedFile> remaining = new();
+			foreach (var vf in Files)
+			{
+				if (vf.Exists)
+				{
+					TimeSpan ag = DateTime.Now - File.GetCreationTime(vf.FilePath);
+					if (ag <= maxAge) remaining.Add(vf); else File.Delete(vf.FilePath);
+				}
+			}
+			return this with { Files = remaining.ToImmutableList() };
+		}
+
+		public VersionedFiles EnforceCount(int maxFiles)
+		{
+			IEnumerable<VersionedFile> remaining()
+			{
+				var left = Files.Where(f => f.Exists).OrderBy(f => File.GetCreationTime(f.FilePath));
+				foreach (var vf in left.Skip(maxFiles)) File.Delete(vf.FilePath);
+				return left.Take(maxFiles);
+			}
+			return this with { Files = ImmutableList<VersionedFile>.Empty.AddRange(remaining()) };
+		}
+
+		public static string NextVersionedPath(string fpath) => FromFilePath(fpath).Next;
 
 		public static string NextVersionedPath(string folder, string file) => NextVersionedPath(Path.Combine(folder, file));
 

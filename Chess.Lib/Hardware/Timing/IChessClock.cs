@@ -3,32 +3,60 @@ using Common.Lib.Contracts;
 
 namespace Chess.Lib.Hardware.Timing
 {
+	public interface IClockPlayer
+	{
+		TimeSpan Elapsed { get; }
+		TimeSpan Increment { get; }
+		bool IsFlagged { get; }
+		bool IsRunning { get; }
+		TimeSpan MaxTime { get; }
+		TimeSpan Remaining { get; }
+		TimeSpan AccruedIncrements { get; }
+
+		long RemainingTicks { get; }
+		Hue Side { get; }
+		int MoveCount { get; }
+	}
+
+	public interface INoClockPlayer : IClockPlayer;
+
+	internal interface IClockPlayerEx : IClockPlayer
+	{
+		void Start();
+		void Stop();
+
+		void Pause();
+	}
+
 	public interface IChessClock
 	{
-		/// <summary>
-		/// Get a value indication whether this is null (non-working)
-		/// </summary>
-		bool IsNull { get; }
-		IClockPlayer Black { get; }
-		Hue FlaggedSide { get; }
-		bool IsFlagged { get; }
-		bool IsPaused { get; }
-		bool IsRunning { get; }
-		bool IsStarted { get; }
 		IClockPlayer White { get; }
+		IClockPlayer Black { get; }
 
-		event Handler<Hue>? Flagged;
+		IClockPlayer CurrentPlayer { get; }
+
+		public ClockState State { get; }
+		Hue FlaggedSide => State == ClockState.WhiteFlagged ? Hue.White : State == ClockState.BlackFlagged ? Hue.Black : Hue.Default;
+		bool IsFlagged  => State == ClockState.WhiteFlagged || State == ClockState.BlackFlagged;
+		bool IsPaused => State == ClockState.Paused;
+		bool IsRunning => State == ClockState.WhiteRunning || State == ClockState.BlackRunning;
+		bool IsStarted => State > ClockState.NotStarted && !IsFlagged;
+
 		event Handler<TimerTick>? Tick;
+		event Handler<ClockStateChange>? StateChanged;
 
-		void MakeMove();
+		void Start(Hue side);
+
 		void Pause();
 
-		void Attach(IInteractiveChessGame game);
+		void Resume();
 	}
+
+	public interface INoClock : IChessClock;
 
 	internal interface IChessClockEx : IChessClock
 	{
-		void OnFlagged(Hue flagged);
-		void OnTick(TimerTick t);
+		void Attach(IInteractiveChessGame game);
+
 	}
 }

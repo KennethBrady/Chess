@@ -175,5 +175,17 @@ namespace Chess.Lib.UnitTests.Moves
 			Assert.AreSame(g.LastMoveMade, msuccess.CompletedMove);
 			Assert.AreSame(g.Board.LastMove, msuccess.CompletedMove);
 		}
+
+		[TestMethod]
+		public async Task AffectedSquaresWithEnPassant()
+		{
+			IInteractiveChessGame ig = GameFactory.CreateInteractive();
+			int n = ig.ApplyMoves("1. d4 d5 2. e3 c5 3. Nf3 c4 4. Nc3 Nc6 5. h3 e6 6. Be2 Nf6 7. O-O Bd6 8.a3 O-O 9.Bd2 Bd7 10. b4", MoveFormat.Algebraic);
+			Assert.AreEqual(19, n);
+			var res = await ig.Black.AttemptMove("cxb3", MoveFormat.Algebraic);
+			IMoveAttemptSuccess? ims = res as IMoveAttemptSuccess;
+			Assert.IsNotNull(ims);
+			Assert.IsTrue(ims.CompletedMove.AffectedSquares().All(sq => sq.Position.IsOnBoard));
+		}
 	}
 }

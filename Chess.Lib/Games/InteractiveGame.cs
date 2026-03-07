@@ -66,7 +66,7 @@ namespace Chess.Lib.Games
 			if (clockSetup.IsEmpty) return false;
 			if (Moves.Count > 0) return false;
 			Clock = new ChessClock(clockSetup);
-			Clock.Attach(this);
+			((IChessClockEx)Clock).Attach(this);
 			return true;
 		}
 

@@ -9,10 +9,11 @@ namespace Chess.Lib.Hardware
 {
 	public record struct PiecePlacement(PieceDef Piece, FileRank Location);
 
+
 	public struct FEN
 	{
 		/// <summary>
-		/// FEN corresponding to a classical board.
+		/// FEN corresponding to a classical board with no moves played.
 		/// </summary>
 		public const string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		public static readonly FEN Empty = new FEN();

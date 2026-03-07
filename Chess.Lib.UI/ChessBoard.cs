@@ -1,9 +1,14 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
+using Chess.Lib.Hardware.Timing;
 using Chess.Lib.UI.Adorners;
+using Chess.Lib.UI.Dialogs;
+using Common.Lib.UI.Extensions;
+using Common.Lib.UI.Windows;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace Chess.Lib.UI
 {
@@ -59,6 +64,7 @@ namespace Chess.Lib.UI
 			State = new BoardState(this);
 			IsEnabled = newGame is IInteractiveChessGame;
 		}
+
 
 		/// <summary>
 		/// Prepare the grid as 8x8 collection of squares

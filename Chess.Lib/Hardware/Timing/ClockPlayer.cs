@@ -1,80 +1,65 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 
 namespace Chess.Lib.Hardware.Timing
 {
+	[DebuggerDisplay("{Side}")]
 	internal class ClockPlayer : IClockPlayerEx
 	{
+		private Stopwatch _stopwatch;
+
 		internal ClockPlayer(IChessClockEx owner, Hue side, TimeSpan maxTime, TimeSpan increment)
 		{
 			Owner = owner;
 			Side = side;
-			MaxTime = Remaining = maxTime;
+			MaxTime = maxTime;
 			Increment = increment;
-			Stopwatch = new Stopwatch();
+			_stopwatch = new Stopwatch();
 		}
 
 		public Hue Side { get; private init; }
 
-		public TimeSpan MaxTime { get; init; }
+		public TimeSpan MaxTime { get; private init; }
 
-		public TimeSpan Increment { get; init; }
+		public TimeSpan Increment { get; private init; }
 
-		public bool IsRunning => Stopwatch.IsRunning;
+		private IChessClockEx Owner { get; init; }
 
-		public bool IsFlagged => Remaining <= TimeSpan.Zero;
+		public bool IsRunning => _stopwatch.IsRunning;
 
-		public TimeSpan Elapsed { get; private set; } = TimeSpan.Zero;
-		public TimeSpan Remaining { get; private set; }
+		public TimeSpan Remaining => TimeSpan.FromTicks(Math.Max(0,RemainingTicks));
+
+
+		public TimeSpan Elapsed => _stopwatch.Elapsed;
+
+		public bool IsFlagged => RemainingTicks <= 0;
 
 		public int MoveCount { get; private set; }
 
-		private Stopwatch Stopwatch { get; init; }
-		private IChessClockEx Owner { get; init; }
-
-
-		private record struct StartState(DateTime When, TimeSpan Elapsed, TimeSpan Remaining);
-		private StartState Started { get; set; }
+		public TimeSpan AccruedIncrements { get; private set; } = TimeSpan.Zero;
 
 		public void Start()
 		{
-			Started = new StartState(DateTime.Now, Elapsed, Remaining);
-			Stopwatch.Restart();
-			Monitor();
+			if (IsRunning) return;
+			_stopwatch.Start();
 		}
 
 		public void Stop()
 		{
-			DateTime now = DateTime.Now;
-			Stopwatch.Stop();
-			MoveCount++;
-			if (!IsFlagged)
+			if (IsRunning)
 			{
-				// Apply most accurate valus:
-				TimeSpan passed = now - Started.When;
-				Elapsed = Started.Elapsed + (now - Started.When);
-				Remaining = Started.Remaining - passed + Increment;
+				_stopwatch.Stop();
+				AccruedIncrements += Increment;
 			}
 		}
-
-		private async void Monitor()
+		
+		public void Pause()
 		{
-			do
-			{
-				await Task.Delay(ChessClock.MonitorInterval);
-				if (Stopwatch.IsRunning)
-				{
-					Elapsed += Stopwatch.Elapsed;
-					Remaining -= Stopwatch.Elapsed;
-					if (Remaining <= TimeSpan.Zero)
-					{
-						Stopwatch.Stop();
-						Elapsed = MaxTime;
-						Remaining = TimeSpan.Zero;
-						Owner.OnFlagged(Side);
-					}
-					else Owner.OnTick(new TimerTick(Side, Elapsed, Remaining));
-				}
-			} while (Stopwatch.IsRunning);
+			if (IsRunning) _stopwatch.Stop();
 		}
+
+		public long RemainingTicks => MaxTime.Ticks - _stopwatch.ElapsedTicks + AccruedIncrements.Ticks;
 	}
 }

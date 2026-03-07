@@ -1,87 +1,149 @@
 ﻿using Chess.Lib.Games;
 using Common.Lib.Contracts;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 
 namespace Chess.Lib.Hardware.Timing
 {
 	public record struct TimerTick(Hue CurrentPlayer, TimeSpan Elapsed, TimeSpan Remaining);
-
-	internal class ChessClock : IChessClockEx
+	internal class ChessClock: IChessClockEx
 	{
 		internal const int MonitorInterval = 100;
-		public ChessClock(TimeSpan maxTime) : this(maxTime, TimeSpan.Zero) { }
 
-		public ChessClock(TimeSpan maxTime, TimeSpan increment) : this(maxTime, increment, maxTime, increment) { }
+		private ClockState _state = ClockState.NotStarted;
+		internal ChessClock(TimeSpan maxTime): this(maxTime, TimeSpan.Zero, maxTime, TimeSpan.Zero) { }
 
-		public ChessClock(TimeSpan whiteMaxTime, TimeSpan whiteIncrement, TimeSpan blackMaxTime, TimeSpan blackIncrement)
+		internal ChessClock(TimeSpan maxTime, TimeSpan increment): this(maxTime, increment, maxTime, increment) { }
+
+		internal ChessClock(TimeSpan whiteMaxTime, TimeSpan whiteIncrement, TimeSpan blackMaxTime, TimeSpan blackIncrement)
 		{
 			W = new ClockPlayer(this, Hue.White, whiteMaxTime, whiteIncrement);
-			B = new ClockPlayer(this, Hue.Black, blackMaxTime, blackIncrement);
+			B =new ClockPlayer(this, Hue.Black, blackMaxTime, blackIncrement);
 		}
 
-		public ChessClock(ChessClockSetup setup): this(setup.WhiteMaxTime, setup.WhiteIncrement, setup.BlackMaxTime, setup.BlackIncrement) { }
+		internal ChessClock(ChessClockSetup setup): this(setup.WhiteMaxTime, setup.WhiteIncrement, setup.BlackMaxTime, setup.BlackIncrement)  { }
 
-		public bool IsNull => false;
+		public event Handler<TimerTick>? Tick;
+		public event Handler<ClockStateChange>? StateChanged;
+
 		public IClockPlayer White => W;
 		public IClockPlayer Black => B;
 
-		public event Handler<TimerTick>? Tick;
-		public event Handler<Hue>? Flagged;
+		public IClockPlayer CurrentPlayer => RunningPlayer == null ? NullClockPlayer.Instance : RunningPlayer;
 
-		public bool IsStarted => StartTime.HasValue;
-		public bool IsRunning => White.IsRunning || Black.IsRunning;
-
-		public bool IsPaused => IsStarted && !IsFlagged && !IsRunning;
-		public bool IsFlagged => White.IsFlagged || Black.IsFlagged;
-
-		public Hue FlaggedSide => White.IsFlagged ? Hue.White : Black.IsFlagged ? Hue.Black : Hue.Default;
-
-		public void Attach(IInteractiveChessGame game)
+		public ClockState State
 		{
-			if (game.Moves.Count == 0)
+			get => _state;
+			private set
 			{
-				game.MoveCompleted += m => MakeMove();
+				if (_state != value)
+				{
+					var old = _state;
+					_state = value;
+					StateChanged?.Invoke(new ClockStateChange(old, _state));
+				}
 			}
 		}
 
 		private IClockPlayerEx W { get; init; }
 		private IClockPlayerEx B { get; init; }
-		private DateTime? StartTime { get; set; }
-		public void MakeMove()
+
+		private IClockPlayerEx? RunningPlayer { get; set; }
+
+		/// <summary>
+		/// Start the clock corresponding to side.
+		/// </summary>
+		/// <param name="side"></param>
+		public void Start(Hue side)
 		{
-			if (IsFlagged) return;
-			if (!StartTime.HasValue)
-			{
-				StartTime = DateTime.Now;
-				W.Start();
-			}
-			else
-			{
-				if (White.IsRunning)
-				{
-					W.Stop();
-					B.Start();
-				}
-				else
-						if (Black.IsRunning)
-				{
-					B.Stop();
-					W.Start();
-				}
-				else
-				{
-					// Paused.  
-					if (White.MoveCount > Black.MoveCount) B.Start(); else W.Start();
-				}
-			}
+			if (RunningPlayer != null) return;
+			RunningPlayer = side == Hue.White ? W : B;
+			RunningPlayer.Start();
+			State = side == Hue.White ? ClockState.BlackRunning : ClockState.WhiteRunning;
+			Monitor();
 		}
 
 		public void Pause()
 		{
-			if (!IsRunning) return;
-			if (White.IsRunning) W.Stop(); else B.Stop();
+			if (Me.IsRunning)
+			{
+				RunningPlayer?.Pause();
+				State = ClockState.Paused;
+			}
 		}
 
-		void IChessClockEx.OnTick(TimerTick tick) => Tick?.Invoke(tick);
-		void IChessClockEx.OnFlagged(Hue hue) => Flagged?.Invoke(hue);
+		public void Resume()
+		{
+			if (Me.IsPaused && RunningPlayer != null)
+			{
+				RunningPlayer.Start();
+				State = RunningPlayer.Side == Hue.White ? ClockState.WhiteRunning : ClockState.BlackRunning;
+				Monitor();
+			}
+		}
+
+		public void MakeMove()
+		{
+			if (RunningPlayer == null) return;	// not started
+			RunningPlayer.Stop();
+			RunningPlayer = RunningPlayer.Side == Hue.White ? B : W;
+			RunningPlayer.Start();
+			State = RunningPlayer.Side == Hue.White ? ClockState.WhiteRunning : ClockState.BlackRunning;
+		}
+
+		private async void Monitor()
+		{
+			while (Me.IsRunning && RunningPlayer != null)
+			{
+				System.Diagnostics.Debug.WriteLine(RunningPlayer.RemainingTicks.ToString());
+				if (RunningPlayer.RemainingTicks <= 0)
+				{
+					RunningPlayer.Pause();
+					State = RunningPlayer.Side == Hue.White ? ClockState.WhiteFlagged : ClockState.BlackFlagged;
+					return;
+				}
+				TimerTick tt = new TimerTick(RunningPlayer.Side, RunningPlayer.Elapsed, RunningPlayer.Remaining);
+				Tick?.Invoke(tt);
+				await Task.Delay(MonitorInterval);
+			}
+		}
+
+		void IChessClockEx.Attach(IInteractiveChessGame game)
+		{
+			if (game.Moves.Count == 0) game.MoveCompleted += (m) =>
+			{
+				if (RunningPlayer == null) Start(m.Move.Side.Other); else MakeMove();
+			};
+		}
+
+		private IChessClockEx Me => (IChessClockEx)this;
+	}
+
+	public static class ChessClockExtensions
+	{
+		extension(TimeSpan ts)
+		{
+			public string RemainingOnClock
+			{
+				get
+				{
+					if (ts.Hours > 0) return $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
+					if (ts.Minutes > 0) return $"{ts.Minutes:00}:{ts.Seconds:00}";
+					return $"{ts.Seconds:00}";
+				}
+			}
+		}
+
+		extension(IChessClock cc)
+		{
+			public bool IsNull => cc is INoClock;
+		}
+
+		extension(IClockPlayer player)
+		{
+			public bool IsNull => player is INoClockPlayer;
+		}
 	}
 }

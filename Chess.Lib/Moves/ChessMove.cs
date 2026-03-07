@@ -68,7 +68,17 @@ namespace Chess.Lib.Moves
 		{
 			if (FromSquare is not INoSquare) yield return FromSquare;
 			if (ToSquare is not INoSquare) yield return ToSquare;
-			if (IsEnPassant) yield return CapturedPiece.Square;
+			if (IsEnPassant)
+			{
+				// return square "in front of" ToSquare:
+				Rank r = ToSquare.Rank;
+				switch (Player.Side)
+				{
+					case Hue.White: r--; break;
+					case Hue.Black: r++; break;
+				}
+				yield return MovedPiece.Board[ToSquare.File, r];
+			}
 			if (Castle.Type > CastleMoveType.None)
 			{
 				yield return Castle.RookOrigin;

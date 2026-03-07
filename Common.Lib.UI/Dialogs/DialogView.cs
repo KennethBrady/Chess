@@ -1,4 +1,5 @@
 ﻿using Common.Lib.UI.Adorners;
+using Common.Lib.UI.Animations;
 using Common.Lib.UI.DragDrop;
 using System.Globalization;
 using System.Windows;
@@ -71,13 +72,13 @@ namespace Common.Lib.UI.Dialogs
 		public static DependencyProperty AnimationDurationProperty = DependencyProperty.Register("AnimationDuration", typeof(double),
 			typeof(DialogView), new PropertyMetadata(DefaultAnimationDuration.TotalSeconds));
 
-		public static readonly DependencyProperty CloseIndicatorProperty = DependencyProperty.Register("CloseIndicator", typeof(CloseIndicatorType),
-			typeof(DialogView), new PropertyMetadata(CloseIndicatorType.ReducedOpacity));
-
 		public static readonly DependencyProperty IsModalProperty = DependencyProperty.Register("IsModal", typeof(bool),
 			typeof(DialogView), new PropertyMetadata(true));
 
 		public static readonly DependencyProperty IsResizableProperty = DependencyProperty.Register("IsResizable", typeof(bool),
+			typeof(DialogView), new PropertyMetadata(true));
+
+		public static readonly DependencyProperty IsMoveableProperty = DependencyProperty.Register("IsMoveable", typeof(bool),
 			typeof(DialogView), new PropertyMetadata(true));
 
 		#endregion
@@ -144,11 +145,6 @@ namespace Common.Lib.UI.Dialogs
 			set => SetValue(AnimationDurationProperty, value);
 		}
 
-		public CloseIndicatorType CloseIndicator
-		{
-			get => (CloseIndicatorType)GetValue(CloseIndicatorProperty);
-			set => SetValue(CloseIndicatorProperty, value);
-		}
 		public bool IsModal
 		{
 			get => (bool)GetValue(IsModalProperty);
@@ -161,12 +157,17 @@ namespace Common.Lib.UI.Dialogs
 			set => SetValue(IsResizableProperty, value);
 		}
 
+		public bool IsMoveable
+		{
+			get => (bool)GetValue(IsMoveableProperty);
+			set => SetValue(IsMoveableProperty, value);
+		}
+
 		#endregion
 
 		public DialogView()
 		{
 			Dragger = new DialogViewDragger(this);
-			ElementDragger.SetAllowDrag(this, Dragger);
 			Loaded += (o, e) => OnLoaded();
 		}
 		private DialogViewDragger Dragger { get; init; }
@@ -184,6 +185,7 @@ namespace Common.Lib.UI.Dialogs
 			Restorer.Click += Restorer_Click;
 			SizeChanged += DialogView_SizeChanged;
 			Visibility = Visibility.Hidden;
+			if (IsMoveable) ElementDragger.SetAllowDrag(this, Dragger);
 		}
 
 		private void DialogView_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -260,7 +262,7 @@ namespace Common.Lib.UI.Dialogs
 				{
 					AdornerLayer.GetAdornerLayer(this)?.Add(ResizeAdorner = new ResizeAdorner(this));
 				}
-				if (Animation == AnimationType.None) Visibility = Visibility.Visible; else DialogAnimator.BeginOpenAnimation(this);
+				if (Animation == AnimationType.None) Visibility = Visibility.Visible; else DialogAnimator.RunOpenAnimation(this);
 			}
 		}
 
@@ -278,14 +280,6 @@ namespace Common.Lib.UI.Dialogs
 		}
 
 		protected virtual void OnLoaded() { }
-
-		internal void ApplyCloseIndicator()
-		{
-			switch (CloseIndicator)
-			{
-				case CloseIndicatorType.ReducedOpacity: Opacity = Math.Min(1.0, Math.Max(0.0, DefaultOpacityReduction)); break;
-			}
-		}
 
 		#region DialogViewDragger
 

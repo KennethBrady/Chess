@@ -6,7 +6,7 @@ namespace Common.Lib.IO
 	/// <summary>
 	/// Represents a temporary folder in the OS's temporary workspace
 	/// </summary>
-	public class TempFolder : Disposable
+	public sealed class TempFolder : Disposable
 	{
 		private string _folder;
 		private DirectoryInfo _dinfo;

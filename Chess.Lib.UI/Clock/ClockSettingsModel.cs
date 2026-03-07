@@ -3,6 +3,7 @@ using Chess.Lib.Hardware.Timing;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.MVVM;
 using Common.Lib.UI.Settings;
+using System.Windows;
 
 namespace Chess.Lib.UI.Clock
 {
@@ -39,7 +40,7 @@ namespace Chess.Lib.UI.Clock
 			set
 			{
 				_useClock = value;
-				Notify(nameof(UseClock), nameof(UseDual));
+				Notify(nameof(UseClock), nameof(UseDual), nameof(ClockHeaderWeight));
 			}
 		}
 
@@ -101,6 +102,7 @@ namespace Chess.Lib.UI.Clock
 			return !_useDual || DualSettings.IsValid;
 		}
 
+		public FontWeight ClockHeaderWeight => _useClock ? FontWeights.Bold : FontWeights.Normal;
 		protected override void Execute(string? parameter)
 		{
 

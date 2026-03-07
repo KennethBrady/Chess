@@ -2,6 +2,8 @@
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
+using Chess.Lib.Moves.Parsing;
+using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.UnitTests.Pieces
@@ -175,6 +177,32 @@ namespace Chess.Lib.UnitTests.Pieces
 			var res = AssertMove(await g.NextPlayer.AttemptMove("f7e6"));
 			Assert.IsTrue(res.CompletedMove.IsCapture);
 			Assert.IsTrue(g.Board[File.E, Rank.R6].HasPiece);
+		}
+
+		[TestMethod]
+		public async Task EnPassantCaptures()
+		{
+			IInteractiveChessGame ig = GameFactory.CreateInteractive();
+			int n = ig.ApplyMoves("1. d4 d5 2. e3 c5 3. Nf3 c4 4. Nc3 Nc6 5. h3 e6 6. Be2 Nf6 7. O-O Bd6 8.a3 O-O 9.Bd2 Bd7 10. b4");
+			Assert.AreEqual(19, n);
+			//Console.WriteLine(ig.Board.Display());
+			Assert.IsFalse(ig.Board[File.B, Rank.R3].HasPiece);
+			IPawn? p = ig.Board[File.C, Rank.R4].Piece as IPawn, pCapture = ig.Board[File.B, Rank.R4].Piece as IPawn;
+			Assert.IsNotNull(p);
+			Assert.IsNotNull(pCapture);
+			var result = await ig.Black.AttemptMove("cxb3", MoveFormat.Algebraic);
+			switch(result)
+			{
+				case IMoveAttemptSuccess ms:
+					//Console.WriteLine(ig.Board.Display());
+					Assert.IsTrue(ig.Board[File.B, Rank.R3].HasPiece);
+					Assert.AreSame(p, ig.Board[File.B, Rank.R3].Piece);
+					Assert.IsFalse(ig.Board[File.B, Rank.R4].HasPiece);
+					Assert.IsTrue(ms.CompletedMove.IsCapture);
+					Assert.AreSame(pCapture, ms.CompletedMove.CapturedPiece);
+					break;
+				case IMoveAttemptFail mf: Assert.Fail(mf.Reason.ToString()); break;
+			}
 		}
 	}
 }

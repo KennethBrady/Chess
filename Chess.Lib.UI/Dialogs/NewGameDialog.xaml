@@ -81,13 +81,19 @@
 					</GroupBox>
 				</Grid>
       </TabItem>
-			<TabItem Header="Clock">
+			<TabItem>
+				<TabItem.Header>
+					<TextBlock Text="Clock" FontWeight="{Binding ClockSettings.ClockHeaderWeight}"/>
+				</TabItem.Header>
 				<clock:ClockSettingsView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" DataContext="{Binding ClockSettings}"/>
       </TabItem>
 	</TabControl>
 		<DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" LastChildFill="False">
 			<Button Content="Create Game" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
 			<Button DockPanel.Dock="Right" Content="Cancel" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
+			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+				<CheckBox Content="Save as Default Game" IsChecked="{Binding SaveAsDefault}"/>
+			</StackPanel>
 		</DockPanel>
 	</Grid>
 </dlg:DialogView>

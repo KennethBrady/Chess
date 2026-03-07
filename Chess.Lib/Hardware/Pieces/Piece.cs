@@ -28,9 +28,7 @@ namespace Chess.Lib.Hardware.Pieces
 		public bool IsCaptured => Square is NoSquare;
 		IChessBoard IChessPiece.Board => Board;
 		IChessSquare IChessPiece.Square => _square;
-
 		public PieceDef Definition => new PieceDef(Type, Side);
-
 		void IPiece.SetSquare(ISquare square)
 		{
 			Square = square;

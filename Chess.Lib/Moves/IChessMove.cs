@@ -50,6 +50,8 @@ namespace Chess.Lib.Moves
 		IChessKing CheckedKing { get; }
 		IParseableMove SourceMove { get; }
 		string AlgebraicMove { get; }
+
+		string NumberedAlgebraicMove { get; }
 	}
 
 	public interface INoMove : IChessMove;

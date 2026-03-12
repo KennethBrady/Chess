@@ -62,6 +62,7 @@ namespace Chess.Lib.Moves
 		public IGameState GameState { get; set; } = Games.GameState.Empty;
 		public IParseableMove SourceMove { get; private init; } = NotParseable.Default;
 		public string AlgebraicMove { get; private set; } = string.Empty;
+		public string NumberedAlgebraicMove => $"{Number.GameMoveNumber}. {AlgebraicMove}";
 		public override string ToString() => M.AsEngineMove;
 
 		public IEnumerable<IChessSquare> AffectedSquares()

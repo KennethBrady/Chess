@@ -24,6 +24,7 @@ namespace Common.Lib.UI.Dialogs
 		internal Stack<IDialogRunner> OpenDialogs { get; private init; } = new();
 
 		public int OpenDialogCount => OpenDialogs.Count;
+		internal int ModalDialogCount => OpenDialogs.Where(d => d.View.IsModal).Count();
 
 		internal Task<IDialogResult<T>> PushDialog<T>(DialogView view, IDialogModelEx<T> model)
 		{
@@ -35,29 +36,6 @@ namespace Common.Lib.UI.Dialogs
 		internal void ProcessEscapePressed()
 		{
 			if (OpenDialogs.Count > 0) OpenDialogs.Peek().ProcessEscapeKey();
-		}
-
-		private Brush DefaultBackground { get; set; } = Brushes.Transparent;
-		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
-		{
-			base.OnPropertyChanged(e);
-			switch(e.Property.Name)
-			{
-				case nameof(IsHitTestVisible):
-					if (IsHitTestVisible)
-					{
-						Visibility = Visibility.Visible;
-						DefaultBackground = Background;
-						Background = ModalBackground;
-						break;
-					}
-					else
-					{
-						Background = DefaultBackground;
-						Visibility = Visibility.Collapsed;
-					}
-					break;
-			}
 		}
 	}
 }

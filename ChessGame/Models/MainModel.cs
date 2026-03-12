@@ -2,6 +2,7 @@
 using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Pgn;
 using Chess.Lib.UI.Dialogs;
+using Chess.Lib.UI.Moves;
 using Chess.Lib.UI.Pgn;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.MVVM;
@@ -13,6 +14,7 @@ namespace ChessGame.Models
 	public class MainModel : MainWindowModel
 	{
 		private IChessGame _game;
+		private AutoplayOptions _autoplayOptions = AutoplayOptions.Empty;
 
 		public MainModel(IChessGameWindow window) : base(window)
 		{
@@ -46,6 +48,20 @@ namespace ChessGame.Models
 
 		public new IChessGameWindow Window => (IChessGameWindow)base.Window;
 
+		public AutoplayOptions Autoplay
+		{
+			get => _autoplayOptions;
+			set
+			{
+				_autoplayOptions = value;
+				Notify(nameof(Autoplay));
+				if (!_autoplayOptions.IsEmpty)
+				{
+					Settings.Default.AutoplayOptions = $"{_autoplayOptions.Trigger}:{_autoplayOptions.Interval.TotalSeconds}";
+				}
+			}
+		}
+
 		protected override bool CanExecute(string? parameter)
 		{
 			switch (parameter)
@@ -56,6 +72,7 @@ namespace ChessGame.Models
 				case "undo": return Game is IInteractiveChessGame ig && ig.Moves.Count > 0;
 				case "branchGame": return Game.Moves.CurrentPosition > 0;
 				case "pauseGame": return Game is IInteractiveChessGame ig2 && (ig2.Clock.IsRunning || ig2.Clock.State.HasFlag(ClockState.Paused));
+				case "autoplay": return Game.Moves.Count > 2;
 			}
 			return false;
 		}
@@ -72,6 +89,7 @@ namespace ChessGame.Models
 					break;
 				case "branchGame": BranchGame(); break;
 				case "pauseGame": PauseGame(); break;
+				case "autoplay": AutoPlay(); break;
 			}
 		}
 
@@ -133,6 +151,20 @@ namespace ChessGame.Models
 				if (ig.Clock.State.HasFlag(ClockState.Paused)) ig.Clock.Resume(); else ig.Clock.Pause();
 				Notify(nameof(PauseLabel));
 			}
+		}
+
+		private async void AutoPlay()
+		{
+			AutoplayOptions ops = AutoplayOptions.Default;
+			if (!string.IsNullOrEmpty(Settings.Default.AutoplayOptions))
+			{
+				string[] parts = Settings.Default.AutoplayOptions.Split(':');
+				if (parts.Length == 2 && Enum.TryParse<AutoplayTrigger>(parts[0], out AutoplayTrigger tr) && double.TryParse(parts[1], out double dur))
+				{
+					ops = new AutoplayOptions(tr, TimeSpan.FromSeconds(dur));
+				}
+			}
+			Autoplay = ops;
 		}
 
 		private void Clock_StateChanged(ClockStateChange value)

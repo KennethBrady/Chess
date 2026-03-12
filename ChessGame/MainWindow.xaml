@@ -15,18 +15,25 @@
 				Icon="king.ico" Height="450" Width="800" WindowState="Maximized" ModalBackground="#222222aa">
 	<win:AppWindow.Menu>
 		<Menu FontSize="14" VerticalAlignment="Center" VerticalContentAlignment="Center">
-			<MenuItem Header="Game">
-				<MenuItem Header="New ..." Command="{Binding Command}" CommandParameter="newGame" InputGestureText="Ctrl-N"/>
-				<MenuItem Header="Branch Game" Command="{Binding Command}" CommandParameter="branchGame"/>
-				<MenuItem Header="{Binding PauseLabel}" Command="{Binding Command}" CommandParameter="pauseGame" InputGestureText="Ctrl-P"/>
+			<Menu.Resources>
+				<Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+					<Setter Property="Command" Value="{Binding Command}"/>
+				</Style>
+			</Menu.Resources>
+			<MenuItem Header="Game" Command="{x:Null}">
+				<MenuItem Header="New ..." CommandParameter="newGame" InputGestureText="Ctrl-N"/>
+				<MenuItem Header="Branch Game" CommandParameter="branchGame"/>
+				<MenuItem Header="{Binding PauseLabel}" CommandParameter="pauseGame" InputGestureText="Ctrl-P"/>
 				<Separator/>
-				<MenuItem Header="Export as PGN ..." Command="{Binding Command}" CommandParameter="exportPgn" InputGestureText="Ctrl-X"/>
-				<MenuItem Header="Import PGN ..." Command="{Binding Command}" CommandParameter="importPgn" InputGestureText="Ctrl-I"/>
+				<MenuItem Header="Export as PGN ..." CommandParameter="exportPgn" InputGestureText="Ctrl-X"/>
+				<MenuItem Header="Import PGN ..." CommandParameter="importPgn" InputGestureText="Ctrl-I"/>
 			</MenuItem>
-			<MenuItem Header="Moves">
-				<MenuItem Header="Undo" Command="{Binding Command}" CommandParameter="undo"/>
+			<MenuItem Header="Moves" Command="{x:Null}">
+				<MenuItem Header="Auto-Replay" CommandParameter="autoplay" InputGestureText="Ctrl-U"/>
+				<Separator/>
+				<MenuItem Header="Undo" CommandParameter="undo"/>
 			</MenuItem>
-			<MenuItem Header="Engine">
+			<MenuItem Header="Engine" Command="{x:Null}">
 				<MenuItem Header="Evaluate..." Command="{Binding Command}" CommandParameter="evalutate"/>
 			</MenuItem>
 		</Menu>
@@ -36,6 +43,7 @@
 		<KeyBinding Key="X" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="exportPgn"/>
 		<KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="importPgn"/>
 		<KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="pauseGame"/>
+		<KeyBinding Key="U" Modifiers="Ctrl" Command="{Binding Command}" CommandParameter="autoplay"/>
 	</win:AppWindow.InputBindings>
 	<win:AppWindow.Dialogs>
 		<win:DialogDef DialogType="{x:Type cdlg:NewGameDialog}" ModelType="{x:Type cdlg:NewGameDialogModel}" SettingsKey="NewGameDialogSettings"/>

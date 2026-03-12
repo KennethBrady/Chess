@@ -70,5 +70,17 @@ namespace ChessGame {
                 this["NewGameXml"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AutoplayOptions {
+            get {
+                return ((string)(this["AutoplayOptions"]));
+            }
+            set {
+                this["AutoplayOptions"] = value;
+            }
+        }
     }
 }

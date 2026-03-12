@@ -94,9 +94,9 @@ namespace Chess.Lib.Games
 		{
 			get
 			{
-				if (IsReadOnly) return NoPlayer.Default;
+				if (IsReadOnly && Moves.CurrentPosition	== Moves.Count) return NoPlayer.Default;
 				bool swap = FirstMove == Hue.Black;
-				switch(Moves.Count % 2)
+				switch(Moves.CurrentPosition % 2)
 				{
 					case 0: return swap ? _black : _white;
 					default: return swap ? _white : _black;

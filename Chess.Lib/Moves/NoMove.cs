@@ -43,6 +43,7 @@ namespace Chess.Lib.Moves
 		}
 		public string AlgebraicMove => string.Empty;
 
+		public string NumberedAlgebraicMove => string.Empty;
 		IChessPlayer IChessMove.Player => NoPlayer.Default;
 
 		public override int GetHashCode() => 1;

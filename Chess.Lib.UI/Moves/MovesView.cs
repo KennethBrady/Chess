@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Chess.Lib.UI
+namespace Chess.Lib.UI.Moves
 {
 	public class MovesView : GameViewBase
 	{
@@ -79,9 +79,11 @@ namespace Chess.Lib.UI
 				if (colIndex > 0)
 				{
 					MovesGrid.CurrentCell = new DataGridCellInfo(_moves[i], MovesGrid.Columns[colIndex]);
-					break;
+					return;
 				}
 			}
+			// No match found.  Clear selected cell:
+			MovesGrid.CurrentCell = new DataGridCellInfo();
 		}
 
 		protected override void HandleMoveUndone(IChessMove undoneMove)

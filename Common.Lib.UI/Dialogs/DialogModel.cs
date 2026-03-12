@@ -22,6 +22,8 @@ namespace Common.Lib.UI.Dialogs
 
 		protected bool HasClosed { get; private set; }
 
+		protected virtual void OnCloseButtonClicked() => Cancel();
+
 		protected virtual void OnClosed(IDialogResult<T> result)
 		{
 			if (HasClosed) return;	// prevent calling twice.
@@ -37,7 +39,7 @@ namespace Common.Lib.UI.Dialogs
 			return await w.ShowDialog(model);	// Not sure why 
 		}
 
-		void IDialogModel.Close(string reason) => Cancel(string.IsNullOrEmpty(reason) ? OperationCancelled : reason);
+		void IDialogModelEx.HandleCloseButtonClicked() => OnCloseButtonClicked();
 
 		event DialogResultHandler<T>? IDialogModelEx<T>.Closing
 		{

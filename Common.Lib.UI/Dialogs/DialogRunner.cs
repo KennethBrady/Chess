@@ -4,6 +4,7 @@ namespace Common.Lib.UI.Dialogs
 {
 	internal interface IDialogRunner
 	{
+		DialogView View { get; }
 		void ProcessEscapeKey();
 	}
 
@@ -20,14 +21,14 @@ namespace Common.Lib.UI.Dialogs
 			Model = model;
 			Model.Closing += Model_Closing;
 			ResultSink = sink;
-			Layer.IsHitTestVisible = true;
 			View.DataContext = Model;
+			if (View.IsModal) Layer.Background = Layer.ModalBackground;
 			foreach (DialogView v in Layer.Children) v.IsHitTestVisible = false;
 			Layer.Children.Add(View);
 		}
 
 		private DialogLayer Layer { get; init; }
-		private DialogView View { get; init; }
+		public DialogView View { get; private init; }
 
 		public IDialogModelEx<T> Model { get; private init; }
 
@@ -43,7 +44,7 @@ namespace Common.Lib.UI.Dialogs
 				Layer.Children.Remove(View);
 				Layer.OpenDialogs.Pop();
 				if (Layer.Children.Count > 0) Layer.Children[Layer.Children.Count - 1].IsHitTestVisible = true;
-				if (Layer.OpenDialogCount == 0) Layer.IsHitTestVisible = false;
+				if (Layer.ModalDialogCount == 0) Layer.Background = null;
 			}
 			if (View.Animation == AnimationType.None) close();
 			else

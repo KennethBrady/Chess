@@ -195,5 +195,7 @@ namespace Common.Lib.UI.Windows
 			};
 			return await DialogLayer.PushDialog(dialog, ex);
 		}
+
+		int IAppWindow.OpenDialogCount => DialogLayer.Children.Count;
 	}
 }

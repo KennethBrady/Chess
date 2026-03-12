@@ -5,15 +5,12 @@ namespace Common.Lib.UI.Dialogs
 {
     public interface IDialogModel : IViewModel
 	{
-		/// <summary>
-		/// Close the associated dialog with a default (cancel) value
-		/// </summary>
-		void Close(string reason = "");
 	}
 
 	internal interface IDialogModelEx
 	{
 		void ProcessEscapeKey();
+		void HandleCloseButtonClicked();
 	}
 
 	public interface IDialogModel<T> : IDialogModel;

@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Common.Lib.UI.Extensions
@@ -46,7 +47,18 @@ namespace Common.Lib.UI.Extensions
 
 
 			public IEnumerable<T> FindVisualChildren() => VisualChildrenOf<T>(visual);
-			
+
+			public  T? FindLogicalChild()
+			{
+				foreach (Visual o in LogicalTreeHelper.GetChildren(visual))
+				{
+					if (o is T t) return t;
+					T? r = o.FindLogicalChild<T>();
+					if (r != null) return r;
+				}
+				return null;
+			}
+
 		}
 
 		extension<T>(ItemsControl items)

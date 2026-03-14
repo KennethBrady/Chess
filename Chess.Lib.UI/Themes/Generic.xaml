@@ -87,16 +87,30 @@
 		</Setter>
 	</Style>
 	<Style TargetType="{x:Type moves:MovesView}">
-		<Setter Property="FontSize" Value="14"/>
+		<Setter Property="FontSize" Value="13"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type moves:MovesView}">
-					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-						<DataGrid Name="moves" IsReadOnly="True" AutoGenerateColumns="False" SelectionUnit="Cell" SelectionMode="Single">
+					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}"
+									DataContext="{x:Null}" Name="border">
+						<DataGrid Grid.Row="1" ItemsSource="{Binding Moves}" IsReadOnly="True" FontSize="12"
+												AutoGenerateColumns="False" SelectionUnit="Cell" SelectionMode="Single" Name="movesGrid"
+												ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+							<DataGrid.ColumnHeaderStyle>
+								<Style TargetType="DataGridColumnHeader">
+									<Setter Property="IsEnabled" Value="False"/>
+								</Style>
+							</DataGrid.ColumnHeaderStyle>
 							<DataGrid.Columns>
-								<DataGridTextColumn Header="#" Binding="{Binding MoveNumber}"/>
-								<DataGridTextColumn Header="White" Binding="{Binding WhiteMove.AlgebraicMove}"/>
-								<DataGridTextColumn Header="Black" Binding="{Binding BlackMove.AlgebraicMove}"/>
+								<DataGridTextColumn Header="#" Width="24" Binding="{Binding MoveNumber}">
+									<DataGridTextColumn.CellStyle>
+										<Style TargetType="DataGridCell">
+											<Setter Property="IsHitTestVisible" Value="False"/>
+										</Style>
+									</DataGridTextColumn.CellStyle>
+								</DataGridTextColumn>
+								<DataGridTextColumn Header="White" Width="56" Binding="{Binding WhiteMove}"/>
+								<DataGridTextColumn Header="Black" Width="*" Binding="{Binding BlackMove}"/>
 							</DataGrid.Columns>
 						</DataGrid>
 					</Border>
@@ -118,10 +132,10 @@
 								<ColumnDefinition Width="Auto"/>
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
-							<DockPanel Grid.Column="0" Width="160" Margin="0,0,2,0">
+							<DockPanel Grid.Column="0" Width="170" Margin="0,0,2,0">
 								<local:PlayerView DockPanel.Dock="Top" Hue="Black" Game="{TemplateBinding Game}"/>
 								<local:PlayerView DockPanel.Dock="Bottom" Hue="White" Game="{TemplateBinding Game}"/>
-								<moves:MovesView Game="{TemplateBinding Game}"/>
+								<moves:MovesView Game="{TemplateBinding Game}" BorderBrush="Black" BorderThickness="0,0,1,0"/>
 							</DockPanel>
 							<local:ChessBoard Grid.Column="1" Game="{TemplateBinding Game}" x:Name="board"
 																Width="{Binding RelativeSource={RelativeSource TemplatedParent},Path=BoardDimension}" 

@@ -5,7 +5,6 @@ using Chess.Lib.Hardware.Timing;
 using Common.Lib.UI;
 using Common.Lib.UI.MVVM;
 using System.Collections.ObjectModel;
-using System.Drawing.Imaging;
 using System.Windows;
 using System.Windows.Controls;
 

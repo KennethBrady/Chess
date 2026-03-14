@@ -5,7 +5,6 @@ using Common.Lib.Contracts;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Text;
-using static System.Net.WebRequestMethods;
 
 namespace Chess.Lib.Hardware
 {

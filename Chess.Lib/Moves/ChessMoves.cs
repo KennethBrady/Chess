@@ -11,6 +11,12 @@ namespace Chess.Lib.Moves
 
 	public interface IChessMoves : IReadOnlyList<IChessMove>
 	{
+		/// <summary>
+		/// Get/set the zero-based position.
+		/// </summary>
+		/// <remarks>
+		/// A position of -1 represents no move made
+		/// </remarks>
 		int CurrentPosition { get; set; }
 		IChessMove CurrentMove { get; set; }
 		IReadOnlyList<IChessMove> AllMoves { get; }

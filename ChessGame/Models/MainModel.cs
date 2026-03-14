@@ -6,7 +6,6 @@ using Chess.Lib.UI.Moves;
 using Chess.Lib.UI.Pgn;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.MVVM;
-using System.Diagnostics;
 using System.Windows;
 
 namespace ChessGame.Models

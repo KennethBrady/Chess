@@ -1,9 +1,6 @@
 ﻿using Common.Lib.UI.Dialogs;
-using Org.BouncyCastle.Asn1.X509.Qualified;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Input;
 
 namespace Chess.Lib.UI.Moves
 {

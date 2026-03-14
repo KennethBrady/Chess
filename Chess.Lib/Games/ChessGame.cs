@@ -14,7 +14,7 @@ namespace Chess.Lib.Games
 		private IPlayer _white, _black;
 		private readonly IBoard _board;
 		private IChessMove _lastMoveMade = NoMove.Default;
-		protected readonly IMoves _moves;
+		protected readonly ChessMoves _moves;
 		private Dictionary<int, IGameState> _gameStates = new();
 
 		/// <summary>
@@ -67,6 +67,11 @@ namespace Chess.Lib.Games
 
 		protected ChessGame(GameSetup setup)
 		{
+			if (setup.Board.Board is INoBoard) _board = new Board(); else
+			{
+				_board = setup.Board.IBoard;
+				FirstMove = setup.Board.NextMove;
+			}
 			_board = (setup.Board.Board is INoBoard) ? new Board() : setup.Board.IBoard;
 			_board.Game = this;
 			_board.MoveMade += OnMoveMade;
@@ -75,7 +80,6 @@ namespace Chess.Lib.Games
 			_moves = new ChessMoves(this, ImmutableList<IMove>.Empty);
 			_moves.MoveApplied += OnMoveApplied;
 			_gameStates.Add(-1, new GameState(this));
-			FirstMove = setup.Board.NextMove;
 		}
 
 		public abstract bool IsReadOnly { get; }
@@ -95,12 +99,14 @@ namespace Chess.Lib.Games
 			get
 			{
 				if (IsReadOnly && Moves.CurrentPosition	== Moves.Count) return NoPlayer.Default;
+				if (IsEnded) return NoPlayer.Default;
 				bool swap = FirstMove == Hue.Black;
-				switch(Moves.CurrentPosition % 2)
+				switch(Moves.Count % 2)
 				{
 					case 0: return swap ? _black : _white;
-					default: return swap ? _white : _black;
+					case 1: return swap ? _white : _black;
 				}
+				return NoPlayer.Default;
 			}
 		}
 
@@ -112,6 +118,16 @@ namespace Chess.Lib.Games
 		IBoard IGame.Board => _board;
 
 		bool IGame.CanMakeMoves => !IsReadOnly && _moves.IsAtEnd;
+
+		public virtual bool IsEnded
+		{
+			get
+			{
+				if (IsReadOnly) return true;
+				if (LastMoveMade.IsCheckMate) return true;
+				return false;
+			}
+		}
 
 		IMoves IGame.Moves => _moves;
 		IMove IGame.LastMoveMade
@@ -131,7 +147,7 @@ namespace Chess.Lib.Games
 
 		protected virtual void OnMoveMade(IChessMove move)
 		{
-			_moves.AddMove((IMove)move);
+			IMoves.AddMove((IMove)move);
 			int nReps = BoardState.CountRepetitions(Me.MoveList.Select(m => m.BoardState));
 			_lastMoveMade = move;
 			GameState state = new GameState(this);
@@ -153,7 +169,6 @@ namespace Chess.Lib.Games
 			} 
 		}
 
-		protected IGame Me => this;
 		IReadOnlyList<IMove> IGame.MoveList => _moves;
 
 		public IInteractiveChessGame Branch()
@@ -167,7 +182,7 @@ namespace Chess.Lib.Games
 
 		protected IMove UndoLastMove()
 		{
-			if (!IsReadOnly && _moves.AllMoves.Count > 0)
+			if (!IsReadOnly && IMoves.AllMoves.Count > 0)
 			{
 				IChessMove last = LastMoveMade;
 				int n = LastMoveMade.SerialNumber;
@@ -177,6 +192,9 @@ namespace Chess.Lib.Games
 			}
 			return NoMove.Default;
 		}
+
+		protected IGame Me => this;
+		protected IMoves IMoves => _moves;
 	}
 
 }

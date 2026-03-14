@@ -2,8 +2,6 @@
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
-using Common.Lib.Extensions;
-using DocumentFormat.OpenXml.Office2010.PowerPoint;
 
 namespace Chess.Lib.UnitTests.Hardware
 {

@@ -2,8 +2,6 @@
 using Chess.Lib.Hardware;
 using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
-using Chess.Lib.Moves.Parsing;
-using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using File = Chess.Lib.Hardware.File;
 
 namespace Chess.Lib.UnitTests.Pieces

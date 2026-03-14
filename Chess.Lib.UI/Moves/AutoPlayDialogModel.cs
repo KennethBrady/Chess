@@ -1,10 +1,6 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Moves;
 using Common.Lib.UI.Dialogs;
-using Common.Lib.UI.Extensions;
-using Common.Lib.UI.Windows;
-using System.Windows;
-using System.Windows.Media;
 
 namespace Chess.Lib.UI.Moves
 {

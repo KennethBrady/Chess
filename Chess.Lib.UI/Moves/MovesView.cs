@@ -1,4 +1,5 @@
 ﻿using Chess.Lib.Games;
+using Chess.Lib.Hardware;
 using Chess.Lib.Moves;
 using Common.Lib.UI;
 using Common.Lib.UI.MVVM;
@@ -15,137 +16,147 @@ namespace Chess.Lib.UI.Moves
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(MovesView), new FrameworkPropertyMetadata(typeof(MovesView)));
 		}
 
-		private DataGrid MovesGrid { get; set; } = DefaultControls.DataGrid;
-		private ObservableCollection<MovePair> _moves = new();
+		private Border Border { get; set; } = DefaultControls.Border;
 		protected override void UseTemplate()
 		{
-			MovesGrid = (DataGrid)GetTemplateChild("moves");
-			MovesGrid.ItemsSource = _moves;
-			MovesGrid.CurrentCellChanged += MovesGrid_CurrentCellChanged;
-		}
-
-		private void MovesGrid_CurrentCellChanged(object? sender, EventArgs e)
-		{
-			if (MovesGrid.CurrentCell.IsValid && MovesGrid.CurrentCell.Item is MovePair mp)
-			{
-				switch (MovesGrid.CurrentCell.Column.Header)
-				{
-					case "White": Game.Moves.CurrentMove = mp.WhiteMove; break;
-					case "Black": if (mp.HasBlackMove) Game.Moves.CurrentMove = mp.BlackMove; break;
-				}
-			}
-		}
-
-		protected override void HandleMoveCompleted(CompletedMove move)
-		{
-			base.HandleMoveCompleted(move);
-			if (move.Move.Side == Hardware.Hue.White) _moves.Add(new MovePair(move.Move));
-			else
-			{
-				switch(_moves.Count)
-				{
-					case 0:
-						MovePair mp = new MovePair(GameFactory.NoMove);
-						mp.ApplyBlack(move.Move);
-						_moves.Add(mp);
-						break;
-					default: _moves.Last().ApplyBlack(move.Move); break;
-				}
-				
-			}
+			Border = (Border)GetTemplateChild("border");
+			MovesGrid = (DataGrid)GetTemplateChild("movesGrid");
+			MovesGrid.SelectedCellsChanged += MovesGrid_SelectedCellsChanged;
+			ApplyGame();
 		}
 
 		protected override void ApplyGame(IChessGame oldGame, IChessGame newGame)
 		{
 			base.ApplyGame(oldGame, newGame);
-			_moves = new ObservableCollection<MovePair>(newGame.Moves.Chunk(2).Select(mm => new MovePair(mm)));
-			if (IsTemplateApplied) MovesGrid.ItemsSource = _moves;
+			ApplyGame();
 		}
 
-		protected override void HandleGameStateApplied(IChessGameState value)
+		protected override void HandleMoveCompleted(CompletedMove move) => Model.ApplyMove(move);
+
+		private DataGrid MovesGrid { get; set; } = DefaultControls.DataGrid;
+
+		private MovesViewModel Model { get; set; } = MovesViewModel.Empty;
+
+		private void ApplyGame()
 		{
-			for (int i = 0; i < _moves.Count; i++)
-			{
-				int colIndex = 0;
-				if (_moves[i].WhiteMove.SerialNumber == value.SerialNumber)
-				{
-					colIndex = 1;
-				}
-				else
-					if (_moves[i].HasBlackMove && _moves[i].BlackMove.SerialNumber == value.SerialNumber)
-				{
-					colIndex = 2;
-				}
-				if (colIndex > 0)
-				{
-					MovesGrid.CurrentCell = new DataGridCellInfo(_moves[i], MovesGrid.Columns[colIndex]);
-					return;
-				}
-			}
-			// No match found.  Clear selected cell:
-			MovesGrid.CurrentCell = new DataGridCellInfo();
+			Border.DataContext = Model = new MovesViewModel(Game);
 		}
 
-		protected override void HandleMoveUndone(IChessMove undoneMove)
+		private void MovesGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
 		{
-			if (_moves.Count > 0)
+			SelectedMove = GameFactory.NoMove;
+			if (e.AddedCells.Count == 1)
 			{
-				MovePair last = _moves.Last();
-				if(ReferenceEquals(undoneMove, last.BlackMove))
+				var c = e.AddedCells[0];
+				if (c.Item is MovesViewModel.MoveTrio trio)
 				{
-					last.UndoBlackMove();
+					switch(c.Column.DisplayIndex)
+					{
+						case 1: SelectedMove = trio.W; break;
+						case 2: SelectedMove = trio.B; break;
+					}
+					if (SelectedMove is not INoMove)  Game.Moves.CurrentMove = SelectedMove;
 				}
-				if (ReferenceEquals(undoneMove, last.WhiteMove)) _moves.RemoveAt(_moves.Count - 1);
 			}
 		}
 
-		#region MovePair
-		public class MovePair : ViewModel
+		private IChessMove SelectedMove { get; set; } = GameFactory.NoMove;
+
+		internal class MovesViewModel : ViewModel
 		{
-			private IChessMove _white = GameFactory.NoMove, _black = GameFactory.NoMove;
+			internal static MovesViewModel Empty = new MovesViewModel(GameFactory.NoGame);
+			public record Header(string Name, double Width);
 
-			internal MovePair(IChessMove whiteMove)
+			private static readonly Header[] _headers =
 			{
-				_white = whiteMove;
-				MoveNumber = 1 + _white.SerialNumber / 2;
+				new Header("#", 24),
+				new Header("White", 60),
+				new Header("Black", 60)
+			};
+
+			private ObservableCollection<MoveTrio> _moves = new();
+
+			internal MovesViewModel(IChessGame game)
+			{
+				Game = game;
+				_moves = new ObservableCollection<MoveTrio>(Game.Moves.Chunk(2).Select(c => new MoveTrio(c)));
 			}
+			public bool IsEmpty => Game is INoGame;
 
-			internal MovePair(IEnumerable<IChessMove> moves)
+			public IChessGame Game { get; private init; }
+
+			public IEnumerable<Header> Headers => _headers;
+			public IEnumerable<MoveTrio> Moves => _moves;
+			internal void ApplyMove(CompletedMove move)
 			{
-				switch (moves.Count())
+				switch(move.Move.Player.Side)
 				{
-					case 2:
-						_white = moves.First();
-						_black = moves.Last();
+					case Hue.White: _moves.Add(new MoveTrio(move.Move)); break;
+					case Hue.Black: 
+						if (_moves.Count == 0) _moves.Add(MoveTrio.BlackOnly(move.Move)); else
+							_moves.Last().SetBlack(move.Move);
 						break;
-					case 1:
-						_white = moves.First();
-						break;
 				}
-				MoveNumber = 1 + _white.SerialNumber / 2;
 			}
 
-			internal bool HasBlackMove => _black is not INoMove;
-
-			internal void ApplyBlack(IChessMove move)
+			internal class MoveTrio : ViewModel
 			{
-				_black = move;
-				Notify(nameof(BlackMove));
-			}
+				private bool _wSel, _bSel;
+				internal static MoveTrio BlackOnly(IChessMove blackMove)
+				{
+					MoveTrio r = new MoveTrio();
+					r.B = blackMove;
+					return r;
+				}
 
-			public int MoveNumber { get; private init; }
+				private MoveTrio()
+				{
+					W = GameFactory.NoMove;
+				}
 
-			public IChessMove WhiteMove => _white;
+				internal MoveTrio(IChessMove w)
+				{
+					W = w;
+				}
 
-			public IChessMove BlackMove => _black;
+				internal MoveTrio(IEnumerable<IChessMove> movePair): this(movePair.First())
+				{
+					if (movePair.Count() == 2) B = movePair.Last();
+				}
 
-			internal void UndoBlackMove()
-			{
-				_black = GameFactory.NoMove;
-				Notify(nameof(BlackMove));
+				internal void SetBlack(IChessMove move)
+				{
+					B = move;
+					Notify(nameof(BlackMove));
+				}
+
+				public bool IsWhiteSelected
+				{
+					get => _wSel;
+					set
+					{
+						_wSel = value;
+						Notify(nameof(WhiteMove));
+					}
+				}
+
+				public bool IsBlackSelected
+				{
+					get => _bSel;
+					set
+					{
+						_bSel = value;
+						Notify(nameof(BlackMove));
+					}
+				}
+
+				public string WhiteMove => W.AlgebraicMove;
+				public string BlackMove => B.AlgebraicMove;
+
+				public string MoveNumber => $"{W.Number.GameMoveNumber}.";
+				internal IChessMove W { get; private init; }
+				internal IChessMove B { get; private set; } = GameFactory.NoMove;
 			}
 		}
-
-		#endregion
 	}
 }

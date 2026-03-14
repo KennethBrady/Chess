@@ -2,7 +2,6 @@
 using Chess.Lib.Games;
 using Chess.Lib.Hardware.Pieces;
 using Chess.Lib.Moves;
-using System.Net;
 using System.Text;
 
 namespace Chess.Lib.Hardware

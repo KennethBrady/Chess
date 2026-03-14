@@ -1,9 +1,7 @@
 ﻿using Chess.Lib.Games;
 using Chess.Lib.Hardware;
-using Chess.Lib.Hardware.Timing;
 using Chess.Lib.Moves;
 using Chess.Lib.UI.Adorners;
-using Chess.Lib.UI.Dialogs;
 using Chess.Lib.UI.Moves;
 using Common.Lib.UI.Dialogs;
 using Common.Lib.UI.Extensions;

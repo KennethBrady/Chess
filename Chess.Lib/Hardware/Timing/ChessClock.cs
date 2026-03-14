@@ -1,9 +1,5 @@
 ﻿using Chess.Lib.Games;
 using Common.Lib.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace Chess.Lib.Hardware.Timing
 {
@@ -97,7 +93,7 @@ namespace Chess.Lib.Hardware.Timing
 		{
 			while (Me.IsRunning && RunningPlayer != null)
 			{
-				System.Diagnostics.Debug.WriteLine(RunningPlayer.RemainingTicks.ToString());
+				//System.Diagnostics.Debug.WriteLine(RunningPlayer.RemainingTicks.ToString());
 				if (RunningPlayer.RemainingTicks <= 0)
 				{
 					RunningPlayer.Pause();

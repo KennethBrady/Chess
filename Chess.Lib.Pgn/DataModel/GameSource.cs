@@ -1,9 +1,10 @@
-﻿using Sql.Lib.Services;
+﻿using Common.Lib.Contracts;
+using Sql.Lib.Services;
 
 namespace Chess.Lib.Pgn.DataModel
 {
 	[DBTable(TableName)]
-	public record GameSource(int Id, string Name)
+	public record GameSource(int Id, string Name): IId, INamed
 	{
 		public static readonly GameSource Empty = new GameSource(0, string.Empty);
 

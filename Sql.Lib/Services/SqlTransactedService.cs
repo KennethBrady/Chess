@@ -24,7 +24,6 @@ namespace Sql.Lib.Services
 		private IDbTransaction Transaction { get; set; }
 		public override string ConnectionString => BaseService.ConnectionString;
 		public override string DatabaseName => BaseService.DatabaseName;
-		public override List<string> LoadDatabaseNames() => BaseService.LoadDatabaseNames();
 		public bool IsDisposed { get; private set; } = false;
 		public bool IsTransactionCompleted { get; private set; }
 		private ConnectionProxy Proxy { get; init; }
@@ -82,7 +81,7 @@ namespace Sql.Lib.Services
 			return ExecuteProcedure(Connection, Transaction, procedureName, parameters);
 		}
 
-		public override int ExecuteStatements(IEnumerable<string> statements, bool useTransaction = true, int timeOut = 30)
+		public override long ExecuteStatements(IEnumerable<string> statements, bool useTransaction = true, int timeOut = 30)
 		{
 			CheckState();
 			return ExecuteStatements(statements, Connection, Transaction, false);
@@ -114,7 +113,7 @@ namespace Sql.Lib.Services
 		public override List<T> Insert<T>(IEnumerable<T> values, int timeOut = 30)
 		{
 			CheckState();
-			return Insert(values, Connection, Transaction, timeOut);
+			return Insert(values, Connection, Transaction, timeOut);			
 		}
 
 		public override long Update<T>(IEnumerable<T> values, int timeOut = 30)
@@ -123,11 +122,7 @@ namespace Sql.Lib.Services
 			return base.Update(values, Connection, Transaction, timeOut);
 		}
 
-		public override int Add<T>(IEnumerable<T> values, int timeOut = 30)
-		{
-			CheckState();
-			return Add(values, Connection, Transaction, timeOut);
-		}
+
 
 		#endregion
 
@@ -147,6 +142,7 @@ namespace Sql.Lib.Services
 				IsDisposed = true;
 			}
 		}
+
 
 		public void Commit()
 		{
@@ -207,14 +203,14 @@ namespace Sql.Lib.Services
 
 			public void Close()
 			{
-
+				
 			}
 
 			public IDbCommand CreateCommand() => BaseConnection.CreateCommand();
 
 			public void Dispose()
 			{
-
+				
 			}
 
 			public void Open()

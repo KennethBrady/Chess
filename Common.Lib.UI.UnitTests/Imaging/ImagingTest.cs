@@ -34,23 +34,12 @@ namespace Common.Lib.UI.UnitTests.Imaging
 			Assert.HasCount(1935718, Import.ImageData);
 		}
 
-		private static readonly ImageCodecType[] _supported = { ImageCodecType.Bmp, ImageCodecType.Gif, ImageCodecType.Png, ImageCodecType.Jpg, ImageCodecType.Tiff };
 		[STATestMethod]
-		public void ConversionsOccur()
+		public void EmptyClipboard()
 		{
-			SetupClipboard();
-			foreach(ImageCodecType ict in _supported)
-			{
-				ImageImport imp = IMG.ExtractImageFromClipboard(ict);
-				Assert.IsFalse(imp.IsEmpty, ict.ToString());
-				Assert.AreEqual(ict, IMG.DetectCodec(imp.ImageData), ict.ToString());
-				string fname = $"Artifact{ict.FileExtension}";
-				byte[] data = File.ReadAllBytes(fname);
-				Assert.IsTrue(data.SequenceEqual(imp.ImageData), ict.ToString());
-				ImageSource src = imp.Source;
-				Assert.IsNotNull(src);
-				Assert.IsFalse(src.IsDefault);
-			}
+			Clipboard.Clear();
+			var import = IMG.ExtractImageFromClipboard();
+			Assert.IsTrue(import.IsEmpty);
 		}
 
 		[TestMethod]

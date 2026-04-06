@@ -7,5 +7,7 @@ namespace Common.Lib.UI.Windows
 	{
 		Task<IDialogResult<T>> ShowDialog<T>(IDialogModel<T> dialogContext);
 		int OpenDialogCount { get; }
+
+		void Dispatch(Action action);
 	}
 }

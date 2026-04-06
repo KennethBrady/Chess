@@ -28,6 +28,8 @@ namespace Common.Lib.UI.Dialogs
 
 		internal Task<IDialogResult<T>> PushDialog<T>(DialogView view, IDialogModelEx<T> model)
 		{
+			if (double.IsNaN(view.MaxWidth)) view.MaxWidth = ActualWidth;
+			if (double.IsNaN(view.MaxHeight)) view.MaxHeight = ActualHeight;
 			TaskCompletionSource<IDialogResult<T>> sink = new TaskCompletionSource<IDialogResult<T>>();
 			OpenDialogs.Push(new DialogRunner<T>(this, view, model, sink));
 			return sink.Task;

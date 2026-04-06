@@ -58,7 +58,7 @@ namespace Sql.Lib.Services
 		}
 
 		public static ISqlWhereClause Where(params string[] conditions) => new ConditionalWhereClause(conditions, "and");
-		
+
 		public static ISqlWhereClause Where(string fieldName, IEnumerable<int> values, params string[] conditions) =>
 			new InListWithConditions((ISqlInList)WhereInList<int>(fieldName, values, false), new ConditionalWhereClause(conditions, "and"));
 
@@ -73,7 +73,7 @@ namespace Sql.Lib.Services
 		{
 			if (cl1.IsEmpty && cl2.IsEmpty) return SqlInList.Empty;
 			if (cl1.IsEmpty) return cl2;
-			if(cl2.IsEmpty) return cl1;
+			if (cl2.IsEmpty) return cl1;
 			return new ConditionalWhereClause([cl1.AsSqlWithoutWhere, cl2.AsSqlWithoutWhere], "and");
 		}
 	}

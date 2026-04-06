@@ -14,7 +14,10 @@ namespace Sql.Lib.Services
 
 	public abstract class SqlService : ISqlService
 	{
-		protected SqlService() { }
+		protected SqlService() 
+		{ 
+			Async = new AsyncImpl(this);
+		}
 
 		public abstract string ConnectionString { get; }
 		public abstract string DatabaseName { get; }
@@ -27,7 +30,17 @@ namespace Sql.Lib.Services
 
 		public ITypeLoader CreateLoaderFor<T>() => CreateLoader(typeof(T));
 
-		public abstract List<string> LoadDatabaseNames();
+		private static string[] _systemDbs = { "sys", "mysql" };
+		public List<string> LoadDatabaseNames()
+		{
+			List<string> r = new();
+			ExecuteCustomReader("show databases", rdr =>
+			{
+				string dbname = rdr.GetString(0);
+				if (!dbname.EndsWith("_schema") && !_systemDbs.Contains(dbname)) r.Add(dbname);
+			});
+			return r;
+		}
 
 		#endregion
 
@@ -45,7 +58,7 @@ namespace Sql.Lib.Services
 			using (IDbConnection conn = CreateConnection()) return ExecuteNonQuery(sql, conn, null, timeOut);
 		}
 
-		public virtual int ExecuteStatements(IEnumerable<string> statements, bool useTransaction = true, int timeOut = 30)
+		public virtual long ExecuteStatements(IEnumerable<string> statements, bool useTransaction = true, int timeOut = 30)
 		{
 			if (statements == null || statements.Count() == 0) return 0;
 			using (IDbConnection conn = CreateConnection()) return ExecuteStatements(statements, conn, null, useTransaction, timeOut);
@@ -115,7 +128,7 @@ namespace Sql.Lib.Services
 			return r;
 		}
 
-		public virtual List<T> LoadSelect<T>(string selection, int timeOut = 30)
+		public virtual List<T> LoadSelect<T>(string selection, int timeOut = 30) where T : class
 		{
 			Type forType = typeof(T);
 			Loader loader = CreateLoader(forType);
@@ -136,7 +149,7 @@ namespace Sql.Lib.Services
 
 		public T InsertOne<T>(T value, int timeOut = 30) where T : class => Insert(value.Yield(), timeOut).First();
 
-		public virtual int Add<T>(IEnumerable<T> values, int timeOut = 30) where T : class
+		public int Add<T>(IEnumerable<T> values, int timeOut = 30) where T : class
 		{
 			using var conn = CreateConnection();
 			IDbTransaction tx = conn.BeginTransaction();
@@ -188,9 +201,9 @@ namespace Sql.Lib.Services
 			return ExecuteStatements(statements, true, timeOut);
 		}
 
-		public int DeleteOne<T>(T value) where T : class => Delete(value.Yield());
+		public long DeleteOne<T>(T value) where T : class => Delete(value.Yield());
 
-		public virtual int Delete<T>(IEnumerable<T> values) where T : class
+		public virtual long Delete<T>(IEnumerable<T> values) where T : class
 		{
 			Loader loader = CreateLoader(typeof(T));
 			List<string> statements = ApplySqlOnly(values.Select(v => loader.CreateDeleteStatement(v))).ToList();
@@ -200,6 +213,8 @@ namespace Sql.Lib.Services
 
 		public ITransactedService CreateTransactedService(bool commitByDefault = true)
 			=> new SqlTransactedService(this, commitByDefault);
+
+		public IAsyncService Async { get; private init; }
 
 		#endregion
 
@@ -255,10 +270,10 @@ namespace Sql.Lib.Services
 			return cmd.ExecuteNonQuery();
 		}
 
-		protected int ExecuteStatements(IEnumerable<string> statements, IDbConnection connection, IDbTransaction? transaction,
+		protected long ExecuteStatements(IEnumerable<string> statements, IDbConnection connection, IDbTransaction? transaction,
 			bool commitAndRollback, int timeOut = 30)
 		{
-			int rowsAffected = 0, n = 0;
+			long rowsAffected = 0, n = 0;
 			if (commitAndRollback && transaction == null) transaction = connection.BeginTransaction();
 			foreach (string sql in statements)
 			{
@@ -383,6 +398,7 @@ namespace Sql.Lib.Services
 						}
 						where = $"where {loader.PrimaryKeyName}={id}";
 					}
+					//string sql = $"select * from {loader.TableName} where {loader.PrimaryKeyName} in (select max({loader.PrimaryKeyName}) from {loader.TableName})";
 					cmd = connection.CreateCommand();
 					cmd.Transaction = transaction;
 					cmd.CommandText = $"select * from {loader.TableName} {where}";
@@ -395,7 +411,7 @@ namespace Sql.Lib.Services
 			return r;
 		}
 
-		protected int Update<T>(IEnumerable<T> values, IDbConnection connection, IDbTransaction transaction, int timeOut = 30)
+		protected long Update<T>(IEnumerable<T> values, IDbConnection connection, IDbTransaction transaction, int timeOut = 30)
 		{
 			Loader loader = CreateLoader(typeof(T));
 			List<string> statements = ApplySqlOnly(values.Select(v => loader.CreateUpdateStatement(v))).ToList();
@@ -403,7 +419,7 @@ namespace Sql.Lib.Services
 			return ExecuteStatements(statements, connection, transaction, false, timeOut);
 		}
 
-		protected int Delete<T>(IEnumerable<T> values, IDbConnection connection, IDbTransaction transaction, int timeOut = 30)
+		protected long Delete<T>(IEnumerable<T> values, IDbConnection connection, IDbTransaction transaction, int timeOut = 30)
 		{
 			Loader loader = CreateLoader(typeof(T));
 			List<string> statements = ApplySqlOnly(values.Select(v => loader.CreateDeleteStatement(v))).ToList();
@@ -413,5 +429,32 @@ namespace Sql.Lib.Services
 
 		#endregion
 
+		private class AsyncImpl : IAsyncService
+		{
+			internal AsyncImpl(SqlService service)
+			{
+				Service = service;
+			}
+
+			private SqlService Service { get; init; }
+
+			public Task<List<T>> LoadAll<T>() where T : class
+			{
+				List<T> load() => Service.LoadAll<T>();
+				return Task<List<T>>.Factory.StartNew(load);
+			}
+
+			public Task<List<T>> LoadWhere<T>(string where) where T : class
+			{
+				List<T> load() => Service.LoadWhere<T>(where);
+				return Task<List<T>>.Factory.StartNew(load);
+			}
+
+			public Task<List<T>> LoadSelect<T>(string selection) where T : class
+			{
+				List<T> load() => Service.LoadSelect<T>(selection);
+				return Task<List<T>>.Factory.StartNew(load);
+			}
+		}
 	}
 }

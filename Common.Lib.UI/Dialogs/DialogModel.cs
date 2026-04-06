@@ -30,6 +30,7 @@ namespace Common.Lib.UI.Dialogs
 			HasClosed = true;
 			FinalResult = result;
 			foreach (var handler in _resultHandlers) handler(result);
+			Dispose();
 		}
 
 		protected async Task<IDialogResult<R>> ShowDialog<R>(DialogModel<R> model)
@@ -64,6 +65,8 @@ namespace Common.Lib.UI.Dialogs
 		IAppWindow? IDialogModelEx<T>.Window { get; set; }
 
 		private IDialogModelEx<T> Me => this;
+
+		public virtual void Dispose() { }
 		
 	}
 }

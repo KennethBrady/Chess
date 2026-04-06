@@ -10,17 +10,18 @@ using System.Threading.Tasks;
 
 namespace Sql.Lib.Services
 {
-	/// <summary>
-	/// Implementation of SqlService for MySql / MariaDB
-	/// </summary>
+	public interface IAsyncSqlService
+	{
+		Task<List<T>> LoadAll<T>() where T : class;
+		Task<List<T>> LoadWhere<T>(string whereClause) where T : class;
+	}
+
 	public class MySqlService : SqlService
 	{
 		private readonly string _connString;
-		private Lazy<AsyncImpl> _asyncImpl;
 		public MySqlService(string connectionString)
 		{
 			_connString = connectionString;
-			_asyncImpl = new Lazy<AsyncImpl>(() => new AsyncImpl(this));
 		}
 
 		public override string ConnectionString => _connString;
@@ -30,7 +31,6 @@ namespace Sql.Lib.Services
 			if (open) conn.Open();
 			return conn;
 		}
-		public IAsyncSqlService Async => _asyncImpl.Value;
 
 		private static readonly Regex _dbRx = new Regex(@"[dD]atabase=(\w+)", RegexOptions.Compiled);
 		public override string DatabaseName
@@ -41,18 +41,6 @@ namespace Sql.Lib.Services
 				if (!match.Success) throw new Exception($"Invalid connection string (database undefined): {ConnectionString}");
 				return match.Groups[1].Value;
 			}
-		}
-
-		private static string[] _systemDbs = { "sys", "mysql" };
-		public override List<string> LoadDatabaseNames()
-		{
-			List<string> r = new();
-			ExecuteCustomReader("show databases", rdr =>
-			{
-				string dbname = rdr.GetString(0);
-				if (!dbname.EndsWith("_schema") && !_systemDbs.Contains(dbname)) r.Add(dbname);
-			});
-			return r;
 		}
 
 		public override Table LoadTableSchema(string tableName, bool ensureForeignKeys = false)

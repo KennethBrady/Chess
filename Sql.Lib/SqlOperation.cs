@@ -90,7 +90,10 @@ namespace Sql.Lib
 		object ISqlResult.Input => Input;
 	}
 
-	public record struct SqlResult(SqlOperation Operation, object Input, bool Succeeded, string ExtraInfo): ISqlResult;
+	public record struct SqlResult(SqlOperation Operation, object Input, bool Succeeded, string ExtraInfo): ISqlResult
+	{
+		public static readonly SqlResult Empty = new SqlResult(SqlOperation.None, new object(), false, string.Empty);
+	}
 	public record struct SqlResult<T>(SqlOperation Operation, T Input, bool Succeeded, string ExtraInfo): ISqlResult<T> where T : class
 	{
 		object ISqlResult.Input => Input;

@@ -6,7 +6,7 @@ namespace Chess.Lib.Pgn.DataModel
 {
 	[DBTable(TableName)]
 	[DebuggerDisplay("{Name} ({Id})")]
-	public record PgnPlayer(int Id, string Name, int FideId = 0): IId
+	public record PgnPlayer(int Id, string Name, int FideId = 0): IId, INamed
 	{
 		public const string TableName = "player";
 		public static readonly PgnPlayer NoPlayer = new(0, string.Empty);

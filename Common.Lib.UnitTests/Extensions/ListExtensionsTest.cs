@@ -1,4 +1,5 @@
-﻿using Common.Lib.Extensions;
+﻿using Common.Lib.Contracts;
+using Common.Lib.Extensions;
 
 namespace Common.Lib.UnitTests.Extensions
 {
@@ -70,6 +71,56 @@ namespace Common.Lib.UnitTests.Extensions
 			Assert.AreEqual(0, n);
 			Assert.HasCount(11, values);
 		}
+
+		[TestMethod]
+		public void BinarySearchAll()
+		{
+			List<int> values = Enumerable.Range(0, 1000).ToList();
+			for (int i = 0; i < 5; ++i) values.Add(500);  // 6 occurrences of 500
+			values.Sort();
+			List<int> indices = values.BinarySearchAll(500).ToList();
+			Assert.HasCount(6, indices);
+			Assert.AreEqual(500, indices[0]);
+			Assert.AreEqual(505, indices[5]);
+			Assert.IsTrue(indices.All(i => values[i] == 500));
+			Assert.IsTrue(indices.IsSorted);
+			values.Clear();
+
+			// Test values at start
+			for (int i = 0; i < 10; ++i) values.Add(5);
+			values.Add(6);
+			Assert.IsTrue(values.IsSorted);
+			indices = values.BinarySearchAll(5).ToList();
+			Assert.HasCount(10, indices);
+			Assert.AreEqual(0, indices[0]);
+
+			// Test values at end:
+			values.Clear();
+			values.AddRange(Enumerable.Range(0, 50));
+			indices	= values.BinarySearchAll(49).ToList();
+			Assert.HasCount(1, indices);
+			Assert.AreEqual(49, indices[0]);
+
+			// Test no values found
+			indices = values.BinarySearchAll(-2).ToList();
+			Assert.HasCount(0, indices);
+		}
+
+		[TestMethod]
+		public void BinarySearchAllWithComparer()
+		{
+			List<IId> things = Enumerable.Range(0, 1000).Select(i => new IdThing(i)).Cast<IId>().ToList();
+			for (int i = 0; i < 5; ++i) things.Add(new IdThing(500));
+			things.Sort(IIdComparer.Instance);
+			Assert.IsTrue(things.IsOrdered(IIdComparer.Instance));
+			List<int> indices = things.BinarySearchAll<IId>(new IdThing(500), IIdComparer.Instance).ToList();
+			Assert.HasCount(6, indices);
+			Assert.AreEqual(500, indices[0]);
+			Assert.AreEqual(505, indices[5]);
+			Assert.IsTrue(indices.IsSorted);
+		}
+
+		private record IdThing(int Id) : IId;
 
 		private class ReverseIntComparer : Comparer<int>
 		{

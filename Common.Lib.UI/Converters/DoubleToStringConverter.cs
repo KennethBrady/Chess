@@ -24,7 +24,6 @@ namespace Common.Lib.UI.Converters
 			int nDec = (NDec < 0) ? 2 : NDec;
 			if (parameter is string sdec && int.TryParse(sdec, out int nd)) nDec = nd;
 			d *= PercentageFactor;
-			System.Diagnostics.Debug.WriteLine(d);
 			return d.ToString($"F{nDec}");
 		}
 

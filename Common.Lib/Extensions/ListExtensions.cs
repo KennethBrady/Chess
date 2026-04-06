@@ -2,6 +2,35 @@
 {
 	public static class ListExtensions
 	{
+		extension<T>(List<T> list) where T : struct, IComparable<T>
+		{
+			public IEnumerable<int> BinarySearchAll(T value)
+			{
+				int n = list.BinarySearch(value);
+				if (n >= 0)
+				{
+					int n0 = n;
+					while (--n0 >= 0 && value.CompareTo(list[n0]) == 0) n = n0;
+					yield return n;
+					while (++n < list.Count && value.CompareTo(list[n]) == 0) yield return n;
+				}
+			}
+
+			public bool IsSorted
+			{
+				get
+				{
+					if (list.Count == 0) return false;
+					if (list.Count == 1) return true;
+					for(int i=1;i<list.Count;++i)
+					{
+						if (list[i - 1].CompareTo(list[i]) > 0) return false;
+					}
+					return true;
+				}
+			}
+		}
+
 		extension<T>(List<T> list)
 		{
 			/// <summary>
@@ -63,6 +92,33 @@
 				if (n < 0) n = ~n;
 				list.Insert(n, v);
 				return n;
+			}
+
+			public IEnumerable<int> BinarySearchAll(T value, IComparer<T> comparer)
+			{
+				int n = list.BinarySearch(value, comparer);
+				if (n >= 0)
+				{
+					int n0 = n;
+					while (--n0 >= 0 && comparer.Compare(value, list[n0]) == 0) n = n0;
+					yield return n;
+					while (++n < list.Count && comparer.Compare(value, list[n]) == 0) yield return n;
+				}
+			}
+
+			public bool IsOrdered(IComparer<T> comparer)
+			{
+				switch(list.Count)
+				{
+					case 0: return false;
+					case 1: return true;
+					default:
+						for(int i=1;i<list.Count;++i)
+						{
+							if (comparer.Compare(list[i-1], list[i]) > 0) return false;
+						}
+						return true;
+				}
 			}
 
 			/// <summary>

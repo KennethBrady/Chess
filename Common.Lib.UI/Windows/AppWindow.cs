@@ -151,7 +151,7 @@ namespace Common.Lib.UI.Windows
 
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			if (e.Key == Key.Escape && !e.Handled && DialogLayer.OpenDialogCount > 0)
+			if (e.Key == Key.Escape && !e.Handled && OpenDialogCount > 0)
 			{
 				DialogLayer.ProcessEscapePressed();
 				e.Handled = true;
@@ -171,6 +171,8 @@ namespace Common.Lib.UI.Windows
 			}
 			return null;
 		}
+
+		void IAppWindow.Dispatch(Action action) => Dispatcher.Invoke(action);
 
 		async Task<IDialogResult<T>> IAppWindow.ShowDialog<T>(IDialogModel<T> dialogContext)
 		{
@@ -196,6 +198,6 @@ namespace Common.Lib.UI.Windows
 			return await DialogLayer.PushDialog(dialog, ex);
 		}
 
-		int IAppWindow.OpenDialogCount => DialogLayer.Children.Count;
+		public int OpenDialogCount => DialogLayer.Children.Count;
 	}
 }

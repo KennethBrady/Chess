@@ -33,15 +33,15 @@ namespace Common.Lib.IO
 		public static IEnumerable<VersionedFile> InFolder(string folder, string name, string extension)
 		{
 			if (!Directory.Exists(folder)) yield break;
-			if (extension.StartsWith('.')) extension = extension.Substring(1);
-			string search = $"{name}*.{extension}";
-			Regex rxVersion = new Regex(@$"(.+)({name})(\d+).{extension}");
+			if (!extension.StartsWith('.')) extension = '.' + extension;
+			string search = $"{name}*{extension}";
+			Regex rxVersion = new Regex(@$"(.+)({name})(\d+){extension}");
 			foreach (string fpath in Directory.EnumerateFiles(folder, search))
 			{
 				Match m = rxVersion.Match(fpath);
 				if (m.Success && int.TryParse(m.Groups[3].Value, out int version))
 				{
-					yield return new VersionedFile(folder, name, extension, version);
+					yield return new VersionedFile(folder, name, extension.Substring(1), version);
 				}
 			}
 		}
@@ -91,7 +91,7 @@ namespace Common.Lib.IO
 			get
 			{
 				int nNxt = Files.Count == 0 ? 0 : Files.Max(f => f.Version) + 1;
-				return Path.Combine(Folder, $"{Name}{nNxt}.{Extension}");
+				return Path.Combine(Folder, $"{Name}{nNxt}{Extension}");
 			}
 		}
 
@@ -102,7 +102,7 @@ namespace Common.Lib.IO
 			{
 				if (vf.Exists)
 				{
-					TimeSpan ag = DateTime.Now - File.GetCreationTime(vf.FilePath);
+					TimeSpan ag = DateTime.Now - File.GetLastWriteTime(vf.FilePath);
 					if (ag <= maxAge) remaining.Add(vf); else File.Delete(vf.FilePath);
 				}
 			}

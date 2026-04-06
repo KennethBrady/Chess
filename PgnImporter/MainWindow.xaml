@@ -1,0 +1,112 @@
+﻿<win:AppWindow x:Class="PgnImporter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PgnImporter"
+				xmlns:dlg="clr-namespace:Common.Lib.UI.Dialogs;assembly=Common.Lib.UI"
+        xmlns:win="clr-namespace:Common.Lib.UI.Windows;assembly=Common.Lib.UI"
+        xmlns:dd="clr-namespace:Common.Lib.UI.DragDrop;assembly=Common.Lib.UI"
+				xmlns:conv="clr-namespace:Common.Lib.UI.Converters;assembly=Common.Lib.UI"
+				xmlns:ctrls="clr-namespace:Common.Lib.UI.Controls;assembly=Common.Lib.UI.Controls"
+				xmlns:mods="clr-namespace:PgnImporter.Models"
+        mc:Ignorable="d" WindowState="Maximized"
+        Title="PGN Importer" Height="450" Width="800" dd:DDHandler.Strategy="{Binding DropHandler}">
+	<win:AppWindow.TitleBarStyle>
+		<Style TargetType="{x:Type win:TitleBar}">
+			<Setter Property="Background" Value="Black"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="ContentTemplate">
+				<Setter.Value>
+					<DataTemplate>
+						<DockPanel Margin="10,0" VerticalAlignment="Center">
+							<TextBlock Text="{Binding SourcePathAndCount}" Foreground="White" FontSize="14" />
+							
+							<ctrls:StatusBar DataContext="{Binding Status}" Foreground="White"/>
+						</DockPanel>
+					</DataTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</win:AppWindow.TitleBarStyle>
+	<win:AppWindow.Resources>
+		<conv:NullToVisibilityConverter x:Key="n2vc"/>
+		<conv:CountToVisibilityConverter x:Key="c2vc"/>
+	</win:AppWindow.Resources>
+	<win:AppWindow.DialogStyle>
+		<Style TargetType="{x:Type dlg:DialogView}">
+			<Setter Property="Background" Value="LightSkyBlue"/>
+			<Setter Property="BorderBrush" Value="Navy"/>
+			<Setter Property="BorderThickness" Value="2"/>
+			<Setter Property="Foreground" Value="Navy"/>
+			<Setter Property="Padding" Value="1"/>
+			<Setter Property="TitleBackground" Value="Navy"/>
+			<Setter Property="TitleForeground"  Value="Yellow"/>
+			<Setter Property="Animation" Value="SlideVertical"/>
+		</Style>
+	</win:AppWindow.DialogStyle>
+	<win:AppWindow.Dialogs>
+		<win:DialogDef DialogType="{x:Type local:ImportFileDialog}" ModelType="{x:Type mods:ImportFileDialogModel}"/>
+	</win:AppWindow.Dialogs>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+		<TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+							 Foreground="LightGray" FontSize="18" Text="Drop a multi-pgn file or zip archive here."/>
+		<DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Imports}" Visibility="{Binding Imports,Converter={StaticResource c2vc}}"
+							AutoGenerateColumns="False" IsReadOnly="True" SelectedItem="{Binding Selection}" SelectionMode="Single" Name="games"
+							VirtualizingPanel.IsVirtualizing="True">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="#" Binding="{Binding Index}"/>
+				<DataGridTextColumn Header="Pos" Binding="{Binding Position}"/>
+				<DataGridTextColumn Header="Date" Binding="{Binding Date,StringFormat=MM/dd/yyyy}"/>
+				<DataGridTextColumn Header="White" Binding="{Binding White}">
+					<DataGridTextColumn.CellStyle>
+						<Style TargetType="DataGridCell">
+							<Setter Property="Background" Value="{Binding WhiteBg}"/>
+						</Style>
+					</DataGridTextColumn.CellStyle>
+				</DataGridTextColumn>
+				<DataGridTextColumn Header="Black" Binding="{Binding Black}">
+					<DataGridTextColumn.CellStyle>
+						<Style TargetType="DataGridCell">
+							<Setter Property="Background" Value="{Binding BlackBg}"/>
+						</Style>
+					</DataGridTextColumn.CellStyle>
+				</DataGridTextColumn>
+				<DataGridTextColumn Header="Moves Parsed" Binding="{Binding MovesParsed}">
+					<DataGridTextColumn.CellStyle>
+						<Style TargetType="DataGridCell">
+							<Setter Property="Background" Value="{Binding MovesParsedBg}"/>
+						</Style>
+					</DataGridTextColumn.CellStyle>
+				</DataGridTextColumn>
+				<DataGridCheckBoxColumn Header="Unique?" Binding="{Binding IsUnique}">
+					<DataGridCheckBoxColumn.CellStyle>
+						<Style TargetType="DataGridCell">
+							<Setter Property="Background" Value="{Binding UniqueBg}"/>
+							<Setter Property="Visibility" Value="{Binding IsUnique,Converter={StaticResource n2vc}}"/>
+						</Style>
+					</DataGridCheckBoxColumn.CellStyle>
+				</DataGridCheckBoxColumn>
+				<DataGridTextColumn Header="Opening" Binding="{Binding OpeningName}">
+					<DataGridTextColumn.CellStyle>
+						<Style TargetType="DataGridCell">
+							<Setter Property="Background" Value="{Binding OpeningBg}"/>
+						</Style>
+					</DataGridTextColumn.CellStyle>
+				</DataGridTextColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+		<DockPanel Grid.Row="1" LastChildFill="True">
+			<Button Content="{Binding ActionLabel}" Command="{Binding Command}" CommandParameter="matchPlayers"/>
+			<ctrls:StackedProgressBar DockPanel.Dock="Right" Model="{Binding Progress}" Height="30" Margin="10"/>
+		</DockPanel>
+	</Grid>
+</win:AppWindow>

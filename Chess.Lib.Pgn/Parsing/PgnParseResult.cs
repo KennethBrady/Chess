@@ -24,18 +24,18 @@
 		PgnParseErrorType ErrorType { get; }
 	}
 
-	public record struct PgnParseError(string SourcePgn, PgnParseErrorType ErrorType, string ExtraInfo = ""): IPgnParseError
+	internal record struct PgnParseError(string SourcePgn, PgnParseErrorType ErrorType, string ExtraInfo = ""): IPgnParseError
 	{
 		public bool Succeeded => false;
 	}
 
-	public record struct PgnParseSuccess(GameImport Import): IPgnParseSuccess
+	internal record struct PgnParseSuccess(GameImport Import): IPgnParseSuccess
 	{
 		public string SourcePgn => Import.Moves;
 		public bool Succeeded => true;
 	}
 
-	public record struct PgnParseProgress(int TotalParsed, int NSuccess, double PercentComplete)
+	public readonly record struct PgnParseProgress(int TotalParsed, int NSuccess, double PercentComplete)
 	{
 		public int NFail => TotalParsed - NSuccess;
 	}

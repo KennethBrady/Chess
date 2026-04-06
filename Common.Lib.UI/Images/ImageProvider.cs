@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -48,13 +48,12 @@ namespace Common.Lib.UI.Images
 	{
 		public static BitmapImage Load(ImageType type)
 		{
-			string fpath = Path.Combine(Environment.CurrentDirectory, $@"Images\{type.FileName}");
-			fpath = Path.GetFullPath(fpath);
-			bool exists = File.Exists(fpath);
-			BitmapImage img = new BitmapImage();
+			string resname = $"Common.Lib.UI.Images.{type.FileName}";
+			var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resname);
+			BitmapImage img =new BitmapImage();
 			img.BeginInit();
-			img.UriSource = new Uri(fpath, UriKind.Absolute);
-			img.CacheOption = BitmapCacheOption.OnLoad;
+			img.StreamSource = stream;
+			img.CacheOption = BitmapCacheOption.None;
 			img.EndInit();
 			img.Freeze();
 			return img;

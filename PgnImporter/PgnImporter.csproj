@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chess.Lib.Pgn\Chess.Lib.Pgn.csproj" />
+    <ProjectReference Include="..\Chess.Lib.UI\Chess.Lib.UI.csproj" />
+    <ProjectReference Include="..\Chess.Lib\Chess.Lib.csproj" />
+    <ProjectReference Include="..\Common.Lib.UI.Controls\Common.Lib.UI.Controls.csproj" />
+    <ProjectReference Include="..\Common.Lib.UI\Common.Lib.UI.csproj" />
+    <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
+    <ProjectReference Include="..\CommonApps.Lib\CommonApps.Lib.csproj" />
+    <ProjectReference Include="..\Sql.Lib\Sql.Lib.csproj" />
+  </ItemGroup>
+
+</Project>

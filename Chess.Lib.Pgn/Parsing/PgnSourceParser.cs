@@ -154,6 +154,32 @@ namespace Chess.Lib.Pgn.Parsing
 			}
 		}
 
+		public static int PgnCountInFile(string filePath) => PgnCount(File.ReadAllText(filePath));
+		
+
+		public static int PgnCount(string multiPgn)
+		{
+			int pos = multiPgn.IndexOf(EVENT), r = 0;
+			while(pos >= 0)
+			{
+				r++;
+				pos = multiPgn.IndexOf(EVENT, pos + EVENT.Length);
+			}
+			return r;
+		}
+
+		public static Task<int> PgnCountAsync(string multiPgn)
+		{
+			int count() => PgnCount(multiPgn);
+			return Task<int>.Factory.StartNew(count);
+		}
+
+		public static Task<int> PgnCountInFileAsync(string filePath)
+		{
+			int count() => PgnCountInFile(filePath);
+			return Task<int>.Factory.StartNew(count);
+		}
+
 		public static IEnumerable<IPgnParseResult> ParseFromFile(string filePath, Action<PgnParseProgress>? feedback = null)
 		{
 			FileInfo f = new FileInfo(filePath);

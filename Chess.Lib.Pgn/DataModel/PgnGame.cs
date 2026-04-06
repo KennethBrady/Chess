@@ -2,6 +2,7 @@
 using Chess.Lib.Moves.Parsing;
 using Chess.Lib.Pgn.Parsing;
 using Chess.Lib.Pgn.Service;
+using Common.Lib.Contracts;
 using Sql.Lib.Services;
 
 namespace Chess.Lib.Pgn.DataModel
@@ -17,7 +18,7 @@ namespace Chess.Lib.Pgn.DataModel
 
 	[DBTable(TableName)]
 	public record PgnGame(int Id, int WhiteId, int BlackId, string Moves, PGNGameStatus Status, int SourceId, int SourceIndex, int SourcePos,
-		DateTime EventDate, string Site, GameResult Result, int OpeningId) : IPgnGame
+		DateTime EventDate, string Site, GameResult Result, int OpeningId) : IPgnGame, IId, INamed
 	{
 		public const string TableName = "game";
 		internal const string VariantTag = "Variant", FENTag = "FEN";
@@ -63,5 +64,7 @@ namespace Chess.Lib.Pgn.DataModel
 		/// <returns>PGN string representing the game</returns>
 		/// <remarks>TODO: Include comments</remarks>
 		public string AsPgn() => PGN.ToPgn(Tags, Moves);
+
+		string INamed.Name => $"{WhiteName} vs. {BlackName}";
 	}
 }

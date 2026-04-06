@@ -381,7 +381,8 @@ namespace Common.Lib.UI.Controls
 
 			private void Path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 			{
-				Owner.SetRating(CurrentRatingValue);
+				bool clear = Keyboard.Modifiers == ModifierKeys.Control;
+				if (clear) Owner.SetRating(0);else Owner.SetRating(CurrentRatingValue);
 			}
 		}
 	}

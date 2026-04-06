@@ -15,7 +15,7 @@ namespace Common.Lib.UI.Dialogs
 
 	public interface IDialogModel<T> : IDialogModel;
 
-	internal interface IDialogModelEx<T> : IDialogModel<T>, IDialogModelEx
+	internal interface IDialogModelEx<T> : IDialogModel<T>, IDialogModelEx, IDisposable
 	{
 		event DialogResultHandler<T>? Closing;
 		IAppWindow? Window { get; set; }

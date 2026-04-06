@@ -12,7 +12,7 @@ namespace Chess.Lib.Pgn.DataModel
 
 	[DBTable(TableName)]
 	[DebuggerDisplay("{Name} ({Id})")]
-	public record Opening(int Id, string Code, string Name, string Sequence, int MoveCount): IId
+	public record Opening(int Id, string Code, string Name, string Sequence, int MoveCount): IId, INamed
 	{
 		public const string TableName = "opening";
 		public static Opening Empty = new Opening(0, string.Empty, string.Empty, string.Empty, 0);

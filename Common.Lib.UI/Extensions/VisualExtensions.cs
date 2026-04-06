@@ -21,6 +21,18 @@ namespace Common.Lib.UI.Extensions
 			}
 		}
 
+		extension<T>(DependencyObject o) where T : Visual
+		{
+			public T? GetVisualParent()
+			{
+				while (o != null && o is not T)
+				{
+					o = VisualTreeHelper.GetParent(o);
+				}
+				return o as T;
+			}
+		}
+
 		extension<T>(Visual visual) where T : Visual
 		{
 			public T? FindParent(Predicate<T> test)

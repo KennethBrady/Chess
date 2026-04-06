@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>CommonApps.Lib</RootNamespace>
+		<Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x86</Platforms>
+		<UseWPF>True</UseWPF>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FFMpeg\**" />
+    <EmbeddedResource Remove="FFMpeg\**" />
+    <None Remove="FFMpeg\**" />
+    <Page Remove="FFMpeg\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="AviWriter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibVLCSharp" Version="3.8.2" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Lib.UI\Common.Lib.UI.csproj" />
+    <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
+    <ProjectReference Include="..\Sql.Lib\Sql.Lib.csproj" />
+  </ItemGroup>
+
+</Project>

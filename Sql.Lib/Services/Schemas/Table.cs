@@ -50,6 +50,9 @@ namespace Sql.Lib.Services.Schemas
 		internal bool ForeignKeysApplied { get; set; }
 		public int PrimaryKeyCount => Fields.Where(f => f.IsPrimaryKey).Count();
 		public bool HasCompoundKey => PrimaryKeyCount > 1;
+
+
+		public bool HasCompoundPrimaryKey => Fields.Where(f => f.KeyType == KeyType.Primary).Count() > 0;
 		public IEnumerable<Field> PrimaryKeys => Fields.Where(f => f.KeyType == KeyType.Primary);
 
 		public string GenerateModelClassDefinition(string nameSpace, bool singularize = false, bool generateEqualsMethod = false,

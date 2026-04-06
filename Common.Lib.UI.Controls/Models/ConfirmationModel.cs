@@ -48,6 +48,8 @@ namespace Common.Lib.UI.Controls.Models
 			}
 		}
 
+		protected override bool CanExecute(string? parameter) => true;
+
 		protected override void Execute(string? parameter)
 		{
 			switch (parameter)

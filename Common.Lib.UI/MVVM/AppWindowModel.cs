@@ -7,7 +7,8 @@ namespace Common.Lib.UI.MVVM
 	{
 		protected AppWindowModel(IAppWindow window)
 		{
-			Window = window;		
+			Window = window;
+			Window.Activated += (_, _) => OnWindowActivated();
 		}
 
 		public IAppWindow Window { get; private init; }
@@ -16,5 +17,9 @@ namespace Common.Lib.UI.MVVM
 		{
 			return Window.ShowDialog(dialogContext);
 		}
+
+		protected virtual void OnWindowActivated() { }
+
+
 	}
 }

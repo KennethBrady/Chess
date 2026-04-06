@@ -78,27 +78,29 @@ namespace Sql.Lib.UnitTests.Service
 			catch(MySqlException) { }
 		}
 
+		[TestMethod]
+		public void LoadWhere()
+		{
+			List<PgnGame> games = _service.LoadWhere<PgnGame>("id>5 and id<10");
+			Assert.IsNotNull(games);
+			Assert.HasCount(4, games);
+		}
+
+
 		[DBTable(PgnGame.TableName)]
 		public record PartialGame(int Id, int WhiteId, int BlackId);
 
 		[DBTable(PgnGame.TableName)]
 		public record TooMuchGame(int Id, int WhiteId, int BlackId, bool WhiteWon);
 
+		
 		[TestMethod]
-		public void LoaderAcceptConstructorWithMissingFields()
+		public void LoaderAcceptsConstructorWithMissingFields()
 		{
 			var loader = _service.CreateLoaderFor<PartialGame>();
 			Assert.IsNotNull(loader);
-			try
-			{
-				loader = _service.CreateLoaderFor<TooMuchGame>();
-				Assert.Fail("Should not be able to create this loader");
-			}
-			catch(UnmatchedFieldException ex)
-			{
-				Assert.AreEqual("WhiteWon", ex.Property.Name);
-				Assert.AreEqual("Unable to match property WhiteWon with a database field.", ex.Message);
-			}
+			loader = _service.CreateLoaderFor<TooMuchGame>();
+			Assert.IsNotNull(loader, "Loader accomodates extra fields.");
 		}
 
 		[DBTable(PgnGame.TableName)]

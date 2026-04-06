@@ -17,6 +17,7 @@ namespace Common.Lib.UI.MVVM
 		event CancelEventHandler? Closing;
 		event EventHandler? Closed;
 		event KeyEventHandler? KeyDown;
+		event EventHandler? Activated;
 		object DataContext { get; set; }
 		double Left { get; set; }
 		double Top { get; set; }

@@ -5,14 +5,14 @@ using System.Collections.Immutable;
 
 namespace Chess.Lib.Pgn.Parsing
 {
-	public record struct SourceInfo(string Name, int Position, int Index)
+	public readonly record struct SourceInfo(string Name, int Position, int Index)
 	{
 		internal static readonly SourceInfo Empty = new SourceInfo(string.Empty, 0, 1);
 		public bool IsEmpty => string.IsNullOrEmpty(Name);
 	}
 
 	//TODO: Use PGN instead of Moves/Tags
-	public record struct GameImport(SourceInfo SourceInfo, string Pgn, DateTime EventDate, PgnPlayer White, PgnPlayer Black,
+	public readonly record struct GameImport(SourceInfo SourceInfo, string Pgn, DateTime EventDate, PgnPlayer White, PgnPlayer Black,
 		string Moves, GameResult Result, bool HasUnexpectedMoves, ImmutableDictionary<string, string> Tags) : IPgnGame
 	{
 		public string Site => Tags["Site"];

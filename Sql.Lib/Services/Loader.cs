@@ -14,14 +14,6 @@ namespace Sql.Lib.Services
 	{
 		Type ForType { get; }
 		string TableName { get; }
-		Table SchemaTable { get; }
-
-		/// <summary>
-		/// Construct and populate an instance of T based on known schema and values read from the reader.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="rdr"></param>
-		/// <returns>A new and populated instance of T</returns>
 		T CreateAndPopulate<T>(IDataReader rdr);
 	}
 
@@ -29,10 +21,11 @@ namespace Sql.Lib.Services
 	{
 		private static readonly Dictionary<Type, Loader> _cache = new();
 		private static readonly object _lock = new object();
+		private static readonly Type _objType = typeof(object);
 
 		internal static Loader For(SqlService service, Type forType)
 		{
-			lock (_lock)  // might be invoked in multi-threaded environment.
+			lock (_lock)
 			{
 				if (_cache.ContainsKey(forType)) return _cache[forType];
 				DBTableAttribute? attr = DBTableAttribute.FindAttribute(forType);
@@ -93,14 +86,20 @@ namespace Sql.Lib.Services
 						}
 					}
 				}
-				if (field is null) throw new UnmatchedFieldException(prop);
+				if (field is null) continue;
+				//if (field is null) throw new UnmatchedFieldException(prop);
 				if (field.KeyType == KeyType.Primary) PrimaryKeyName = field.Name;
 				_bindings.Add(new(field, prop, pi));
+			}
+			if (_bindings.Count != best.Value.Params.Length)
+			{
+				best = cps.FirstOrDefault(cp => cp.Params.Length == _bindings.Count && matchesFields(cp));
+				if (best != null) Constructor = best.Value.Constructor;
 			}
 		}
 
 		private DBTableAttribute DBTableAttr { get; init; }
-		public Table SchemaTable { get; private init; }
+		private Table SchemaTable { get; init; }
 		public string TableName => SchemaTable.Name;
 		public Type ForType { get; private init; }
 		private ConstructorInfo Constructor { get; init; }
@@ -188,6 +187,9 @@ namespace Sql.Lib.Services
 						case "UInt64": val = (ulong)val; break;
 						case "SByte": val = (sbyte)val; break;
 						case "Byte": val = (byte)val; break;
+						case "Int16": val = (short)val; break;
+						case "UInt16": val = (ushort)val; break;
+						case "UInt32": val = (uint)val; break;
 					}
 				}
 				values.Add(val?.ToString());
@@ -211,18 +213,18 @@ namespace Sql.Lib.Services
 			{
 				if (orig is bool bval) return bval ? 1 : 0;
 				else
-				if (orig is byte[] bvals) return $"x'{BitConverter.ToString(bvals).Replace("-", string.Empty)}'";
-				else
-				if (orig is string sval)
-				{
-					if (DBTableAttr.IsFilePathField(fieldName)) sval = sval.Replace("\\", "/");
-					if (sval.Contains('\'')) sval = sval.SingleQuoteEscaped;
-					return $"'{sval}'";
-				}
-				else
-				if (orig is DateOnly doo) return $"'{doo:yyyy-MM-dd}'";
-				else
-				if (orig is DateTime dt) return $"'{dt:yyyy-MM-dd HH:mm:ss.ffffff}'";
+					if (orig is byte[] bvals) return $"x'{BitConverter.ToString(bvals).Replace("-", string.Empty)}'";
+					else
+						if (orig is string sval)
+						{
+							if (DBTableAttr.IsFilePathField(fieldName)) sval = sval.Replace("\\", "/");
+							if (sval.Contains('\'')) sval = sval.SingleQuoteEscaped;
+							return $"'{sval}'";
+						}
+						else
+							if (orig is DateOnly doo) return $"'{doo:yyyy-MM-dd}'";
+							else
+								if (orig is DateTime dt) return $"'{dt:yyyy-MM-dd HH:mm:ss.ffffff}'";
 				return orig;
 			}
 		}
@@ -293,6 +295,7 @@ namespace Sql.Lib.Services
 		internal ISqlStatement CreateDeleteStatement(object? value)
 		{
 			if (value == null) throw new ArgumentNullException(nameof(value));
+			//TODO: value.GetType() can be derived from ForType
 			if (!value.GetType().IsAssignableTo(ForType)) throw new WrongTypeException(ForType, value.GetType());
 			string where = PrimaryKeyWhereClause(value);
 			if (string.IsNullOrEmpty(where)) return NoStatement.Default;  // another option is to build where clause based on all fields

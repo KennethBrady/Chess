@@ -2,6 +2,14 @@
   <Folder Name="/Examples/">
     <Project Path="ChessGame/ChessGame.csproj" />
     <Project Path="ImportPGN/ImportPGN.csproj" />
+    <Project Path="PgnImporter/PgnImporter.csproj" Id="9587bf56-0e22-4dc2-a835-decde5b9f00c" />
+  </Folder>
+  <Folder Name="/Libraries/">
+    <Project Path="Common.Lib.UI.Controls/Common.Lib.UI.Controls.csproj" />
+    <Project Path="Common.Lib.UI/Common.Lib.UI.csproj" />
+    <Project Path="Common.Lib/Common.Lib.csproj" />
+    <Project Path="CommonApps.Lib/CommonApps.Lib.csproj" />
+    <Project Path="Sql.Lib/Sql.Lib.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="LICENSE.txt" />
@@ -13,11 +21,8 @@
     <Project Path="Common.Lib.UnitTests/Common.Lib.UnitTests.csproj" />
     <Project Path="Sql.Lib.UnitTests/Sql.Lib.UnitTests.csproj" />
   </Folder>
+  <Project Path="Chess.Lib.Pgn.DB/Chess.Lib.Pgn.DB.csproj" Id="96da49db-9d97-4e16-9d55-864bdf0ea330" />
   <Project Path="Chess.Lib.Pgn/Chess.Lib.Pgn.csproj" />
   <Project Path="Chess.Lib.UI/Chess.Lib.UI.csproj" />
   <Project Path="Chess.Lib/Chess.Lib.csproj" />
-  <Project Path="Common.Lib.UI.Controls/Common.Lib.UI.Controls.csproj" />
-  <Project Path="Common.Lib.UI/Common.Lib.UI.csproj" />
-  <Project Path="Common.Lib/Common.Lib.csproj" />
-  <Project Path="Sql.Lib/Sql.Lib.csproj" />
 </Solution>

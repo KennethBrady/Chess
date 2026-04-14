@@ -174,6 +174,7 @@ namespace Common.Lib.UI.Controls
 			{
 				object? o = values[0];
 				if (o is null) return string.Empty;
+				if (string.IsNullOrEmpty(propName)) return values[0];
 				PropertyInfo? pinfo = o.GetType().GetProperty(propName);
 				if (pinfo == null) return string.Empty;
 				object? o2 = pinfo.GetValue(o);

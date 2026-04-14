@@ -4,6 +4,19 @@ namespace Common.Lib.Extensions
 {
 	public static class EnumerableExtensions
 	{
+		extension(IEnumerable e)
+		{
+			public int Count
+			{
+				get
+				{
+					int n = 0;
+					foreach (var _ in e) n++;
+					return n;
+				}
+			}
+		}
+
 		extension<T>(IEnumerable<T> values) where T : struct, IComparable
 		{
 			/// <summary>

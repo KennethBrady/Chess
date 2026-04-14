@@ -10,6 +10,7 @@
 				xmlns:conv="clr-namespace:Common.Lib.UI.Converters;assembly=Common.Lib.UI"
 				xmlns:ctrls="clr-namespace:Common.Lib.UI.Controls;assembly=Common.Lib.UI.Controls"
 				xmlns:mods="clr-namespace:PgnImporter.Models"
+				xmlns:pgn="clr-namespace:Chess.Lib.UI.Pgn;assembly=Chess.Lib.UI"
         mc:Ignorable="d" WindowState="Maximized"
         Title="PGN Importer" Height="450" Width="800" dd:DDHandler.Strategy="{Binding DropHandler}">
 	<win:AppWindow.TitleBarStyle>
@@ -20,9 +21,10 @@
 				<Setter.Value>
 					<DataTemplate>
 						<DockPanel Margin="10,0" VerticalAlignment="Center">
-							<TextBlock Text="{Binding SourcePathAndCount}" Foreground="White" FontSize="14" />
-							
-							<ctrls:StatusBar DataContext="{Binding Status}" Foreground="White"/>
+							<TextBlock Text="{Binding SourcePathAndCount}" Foreground="White" FontSize="14" FontWeight="Bold"/>
+							<ctrls:Link DockPanel.Dock="Right" Content="Download PGN from TWIC" Foreground="Cyan" Command="{Binding Command}" CommandParameter="twic"
+													DisabledBackground="Transparent" UnderlineBehavior="UnderlineOnHover" Margin="15,0"/>
+							<ctrls:StatusBar DataContext="{Binding Status}" Foreground="LightSkyBlue" Height="40" FontSize="14"/>
 						</DockPanel>
 					</DataTemplate>
 				</Setter.Value>
@@ -32,6 +34,8 @@
 	<win:AppWindow.Resources>
 		<conv:NullToVisibilityConverter x:Key="n2vc"/>
 		<conv:CountToVisibilityConverter x:Key="c2vc"/>
+		<conv:NullToBooleanConverter x:Key="n2bc"/>
+		<conv:CountToBooleanConverter	 x:Key="c2bc"/>
 	</win:AppWindow.Resources>
 	<win:AppWindow.DialogStyle>
 		<Style TargetType="{x:Type dlg:DialogView}">
@@ -47,35 +51,51 @@
 	</win:AppWindow.DialogStyle>
 	<win:AppWindow.Dialogs>
 		<win:DialogDef DialogType="{x:Type local:ImportFileDialog}" ModelType="{x:Type mods:ImportFileDialogModel}"/>
+		<win:DialogDef DialogType="{x:Type pgn:PgnEditorDialog}" ModelType="{x:Type pgn:PgnEditorModel}"/>
+		<win:DialogDef DialogType="{x:Type local:TWICDownloadDialog}" ModelType="{x:Type mods:TWICDownloadDialogModel}"/>
 	</win:AppWindow.Dialogs>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="Auto"/>
-		</Grid.ColumnDefinitions>
 		<TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
 							 Foreground="LightGray" FontSize="18" Text="Drop a multi-pgn file or zip archive here."/>
 		<DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Imports}" Visibility="{Binding Imports,Converter={StaticResource c2vc}}"
 							AutoGenerateColumns="False" IsReadOnly="True" SelectedItem="{Binding Selection}" SelectionMode="Single" Name="games"
 							VirtualizingPanel.IsVirtualizing="True">
+			<DataGrid.InputBindings>
+				<MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ShowPgnCommand}"
+											CommandParameter="{Binding ElementName=games,Path=SelectedItem}"/>
+			</DataGrid.InputBindings>
+			<DataGrid.Resources>
+				<Style TargetType="DataGridCell" x:Key="dgc">
+					<Setter Property="Foreground" Value="Black"/>
+				</Style>
+			</DataGrid.Resources>
+			<DataGrid.RowStyle>
+				<Style TargetType="DataGridRow">
+					<Style.Triggers>
+						<Trigger Property="IsSelected" Value="True">
+							<Setter Property="Foreground" Value="Black"/>
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</DataGrid.RowStyle>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="#" Binding="{Binding Index}"/>
 				<DataGridTextColumn Header="Pos" Binding="{Binding Position}"/>
 				<DataGridTextColumn Header="Date" Binding="{Binding Date,StringFormat=MM/dd/yyyy}"/>
 				<DataGridTextColumn Header="White" Binding="{Binding White}">
 					<DataGridTextColumn.CellStyle>
-						<Style TargetType="DataGridCell">
+						<Style TargetType="DataGridCell" BasedOn="{StaticResource dgc}">
 							<Setter Property="Background" Value="{Binding WhiteBg}"/>
 						</Style>
 					</DataGridTextColumn.CellStyle>
 				</DataGridTextColumn>
 				<DataGridTextColumn Header="Black" Binding="{Binding Black}">
 					<DataGridTextColumn.CellStyle>
-						<Style TargetType="DataGridCell">
+						<Style TargetType="DataGridCell" BasedOn="{StaticResource dgc}">
 							<Setter Property="Background" Value="{Binding BlackBg}"/>
 						</Style>
 					</DataGridTextColumn.CellStyle>
@@ -89,7 +109,7 @@
 				</DataGridTextColumn>
 				<DataGridCheckBoxColumn Header="Unique?" Binding="{Binding IsUnique}">
 					<DataGridCheckBoxColumn.CellStyle>
-						<Style TargetType="DataGridCell">
+						<Style TargetType="DataGridCell" BasedOn="{StaticResource dgc}">
 							<Setter Property="Background" Value="{Binding UniqueBg}"/>
 							<Setter Property="Visibility" Value="{Binding IsUnique,Converter={StaticResource n2vc}}"/>
 						</Style>
@@ -97,15 +117,28 @@
 				</DataGridCheckBoxColumn>
 				<DataGridTextColumn Header="Opening" Binding="{Binding OpeningName}">
 					<DataGridTextColumn.CellStyle>
-						<Style TargetType="DataGridCell">
+						<Style TargetType="DataGridCell" BasedOn="{StaticResource dgc}">
 							<Setter Property="Background" Value="{Binding OpeningBg}"/>
 						</Style>
 					</DataGridTextColumn.CellStyle>
 				</DataGridTextColumn>
 			</DataGrid.Columns>
 		</DataGrid>
-		<DockPanel Grid.Row="1" LastChildFill="True">
-			<Button Content="{Binding ActionLabel}" Command="{Binding Command}" CommandParameter="matchPlayers"/>
+		<DockPanel Grid.Row="1" LastChildFill="True" Margin="8,0">
+			<Button Content="{Binding ActionLabel}" Command="{Binding Command}" CommandParameter="action"/>
+			<ctrls:InfoPopout DockPanel.Dock="Right"  Width="32" Height="32" DataContext="{Binding ImportStatus}"
+												IsEnabled="{Binding HasResults}">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
+					<Border Grid.Row="0" Background="Navy">
+						<TextBlock Text="{Binding SourceName}" Foreground="White"/>
+					</Border>
+					<DataGrid Grid.Row="1" ItemsSource="{Binding Steps}" IsReadOnly="True"/>
+				</Grid>
+			</ctrls:InfoPopout>
 			<ctrls:StackedProgressBar DockPanel.Dock="Right" Model="{Binding Progress}" Height="30" Margin="10"/>
 		</DockPanel>
 	</Grid>

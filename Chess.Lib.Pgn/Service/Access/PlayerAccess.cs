@@ -7,7 +7,7 @@ namespace Chess.Lib.Pgn.Service.Access
 
 	}
 
-	internal class PlayerAccess : DbAccess<PgnPlayer>, IPlayerAccess
+	internal sealed class PlayerAccess : DbAccess<PgnPlayer>, IPlayerAccess
 	{
 		internal PlayerAccess(): base(PgnGameService.Service.LoadAll<PgnPlayer>()) { }
 

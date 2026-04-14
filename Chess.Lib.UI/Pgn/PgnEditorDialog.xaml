@@ -15,6 +15,7 @@
 	<dialogs:DialogView.Resources>
 		<BooleanToVisibilityConverter x:Key="b2vc"/>
 		<conv:InverseBooleanConverter x:Key="ibc"/>
+		<local:EmptyTagsConverter x:Key="etc"/>
 	</dialogs:DialogView.Resources>
 	<Grid>
 		<Grid>
@@ -27,7 +28,7 @@
 				<ColumnDefinition Width="380"/>
 				<ColumnDefinition Width="*" MinWidth="380"/>
 			</Grid.ColumnDefinitions>
-			<local:PgnTagEditor Grid.Row="0" Grid.Column="0" DataContext="{Binding Tags}" Margin="0,0,3,0"/>
+			<local:PgnTagEditor Grid.Row="0" Grid.Column="0" DataContext="{Binding Tags}" Margin="0,0,3,0" IsReadOnly="{Binding IsReadOnly}"/>
 			<GroupBox Header="Moves" Grid.Row="1" Grid.Column="0">
 				<TextBox Text="{Binding Moves}" Style="{StaticResource multiLine}" IsReadOnly="{Binding CanEditMoves,Converter={StaticResource ibc}}" MinHeight="80"/>
 			</GroupBox>
@@ -37,7 +38,14 @@
 			<DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False">
 				<Button DockPanel.Dock="Right" Content="Close" Command="{Binding Command}" CommandParameter="cancel" IsCancel="True"/>
 				<Button DockPanel.Dock="Right" Content="{Binding AcceptLabel}" Command="{Binding Command}" CommandParameter="ok" IsDefault="True"/>
-				<CheckBox DockPanel.Dock="Right" Content="Include Empty Tags" IsChecked="{Binding IncludeEmptyTags}"/>
+				<CheckBox DockPanel.Dock="Right" Content="Include Empty Tags" IsChecked="{Binding IncludeEmptyTags}">
+					<CheckBox.Visibility>
+						<MultiBinding Converter="{StaticResource etc}">
+							<Binding Path="Tags.IsReadOnly" />
+							<Binding Path="Tags.HasEmptyTags"/>
+						</MultiBinding>
+					</CheckBox.Visibility>
+				</CheckBox>
 			</DockPanel>
 		</Grid>
 	</Grid>

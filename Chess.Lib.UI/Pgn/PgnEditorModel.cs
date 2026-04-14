@@ -17,14 +17,16 @@ namespace Chess.Lib.UI.Pgn
 		private bool _canEditMoves, _includeEmptyTags, _allowIncompleteTags, _allowInvalidMoves;
 		private string _moves, _acceptLabel = "Copy to Clipboard";
 
+		public PgnEditorModel(IPgnGame game) : this(new PGN(game), true) { }
+
 		public PgnEditorModel(IChessGame game) : this(game.ToPgn()) { }
 		public PgnEditorModel(IPgnChessGame game) : this(game.ToPgn()) { }
 
-		public PgnEditorModel(PGN pgn)
+		public PgnEditorModel(PGN pgn, bool isReadOnly = false)
 		{
 			PGN = pgn;
 			_moves = PGN.Moves;
-			Tags = new TagEditorModel(PGN.Tags);
+			Tags = new TagEditorModel(PGN.Tags) { IsReadOnly = isReadOnly };
 			Tags.Changed += () =>
 			{
 				RegeneratePGN();
@@ -109,6 +111,8 @@ namespace Chess.Lib.UI.Pgn
 				Notify(nameof(Moves));
 			}
 		}
+
+		public bool HasEmptyTags => Tags.HasEmptyTags; 
 
 		public string ResultingPGN { get; private set; } = string.Empty;
 

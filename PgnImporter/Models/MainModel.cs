@@ -2,6 +2,7 @@
 using Chess.Lib.Pgn.DataModel;
 using Chess.Lib.Pgn.Parsing;
 using Chess.Lib.Pgn.Service;
+using Chess.Lib.UI.Pgn;
 using Common.Lib.Extensions;
 using Common.Lib.UI.Controls.Models;
 using Common.Lib.UI.Dialogs;
@@ -9,23 +10,29 @@ using Common.Lib.UI.DragDrop;
 using Common.Lib.UI.MVVM;
 using System.Collections.Immutable;
 using System.IO;
+using System.Net.WebSockets;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PgnImporter.Models
 {
-	public class MainModel : MainWindowModel
+	public partial class MainModel : MainWindowModel
 	{
 		internal static new MainModel Instance => (MainModel)MainWindowModel.Instance;
 
 		private List<GameImportModel> _imports = new();
 		private GameImportModel? _selection;
-
 		private const string BuilderFileName = "builders.bin";
+		private RelayCommand<GameImportModel> _showPgn;
 		public MainModel(IPgnImporterWindow window) : base(window)
 		{
 			ChessDB.Initialize();
 			DropHandler = new FileDDStrategy(HandleDrop);
 			Status = new();
+			GameSource latest = ChessDB.GameSources.Latest;
+			if (latest.IsEmpty) Status.AddEntry("No game sources have been added.");
+			else
+				Status.AddEntry($"Last imported Game Source: {latest.Name} ({latest.Id})");
 			Progress = new StackedValuesModel(Brushes.Lime, Brushes.Red);
 			if (File.Exists(BuilderFileName))
 			{
@@ -34,6 +41,8 @@ namespace PgnImporter.Models
 				_imports = imps.Select(b => new GameImportModel(b)).ToList();
 				Progress.Maximum = _imports.Count;
 			}
+			ImportStatus = new ImportStatusModel();
+			_showPgn = new RelayCommand<GameImportModel>(ExecutePgn);
 		}
 
 		public StatusBarModel Status { get; private init; }
@@ -58,7 +67,7 @@ namespace PgnImporter.Models
 		{
 			get
 			{
-				switch (ImportStatus)
+				switch (ImportStep)
 				{
 					case PgnImportStatus.None: return "Match Players";
 					case PgnImportStatus.PlayersLocated: return "Parse Moves";
@@ -73,24 +82,47 @@ namespace PgnImporter.Models
 
 		public string SourcePathAndCount => _imports.Count == 0 ? SourcePath : $"{SourcePath} ({_imports.Count:N0})";
 
+		public ImportStatusModel ImportStatus { get; private init; }
+
 		public new IPgnImporterWindow Window => (IPgnImporterWindow)base.Window;
-		private PgnImportStatus ImportStatus { get; set; } = PgnImportStatus.None;
+
+		public ICommand ShowPgnCommand => _showPgn;
+
+		private PgnImportStatus ImportStep { get; set; } = PgnImportStatus.None;
 
 		protected override bool CanExecute(string? parameter)
 		{
-			return !IsBusy && _imports.Count > 0;
+			switch(parameter)
+			{
+				case "action": return !IsBusy && _imports.Count > 0;
+				case "twic": return _imports.Count == 0;
+			}
+			return false;
 		}
 
 		protected override void Execute(string? parameter)
 		{
-			switch(ImportStatus)
+			switch(parameter)
 			{
-				case PgnImportStatus.None: MatchPlayers(); break;
-				case PgnImportStatus.PlayersLocated: ParseAllMoves(); break;
-				case PgnImportStatus.PgnMovesParsed: VerifyGamesUnique(); break;
-				case PgnImportStatus.UniquenessVerified: MatchOpenings(); break;
-				case PgnImportStatus.OpeningsMatched: Import(); break;
+				case "twic": DownloadFromTWIC(); break;
+				case "action":
+					switch (ImportStep)
+					{
+						case PgnImportStatus.None: MatchPlayers(); break;
+						case PgnImportStatus.PlayersLocated: ParseAllMoves(); break;
+						case PgnImportStatus.PgnMovesParsed: VerifyGamesUnique(); break;
+						case PgnImportStatus.UniquenessVerified: MatchOpenings(); break;
+						case PgnImportStatus.OpeningsMatched: Import(); break;
+					}
+					break;
 			}
+		}
+
+		private async void ExecutePgn(GameImportModel? model)
+		{
+			if (model == null) return;
+			PgnEditorModel m = new PgnEditorModel(model.Builder);
+			await ShowDialog(m);
 		}
 
 		private async void HandleDrop(IEnumerable<string> files)
@@ -104,20 +136,23 @@ namespace PgnImporter.Models
 				_imports = acc.Value.Imports.Select(i => new GameImportModel(i)).ToList();
 				SourcePath = fpath;
 				Notify(nameof(Imports), nameof(SourcePath), nameof(SourcePathAndCount));
-				ImportStatus = PgnImportStatus.None;
+				ImportStep = PgnImportStatus.None;
 				Progress.Maximum = _imports.Count;
 				RaiseCanExecuteChanged();
 				Extensions.Save(BuilderFileName, fpath, _imports.Select(i => i.Builder.Import), _imports.Count);
+				ImportStatus.Reset(Path.GetFileName(SourcePath));
 			}
 		}
 
 		private bool IsBusy { get; set; }
 
+		#region Import Step Methods
 		private async void MatchPlayers()
 		{
 			IsBusy = true;
 			RaiseCanExecuteChanged();
 			Progress.Maximum = 2 * _imports.Count;
+			PlayerFeedback? lastFeedback = null;
 			void update(PlayerFeedback feedback)
 			{
 				Progress.SetValues(feedback.NFound, feedback.NNotFound);
@@ -128,12 +163,17 @@ namespace PgnImporter.Models
 				}
 				if(feedback.Updates.Count() > 0) 
 				Window.ScrollToGame(feedback.Updates.Last().Import);
+				lastFeedback = feedback;
 			}
 			await MatchPlayers(update);
-			ImportStatus = PgnImportStatus.PlayersLocated;
+			ImportStep = PgnImportStatus.PlayersLocated;
 			Notify(nameof(ActionLabel));
 			IsBusy = false;
 			RaiseCanExecuteChanged();
+			if (lastFeedback.HasValue)
+			{
+				ImportStatus.SetResults(PgnImportStatus.PlayersLocated, lastFeedback.Value.NFound, lastFeedback.Value.NNotFound);
+			}
 		}
 
 
@@ -195,10 +235,11 @@ namespace PgnImporter.Models
 				Progress.SetValues(nSuccess, nError);
 				Progress.Text = $"{nSuccess:N0} / {_imports.Count:N0} games parsed successfully";
 			}
-			ImportStatus = PgnImportStatus.PgnMovesParsed;
+			ImportStep = PgnImportStatus.PgnMovesParsed;
 			IsBusy = false;
 			RaiseCanExecuteChanged();
 			Notify(nameof(ActionLabel));
+			ImportStatus.SetResults(PgnImportStatus.PgnMovesParsed, nSuccess, nError);
 		}
 
 		private async void VerifyGamesUnique()
@@ -240,9 +281,10 @@ namespace PgnImporter.Models
 				}
 			}
 			IsBusy = false;
-			ImportStatus = PgnImportStatus.UniquenessVerified;
+			ImportStep = PgnImportStatus.UniquenessVerified;
 			Notify(nameof(ActionLabel));
 			RaiseCanExecuteChanged();
+			ImportStatus.SetResults(PgnImportStatus.UniquenessVerified, nUnique, nDupe);
 		}
 
 		private async void MatchOpenings()
@@ -257,9 +299,9 @@ namespace PgnImporter.Models
 			for (int i = 0; i < _imports.Count; i++)
 			{
 				GameImportModel gim = _imports[i];
-				Opening? o = openings.FirstOrDefault(oo => gim.Builder.Moves.StartsWith(oo.Sequence));
+				Opening o = openings.First(oo => gim.Builder.Moves.StartsWith(oo.Sequence));
 				gim.SetOpening(o);
-				if (o != null) nMatched++;else nNotMatched++;
+				if (o.Id > 1) nMatched++;else nNotMatched++;
 				if (i % 25 == 0)
 				{
 					Window.ScrollToGame(gim);
@@ -272,8 +314,9 @@ namespace PgnImporter.Models
 			Progress.SetText($"{nMatched:N0} / {_imports.Count:N0} openings matched");
 			IsBusy = false;
 			RaiseCanExecuteChanged();
-			ImportStatus = PgnImportStatus.OpeningsMatched;
+			ImportStep = PgnImportStatus.OpeningsMatched;
 			Notify(nameof(ActionLabel));
+			ImportStatus.SetResults(PgnImportStatus.OpeningsMatched, nMatched, nNotMatched);
 		}
 
 		private async void Import()
@@ -288,11 +331,14 @@ namespace PgnImporter.Models
 					Progress.SetText($"{(1 + ins.Index):N0} games inserted.");
 					if (ins.Index % 25 == 0) Window.Dispatch(() => Window.ScrollToGame(_imports[ins.Index]));
 				});
+				ImportStatus.SetResults(PgnImportStatus.Completed, _imports.Count, 0);
 				if (File.Exists(BuilderFileName)) File.Delete(BuilderFileName);
 				_imports = new();
-				ImportStatus = PgnImportStatus.None;
+				ImportStep = PgnImportStatus.None;
 				SourcePath = string.Empty;
-				Notify(nameof(Imports), nameof(ImportStatus), nameof(SourcePath), nameof(SourcePathAndCount), nameof(ActionLabel));
+				Notify(nameof(Imports), nameof(ImportStep), nameof(SourcePath), nameof(SourcePathAndCount), nameof(ActionLabel));
+				var latest = ChessDB.GameSources.Latest;
+				Status.AddEntry($"Last imported Game Source: {latest.Name} ({latest.Id})");
 			}
 			catch(Exception ex)
 			{
@@ -301,116 +347,18 @@ namespace PgnImporter.Models
 			finally
 			{
 				IsBusy = false;
+				RaiseCanExecuteChanged();
 			}
 		}
 
-		public class GameImportModel : ViewModel
+		#endregion
+
+		public record ImportResult(string Operation, string Result);
+
+		private void DownloadFromTWIC()
 		{
-			private static readonly Brush _defaultBrush = Brushes.White, _foundBrush = Brushes.Lime, _notFoundBrush = Brushes.LightSkyBlue;
-			internal GameImportModel(GameImport import)
-			{
-				Builder = new PgnGameBuilder(import);
-				if (Builder.Import.White.FideId > 0) White = $"{Builder.Import.White.Name} ({Builder.Import.White.FideId})";
-				else
-					White = Builder.Import.White.Name;
-				if (Builder.Import.Black.FideId > 0) Black = $"{Builder.Import.Black.Name} ({Builder.Import.Black.FideId})";
-				else
-					Black = Builder.Import.Black.Name;
-			}
-
-			public PgnGameBuilder Builder { get; private set; }
-
-			public int Position => Builder.Import.SourceInfo.Position;
-			public int Index => Builder.Import.SourceInfo.Index;
-
-			public DateTime Date => Builder.Import.EventDate;
-
-			public string White { get; private init; }
-			public bool? WhiteExists { get; private set; } = null;
-
-			public Brush WhiteBg => WhiteExists == null ? _defaultBrush : WhiteExists.Value ? _foundBrush : _notFoundBrush;
-
-			public string Black { get; private init; }
-			public bool? BlackExists { get; private set; } = null;
-
-			public Brush BlackBg => BlackExists == null ? _defaultBrush : BlackExists.Value ? _foundBrush : _notFoundBrush;
-
-			public string MovesParsed { get; private set; } = "--";
-			public Brush MovesParsedBg { get; private set; } = _defaultBrush;
-
-			public Brush UniqueBg => IsUnique == null ? _defaultBrush : IsUnique.Value ? _foundBrush : _notFoundBrush;
-
-			public bool? IsUnique { get; set; } = null;
-
-			public string OpeningName { get; private set; } = string.Empty;
-
-			public Brush OpeningBg { get; private set; } = _defaultBrush;
-
-			internal PgnPlayer WhitePlayer => Builder.Import.White;
-			internal PgnPlayer BlackPlayer => Builder.Import.Black;
-
-			internal void SetPlayers(PgnPlayer? foundWhite, PgnPlayer? foundBlack)
-			{
-				if (foundWhite != null)
-				{
-					WhiteExists = true;
-					Builder = Builder with { Import = Builder.Import with { White = foundWhite } };
-				}
-				else WhiteExists = false;
-				if (foundBlack != null)
-				{
-					Builder = Builder with { Import = Builder.Import with { Black = foundBlack } };
-					BlackExists = true;
-				}
-				else BlackExists = false;
-				Notify(nameof(WhiteExists), nameof(BlackExists), nameof(WhiteBg), nameof(BlackBg));
-				var nuStatus = Builder.Status | PgnImportStatus.PlayersLocated;
-				Builder = Builder with { Status = nuStatus };
-			}
-
-			internal void SetUnique(List<int> dupeIds)
-			{
-				IsUnique = dupeIds.Count == 0;
-				if (!IsUnique.Value) Builder = Builder with { DupeGameIds = ImmutableList<int>.Empty.AddRange(dupeIds)};
-				Builder = Builder with { Status = Builder.Status | PgnImportStatus.UniquenessVerified };
-				Notify(nameof(IsUnique), nameof(UniqueBg));
-			}
-
-			internal bool ParseMoves()
-			{
-				bool r = false;
-				var status = Builder.Status;
-				switch (AlgebraicMoves.Parse(Builder.Import.Moves))
-				{
-					case IParsedGameSuccess s:
-						MovesParsed = $"{s.Game.Moves.Count} Moves";
-						MovesParsedBg = _foundBrush;
-						r = true;
-						break;
-					case IParsedGameFail f:
-						MovesParsed = f.Error.Error.ToString();
-						MovesParsedBg = _notFoundBrush;
-						break;
-				}
-				status |= PgnImportStatus.PgnMovesParsed;
-				Builder = Builder with { Status = status };
-				Notify(nameof(MovesParsed), nameof(MovesParsedBg));
-				return r;
-			}
-
-			internal void SetOpening(Opening? opening)
-			{
-				if (opening == null) OpeningBg = _notFoundBrush; else
-				{
-					OpeningBg = _foundBrush;
-					OpeningName = opening.Name;
-					Builder = Builder with { OpeningId = opening.Id };
-				}
-				Builder = Builder with { Status = Builder.Status | PgnImportStatus.OpeningsMatched };
-				Notify(nameof(OpeningName), nameof(OpeningBg));
-			}
+			ShowDialog(new TWICDownloadDialogModel());
 		}
-
 
 		private class PlayerGameComparer : IComparer<PgnGame>
 		{
@@ -431,6 +379,7 @@ namespace PgnImporter.Models
 		}
 	}
 
+	#region Extensions
 	internal static class Extensions
 	{
 		public static void Save(string destPath, string sourcePath, List<GameImport> imports)
@@ -530,4 +479,5 @@ namespace PgnImporter.Models
 
 	}
 
+	#endregion
 }

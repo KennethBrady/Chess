@@ -1,4 +1,5 @@
 ﻿using Chess.Lib.Pgn.Parsing;
+using Chess.Lib.Pgn.Service;
 using Common.Lib.IO;
 using Common.Lib.UI.Controls.Models;
 using Common.Lib.UI.Dialogs;
@@ -16,9 +17,26 @@ namespace PgnImporter.Models
 			FilePath = filePath;
 			Progress = new StackedValuesModel(Brushes.Lime, Brushes.Red);
 			string fname = Path.GetFileNameWithoutExtension(filePath), ext = Path.GetExtension(filePath);
-			if (SevenZip.IsArchiveFile(FilePath)) Unzip(); else PgnFilePath = FilePath;
+			string sourceName = string.Empty;
+			if (SevenZip.IsArchiveFile(FilePath))
+			{
+				Unzip();
+				sourceName = Path.GetFileName(filePath);
+
+			}
+			else
+			{
+				PgnFilePath = FilePath;
+				sourceName = $"{fname}g.zip";
+			}
+			if (ChessDB.GameSources.Contains(sourceName))
+			{
+				SourceExists = true;
+				ErrorMessage = "Source already exists. Games cannot be imported.";
+			}
 		}
 
+		public bool SourceExists { get; private init; }
 		public string FilePath { get; private init; }
 
 		public StackedValuesModel Progress { get; private init; }
@@ -36,7 +54,7 @@ namespace PgnImporter.Models
 			switch(parameter)
 			{
 				case CancelParameter: return true;
-				case "parsePgn": return !IsParsing;
+				case "parsePgn": return !SourceExists && !IsParsing;
 			}
 			return false;
 		}

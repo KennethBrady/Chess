@@ -9,5 +9,7 @@ namespace Chess.Lib.Pgn.DataModel
 		public static readonly GameSource Empty = new GameSource(0, string.Empty);
 
 		public const string TableName = "gamesource";
+
+		public bool IsEmpty => Id == 0 && string.IsNullOrEmpty(Name);
 	}
 }

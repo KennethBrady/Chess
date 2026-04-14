@@ -15,7 +15,7 @@ namespace Chess.Lib.Pgn.Service.Access
 		Task<List<PgnGame>> Insert(string sourceName, IEnumerable<PgnGameBuilder> builders, Action<GameInsertion>? feedback = null);
 	}
 
-	internal class GameAccess : DbAccess<PgnGame>, IGameAccess
+	internal sealed class GameAccess : DbAccess<PgnGame>, IGameAccess
 	{
 		private GameIterator Games { get; init; }
 		internal GameAccess(): this(new GameIterator()) { }

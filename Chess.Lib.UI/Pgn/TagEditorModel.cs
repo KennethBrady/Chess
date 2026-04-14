@@ -55,6 +55,8 @@ namespace Chess.Lib.UI.Pgn
 
 		public bool AreAllTagsValid => _tags.All(t => t.IsValid);
 
+		public bool HasEmptyTags => _tags.Any(t => !t.HasValue);
+
 		public bool HasResultTag => _tags.Any(t => t.Tag == PgnTags.Result);
 		internal TagModel ResultTag => _tags.First(t => t.Tag == PgnTags.Result);
 

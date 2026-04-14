@@ -4,7 +4,7 @@ namespace Chess.Lib.Pgn.Service.Access
 {
 	public interface IOpeningAccess : IDbAccess<Opening>;
 
-	internal class OpeningAccess : DbAccess<Opening>, IOpeningAccess
+	internal sealed class OpeningAccess : DbAccess<Opening>, IOpeningAccess
 	{
 		internal OpeningAccess(): base(PgnGameService.Service.LoadAll<Opening>()) { }
 

@@ -7,9 +7,19 @@ namespace Chess.Lib.UI.Pgn
 {
 	public class PgnTagEditor : Control
 	{
+
+		public static readonly DependencyProperty IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", typeof(bool),
+			typeof(PgnTagEditor), new PropertyMetadata(false));
+
 		static PgnTagEditor()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(PgnTagEditor), new FrameworkPropertyMetadata(typeof(PgnTagEditor)));
+		}
+
+		public bool IsReadOnly
+		{
+			get => (bool)GetValue(IsReadOnlyProperty);
+			set => SetValue(IsReadOnlyProperty, value);
 		}
 
 		private TextBox NewTag { get; set; } = DefaultControls.TextBox;
